@@ -4,12 +4,16 @@ import Home from '@/components/Home'
 
 Vue.use(Router)
 
-export default new Router({
-  routes: [
-    {
-      path: '/',
-      name: 'Home',
-      component: Home
-    }
-  ]
+const AppRoutes = {
+  Home: {
+    path: '/',
+    name: 'Home',
+    component: Home
+  }
+}
+
+const AppRouter = new Router({
+  routes: Object.values(AppRoutes)
 })
+
+export default {AppRouter, AppRoutes}
