@@ -12,8 +12,13 @@ const AppRoutes = {
   }
 }
 
-const AppRouter = new Router({
+export const AppRouter = new Router({
   routes: Object.values(AppRoutes)
 })
 
-export default {AppRouter, AppRoutes}
+AppRouter.beforeEach((to, from, next) => {
+  document.title = `Yukon: ${to.name}`
+  next()
+})
+
+export default AppRoutes

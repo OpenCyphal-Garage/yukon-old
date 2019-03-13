@@ -2,8 +2,16 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import App from './App'
-import AppRouter from './router'
+import {AppRouter} from './router'
+
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
+import BootstrapVue from 'bootstrap-vue'
+
 import configureAxios from './api/AxiosConfig'
+
+Vue.use(BootstrapVue)
+
 configureAxios()
 
 Vue.config.productionTip = false
@@ -11,7 +19,7 @@ Vue.config.productionTip = false
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
-  AppRouter,
+  router: AppRouter,
   components: { App },
   template: '<App/>'
 })
