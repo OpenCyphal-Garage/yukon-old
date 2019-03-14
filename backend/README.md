@@ -6,10 +6,13 @@
 
 ## Build Setup // Generated
 
+Python 3.7 at least required
+
 ``` bash
 # install dependencies
-todo
+pip install quart
+pip install requests
 
 # run server
-todo
+python app.py
 ```
