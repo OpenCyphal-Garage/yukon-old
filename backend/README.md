@@ -11,6 +11,7 @@ Python 3.7 at least required
 ``` bash
 # install dependencies
 pip install quart
+pip install quart_cors
 pip install requests
 
 # run server

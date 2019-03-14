@@ -1,9 +1,11 @@
 from quart import Quart, jsonify, render_template
+from quart_cors import cors
 import requests
 
 app = Quart(__name__,
             static_folder='../frontend/dist/static',
             template_folder='../frontend/dist')
+app = cors(app)
 
 @app.route('/api/v1/nodes', methods=['GET'])
 async def list_of_nodes():

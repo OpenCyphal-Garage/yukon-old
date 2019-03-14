@@ -1,6 +1,6 @@
+const ApiBaseUrl = process.env.API_URL
 const BasePrefix = '/api'
 
-const ApiBaseUrl = process.env.API_URL
 const Base = ApiBaseUrl + BasePrefix + '/v1'
 const NodesBase = Base + '/nodes'
 

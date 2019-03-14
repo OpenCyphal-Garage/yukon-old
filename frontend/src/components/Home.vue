@@ -72,8 +72,8 @@
 </template>
 
 <script>
-// import axios from 'axios'
-// import ApiRoutes from '../api/ApiRoutes'
+import axios from 'axios'
+import ApiRoutes from '../api/ApiRoutes'
 
 export default {
   name: 'Home',
@@ -164,19 +164,19 @@ export default {
       this.sortWay = this.sortWays.none.name
     },
     refreshData () {
-      // this.error = ''
-      // this.loading = true
+      this.error = ''
+      this.loading = true
 
-      // axios
-      //   .get(ApiRoutes.Nodes.GetAll)
-      //   .then(response => {
-      //     this.nodes = response.data
-      //     this.loading = false
-      //   })
-      //   .catch(e => {
-      //     this.error = e
-      //     this.loading = false
-      //   })
+      axios
+        .get(ApiRoutes.Nodes.GetAll)
+        .then(response => {
+          this.nodes = response.data
+          this.loading = false
+        })
+        .catch(e => {
+          this.error = e
+          this.loading = false
+        })
     }
   }
 }

@@ -16,6 +16,7 @@ npm run build
 cd ../backend
 # install dependencies
 pip install quart
+pip install quart_cors
 pip install requests
 
 # run server
