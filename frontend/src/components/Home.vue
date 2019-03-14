@@ -29,7 +29,6 @@
       <button type="button" class="btn btn-secondary" @click="clearControls()">Clear</button>
     </div>
 
-
     <!-- Nodes List -->
     <div class="row">
       <h2 class="pull-left">Nodes List</h2>
@@ -185,17 +184,5 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
-.up {
-  color: green;
-}
 
-.copyable:hover {
-  text-decoration: underline;
-  cursor: pointer;
-  z-index: 2;
-}
-
-.clickable:hover {
-  cursor: pointer;
-}
 </style>
