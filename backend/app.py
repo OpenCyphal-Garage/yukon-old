@@ -1,6 +1,5 @@
 from quart import Quart, jsonify, render_template
 from quart_cors import cors
-import requests
 
 app = Quart(__name__,
             static_folder='../frontend/dist/static',
@@ -10,10 +9,11 @@ app = cors(app)
 @app.route('/api/v1/nodes', methods=['GET'])
 async def list_of_nodes():
     class NodeGetAllEntryResponse(object):
-        def __init__(self, name, id, status, uptime, vendorCode):
+        def __init__(self, name, id, health, mode, uptime, vendorCode):
             self.name = name
             self.id = id
-            self.status = status
+            self.health = health
+            self.mode = mode
             self.uptime = uptime
             self.vendorCode = vendorCode
 
@@ -21,15 +21,18 @@ async def list_of_nodes():
             return {
                 'name': self.name,
                 'id': self.id,
-                'status': self.status,
+                'health': self.health,
+                'mode': self.mode,
                 'uptime': self.uptime,
                 'vendorCode': self.vendorCode
             }
 
     mockResponses = [
-        NodeGetAllEntryResponse('node_0', 1, 'UP', 200, '990'),
-        NodeGetAllEntryResponse('node_1', 2, 'UP', 444, '30'),
-        NodeGetAllEntryResponse('xxx_5', 123, 'UP', 10000, '999')
+        NodeGetAllEntryResponse('node_0', 1, 'OK', 'OPERATIONAL', 200, '990'),
+        NodeGetAllEntryResponse('node_1', 2, 'WARNING', 'INITIALISATION', 444, '30'),
+        NodeGetAllEntryResponse('xxx_5', 123, 'ERROR', 'MAINTAINANCE', 10000, '999'),
+        NodeGetAllEntryResponse('zzz_3', 6, 'CRITICAL', 'SOFTWARE_UPDATE', 5, '990'),
+        NodeGetAllEntryResponse('aa_4', 7, 'OK', 'OFFLINE', -1, '990')
     ]
 
     return jsonify([e.serialise() for e in mockResponses])

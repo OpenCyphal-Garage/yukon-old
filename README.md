@@ -15,9 +15,7 @@ npm run build
 #install backend 
 cd ../backend
 # install dependencies
-pip install quart
-pip install quart_cors
-pip install requests
+pip install todo
 
 # run server
 python app.py

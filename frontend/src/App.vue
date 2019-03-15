@@ -12,5 +12,4 @@ export default {
 
 <style>
   @import './assets/styles/core.css';
-  @import './assets/styles/nodeStatus.css';
 </style>

@@ -156,13 +156,14 @@ export default {
   computed: {
     processedNodes: function () {
       let filtered = this.nodes
+      const lowerFilter = this.filter.toLowerCase()
 
       if (this.filter && this.filter !== '') {
         console.log('Filtering on: ' + this.filter)
 
         filtered = filtered.filter(x =>
-          x.name.includes(this.filter) || x.name.match(this.filter) ||
-          x.health.includes(this.filter) || x.mode.includes(this.filter))
+          x.name.toLowerCase().includes(lowerFilter) || x.name.match(this.filter) ||
+          x.health.toLowerCase().includes(lowerFilter) || x.mode.toLowerCase().includes(lowerFilter))
         filtered.sort((a, b) => a.name.indexOf(this.filter) - b.name.indexOf(this.filter))
       }
 
@@ -198,6 +199,7 @@ export default {
   },
   methods: {
     copyToClipboard (text) {
+      // Create an element with position -9999 px, focus it's content, copy the content, remove it
       const el = document.createElement('textarea')
       el.value = text
       el.setAttribute('readonly', '')
@@ -233,4 +235,8 @@ export default {
 
 <style scoped>
   @import '../assets/styles/nodeStatus.css';
+
+  td, th {
+    text-align: left;
+  }
 </style>
