@@ -1,0 +1,37 @@
+/* Abstract Node Health */
+.ok {
+    color: green;
+}
+
+.warning {
+    color: darkorange;
+}
+
+.error {
+    color: red;
+}
+
+.critical {
+    color: purple;
+}
+
+/* Abstract Node Mode */
+.operational {
+    color: green;
+}
+
+.initialisation {
+    color: gray;
+}
+
+.maintainance {
+    color: lightseagreen;
+}
+
+.software_update {
+    color: gray;
+}
+
+.offline {
+    color: black;
+}

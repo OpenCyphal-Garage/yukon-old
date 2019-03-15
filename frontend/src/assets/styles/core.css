@@ -7,10 +7,6 @@
   margin-top: 60px;
 }
 
-.up {
-  color: green;
-}
-
 .copyable:hover {
   text-decoration: underline;
   cursor: pointer;

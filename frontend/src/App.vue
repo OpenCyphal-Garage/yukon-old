@@ -11,5 +11,6 @@ export default {
 </script>
 
 <style>
-  @import './assets/styles/core.css'
+  @import './assets/styles/core.css';
+  @import './assets/styles/nodeStatus.css';
 </style>
