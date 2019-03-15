@@ -1,5 +1,9 @@
-// For authoring Nightwatch tests, see
-// http://nightwatchjs.org/guide#usage
+/*
+ * Copyright (C) 2019 UAVCAN Development Team  <uavcan.org>
+ * This software is distributed under the terms of the MIT License.
+ *
+ * Author: Theodoros Ntakouris <zarkopafilis@gmail.com>
+ */
 
 module.exports = {
   'default e2e tests': function (browser) {

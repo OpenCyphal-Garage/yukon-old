@@ -1,15 +1,25 @@
+#!/usr/bin/env python3
+#
+# Copyright (C) 2019 UAVCAN Development Team  <uavcan.org>
+# This software is distributed under the terms of the MIT License.
+#
+# Author: Theodoros Ntakouris <zarkopafilis@gmail.com>
+#
+
 from quart import Quart, jsonify, render_template
 from quart_cors import cors
+from typing import Any, Dict
 
 app = Quart(__name__,
-            static_folder='../frontend/dist/static',
-            template_folder='../frontend/dist')
+            static_folder='../../frontend/dist/static',
+            template_folder='../../frontend/dist')
 app = cors(app)
 
+
 @app.route('/api/v1/nodes', methods=['GET'])
-async def list_of_nodes():
+async def list_of_nodes() -> Any:
     class NodeGetAllEntryResponse(object):
-        def __init__(self, name, id, health, mode, uptime, vendorCode):
+        def __init__(self, name: str, id: int, health: str, mode: str, uptime: int, vendorCode: str) -> None:
             self.name = name
             self.id = id
             self.health = health
@@ -17,7 +27,7 @@ async def list_of_nodes():
             self.uptime = uptime
             self.vendorCode = vendorCode
 
-        def serialise(self):
+        def serialise(self) -> Dict[str, Any]:
             return {
                 'name': self.name,
                 'id': self.id,
@@ -37,10 +47,11 @@ async def list_of_nodes():
 
     return jsonify([e.serialise() for e in mockResponses])
 
+
 # Sink all undeclared routes so that vue can work with router properly
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
-async def catch_all(path):
+async def catch_all(path: str) -> str:
     return await render_template('index.html')
 
 app.run(port=5000)

@@ -1,3 +1,10 @@
+<!--
+ * Copyright (C) 2019 UAVCAN Development Team  <uavcan.org>
+ * This software is distributed under the terms of the MIT License.
+ *
+ * Author: Theodoros Ntakouris <zarkopafilis@gmail.com>
+ -->
+ 
 <template>
   <div>
     <!-- Controls -->
@@ -11,7 +18,7 @@
       </div>
 
       <div class="form-group mr-2">
-        <label for="sortAttribute">Sort On:</label>
+        <label for="sortAttribute">Sort on:</label>
 
         <select v-model="sortAttribute" id="sortAttribute">
           <option v-for="s in sortAttributes" :key="s">{{ s }}</option>
@@ -19,7 +26,7 @@
       </div>
 
       <div class="form-group mr-4">
-        <label for="sortWay"> With Order: </label>
+        <label for="sortWay"> With order: </label>
 
         <select v-model="sortWay" id="sortWay">
           <option v-for="s in sortWays" :key="s.name">{{ s.name }}</option>
@@ -31,7 +38,7 @@
 
     <!-- Nodes List -->
     <div class="row">
-      <h2 class="pull-left">Online Nodes List</h2>
+      <h2 class="pull-left">Online Nodes</h2>
 
       <div v-if="!loading" class="table table-striped">
         <thead>
