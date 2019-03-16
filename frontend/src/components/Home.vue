@@ -9,18 +9,18 @@
   <div>
     <!-- Controls -->
     <div class="row">
-      <h2 class="pull-left">Filters</h2>
+      <h2 class="pull-left" id="textFilter">Filters</h2>
     </div>
 
     <div class="row align-items-baseline">
       <div class="btn-group col-3 pl-0 mr-2 align-items-baseline">
-        <input v-model="filter" class="form-control" type="text" placeholder="Filter" aria-label="Search">
+        <input v-model="filter" ref="textFilter" class="form-control" type="text" placeholder="Filter" aria-label="Search">
       </div>
 
       <div class="form-group mr-2">
         <label for="sortAttribute">Sort on:</label>
 
-        <select v-model="sortAttribute" id="sortAttribute">
+        <select v-model="sortAttribute" ref="sortAttribute">
           <option v-for="s in sortAttributes" :key="s">{{ s }}</option>
         </select>
       </div>
@@ -28,7 +28,7 @@
       <div class="form-group mr-4">
         <label for="sortWay"> With order: </label>
 
-        <select v-model="sortWay" id="sortWay">
+        <select v-model="sortWay" ref="sortWay">
           <option v-for="s in sortWays" :key="s.name">{{ s.name }}</option>
         </select>
       </div>
@@ -50,7 +50,7 @@
           <th>vendor</th>
         </thead>
 
-        <tbody>
+        <tbody ref="nodeListTableBody">
           <tr v-for="(node) in processedNodes" :key="node.id">
             <td class="copyable" @click="copyToClipboard(node.id)"
                 title="Click to copy">{{ node.id }}</td>
@@ -121,7 +121,7 @@ export default {
           vendorCode: '990'
         },
         {
-          name: 'aa_4',
+          name: 'aa',
           id: '7',
           health: 'OK',
           mode: 'OFFLINE',
@@ -166,10 +166,8 @@ export default {
       const lowerFilter = this.filter.toLowerCase()
 
       if (this.filter && this.filter !== '') {
-        console.log('Filtering on: ' + this.filter)
-
         filtered = filtered.filter(x =>
-          x.name.toLowerCase().includes(lowerFilter) || x.name.match(this.filter) ||
+          x.name.toLowerCase().includes(lowerFilter) || x.name.match(this.filter) || x.id.match(this.filter) ||
           x.health.toLowerCase().includes(lowerFilter) || x.mode.toLowerCase().includes(lowerFilter))
         filtered.sort((a, b) => a.name.indexOf(this.filter) - b.name.indexOf(this.filter))
       }
@@ -197,7 +195,6 @@ export default {
         }
       }
 
-      console.log(JSON.stringify(filtered))
       return filtered
     }
   },
