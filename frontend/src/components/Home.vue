@@ -87,48 +87,7 @@ export default {
     return {
       msg: 'Welcome to Yukon',
       loading: false,
-      nodes: [
-        {
-          name: 'bnode_0',
-          id: '9999',
-          health: 'OK',
-          mode: 'OPERATIONAL',
-          uptime: 200,
-          vendorCode: '000'
-        },
-        {
-          name: 'anode_1',
-          id: '1000',
-          health: 'WARNING',
-          mode: 'INITIALISATION',
-          uptime: 500,
-          vendorCode: '020'
-        },
-        {
-          name: 'xxx_2',
-          id: '5',
-          health: 'ERROR',
-          mode: 'MAINTAINANCE',
-          uptime: 20,
-          vendorCode: '990'
-        },
-        {
-          name: 'zzz_3',
-          id: '6',
-          health: 'CRITICAL',
-          mode: 'SOFTWARE_UPDATE',
-          uptime: 20,
-          vendorCode: '990'
-        },
-        {
-          name: 'aa',
-          id: '7',
-          health: 'OK',
-          mode: 'OFFLINE',
-          uptime: 20,
-          vendorCode: '990'
-        }
-      ],
+      nodes: [],
       error: '',
       filter: '',
       sortAttribute: 'None',
@@ -218,20 +177,18 @@ export default {
       this.filter = ''
       this.sortWay = this.sortWays.none.name
     },
-    refreshData () {
+    async refreshData () {
       this.error = ''
       this.loading = true
 
-      axios
-        .get(ApiRoutes.Nodes.GetAll)
-        .then(response => {
-          this.nodes = response.data
-          this.loading = false
-        })
-        .catch(e => {
-          this.error = e
-          this.loading = false
-        })
+      try {
+        const response = await axios.get(ApiRoutes.Nodes.GetAll)
+        this.nodes = response.data
+      } catch (e) {
+        this.error = e
+      }
+
+      this.loading = false
     }
   }
 }
