@@ -138,7 +138,7 @@ export default {
       }
 
       if (this.sortAttribute !== 'None' && this.sortAttribute !== 'health' && this.sortAttribute !== 'mode') {
-        if (['id', 'uptime'].includes(this.sortAttribute)) {
+        if (['id', 'uptime', 'vendorCode'].includes(this.sortAttribute)) {
           filtered.sort((a, b) => a[this.sortAttribute] - b[this.sortAttribute])
         } else {
           // eslint-disable-next-line
