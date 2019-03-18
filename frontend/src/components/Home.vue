@@ -112,7 +112,7 @@ export default {
       },
       mode: {
         OPERATIONAL: 0,
-        INITIALISATION: 1,
+        INITIALIZATION: 1,
         MAINTAINANCE: 2,
         SOFTWARE_UPDATE: 3,
         OFFLINE: 4

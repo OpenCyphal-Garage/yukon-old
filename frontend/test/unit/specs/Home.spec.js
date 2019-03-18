@@ -26,7 +26,7 @@ jest.mock('axios', () => {
           name: 'anode_1',
           id: '1000',
           health: 'WARNING',
-          mode: 'INITIALISATION',
+          mode: 'INITIALIZATION',
           uptime: 500,
           vendorCode: '020'
         },
