@@ -39,7 +39,7 @@ async def list_of_nodes() -> Any:
 
     mockResponses = [
         NodeGetAllEntryResponse('node_0', 1, 'OK', 'OPERATIONAL', 200, '990'),
-        NodeGetAllEntryResponse('node_1', 2, 'WARNING', 'INITIALISATION', 444, '30'),
+        NodeGetAllEntryResponse('node_1', 2, 'WARNING', 'INITIALIZATION', 444, '30'),
         NodeGetAllEntryResponse('xxx_5', 123, 'ERROR', 'MAINTAINANCE', 10000, '999'),
         NodeGetAllEntryResponse('zzz_3', 6, 'CRITICAL', 'SOFTWARE_UPDATE', 5, '990'),
         NodeGetAllEntryResponse('aa_4', 7, 'OK', 'OFFLINE', -1, '990')
