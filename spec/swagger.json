@@ -1,0 +1,80 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "Rest API interface of pyuavcan",
+    "version" : "1.0.0",
+    "title" : "Yukon",
+    "contact" : {
+      "email" : "zarkopafilis@gmail.com"
+    },
+    "license" : {
+      "name" : "MIT License",
+      "url" : "https://github.com/UAVCAN/Yukon/blob/master/LICENSE"
+    }
+  },
+  "host" : "virtserver.swaggerhub.com",
+  "basePath" : "/Zarkopafilis/Yukon/1.0.0",
+  "schemes" : [ "https", "http" ],
+  "paths" : {
+    "/nodes" : {
+      "get" : {
+        "summary" : "Queries the list of nodes on the bus",
+        "operationId" : "nodeList",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "list of nodes",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/NodeListEntryResponse"
+              }
+            }
+          },
+          "404" : {
+            "description" : "UAVCAN bus not found"
+          }
+        }
+      }
+    }
+  },
+  "definitions" : {
+    "NodeHealth" : {
+      "type" : "string",
+      "enum" : [ "OK", "WARNING", "ERROR", "CRITICAL" ]
+    },
+    "NodeMode" : {
+      "type" : "string",
+      "enum" : [ "OPERATIONAL", "INITIALIZATION", "MAINTAINANCE", "SOFTWARE_UPDATE", "OFFLINE" ]
+    },
+    "NodeListEntryResponse" : {
+      "type" : "object",
+      "required" : [ "health", "id", "mode", "name", "uptime", "vendorCode" ],
+      "properties" : {
+        "id" : {
+          "type" : "integer",
+          "example" : 0
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "node_0"
+        },
+        "health" : {
+          "$ref" : "#/definitions/NodeHealth"
+        },
+        "mode" : {
+          "$ref" : "#/definitions/NodeMode"
+        },
+        "uptime" : {
+          "type" : "integer",
+          "example" : 10
+        },
+        "vendorCode" : {
+          "type" : "string",
+          "example" : "00000"
+        }
+      }
+    }
+  }
+}
