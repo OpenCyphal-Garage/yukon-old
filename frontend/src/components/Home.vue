@@ -4,7 +4,7 @@
  *
  * Author: Theodoros Ntakouris <zarkopafilis@gmail.com>
  -->
- 
+
 <template>
   <div>
     <!-- Controls -->
