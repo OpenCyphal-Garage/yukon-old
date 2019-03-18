@@ -37,10 +37,12 @@
     </div>
 
     <!-- Nodes List -->
-    <div class="row">
-      <h2 class="pull-left">Online Nodes</h2>
+    <h2 class="row">Online Nodes</h2>
 
-      <div v-if="!loading" class="table table-striped">
+    <div class="row">
+      <p v-if="error == '' && !loading && processedNodes.length == 0">No nodes found</p>
+
+      <div v-if="!loading && processedNodes.length > 0" class="table table-striped">
         <thead>
           <th>id</th>
           <th>name</th>
@@ -67,11 +69,11 @@
       </div>
     </div>
 
-    <div v-if="loading && nodes.length == 0" class="row">
-      <p class="text-center">Loading...</p>
+    <div v-if="loading && error.length != 0" class="row justify-content-center">
+      <Spinner></Spinner>
     </div>
 
-    <div v-if="!loading && error.length != 0" class="row">
+    <div  class="row">
       <p class="text-center" style="color: red;">{{ error }}</p>
     </div>
   </div>
@@ -80,9 +82,13 @@
 <script>
 import axios from 'axios'
 import ApiRoutes from '../api/ApiRoutes'
+import Spinner from './Spinner'
 
 export default {
   name: 'Home',
+  components: {
+    Spinner
+  },
   data () {
     return {
       msg: 'Welcome to Yukon',
@@ -126,7 +132,7 @@ export default {
 
       if (this.filter && this.filter !== '') {
         filtered = filtered.filter(x =>
-          x.name.toLowerCase().includes(lowerFilter) || x.name.match(this.filter) || x.id.match(this.filter) ||
+          x.name.toLowerCase().includes(lowerFilter) || x.name.match(this.filter) || (x.id + '').match(this.filter) ||
           x.health.toLowerCase().includes(lowerFilter) || x.mode.toLowerCase().includes(lowerFilter))
         filtered.sort((a, b) => a.name.indexOf(this.filter) - b.name.indexOf(this.filter))
       }

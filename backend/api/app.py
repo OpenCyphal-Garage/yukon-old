@@ -32,4 +32,5 @@ app.register_blueprint(nodes_controller, url_prefix=api_prefix + '/nodes')
 async def catch_all(path: str) -> str:
     return await render_template('index.html')
 
-app.run(port=5000)
+if __name__ == "__main__":
+    app.run(port=5000)
