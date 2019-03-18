@@ -71,8 +71,8 @@
           "example" : 10
         },
         "vendorCode" : {
-          "type" : "string",
-          "example" : "00000"
+          "type" : "integer",
+          "example" : 0
         }
       }
     }
