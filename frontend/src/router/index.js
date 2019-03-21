@@ -15,8 +15,7 @@ const AppRoutes = {
     path: '/nodes/:nodeId',
     name: 'Node Details',
     component: NodeInfoPage,
-    props: true,
-    of: nodeId => '/nodes/' + nodeId
+    props: true
   }
 }
 

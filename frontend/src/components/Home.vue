@@ -10,7 +10,10 @@
     <!-- Controls -->
     <div class="row">
       <h2 class="pull-left" id="textFilter">Filters</h2>
+<<<<<<< HEAD
           <p @click="viewNodeDetails('0123')"> To random node Id</p>
+=======
+>>>>>>> 05128e58e1429b500db0c421d0b4c9a18ff6086e
     </div>
 
     <div class="row align-items-baseline">
@@ -45,6 +48,7 @@
 
       <div v-if="!loading && processedNodes.length > 0" class="table table-striped">
         <thead>
+<<<<<<< HEAD
           <th :class="{'font-weight-bold': sortAttribute==='id'}">id</th>
           <th :class="{'font-weight-bold': sortAttribute==='name'}">name</th>
           <th :class="{'font-weight-bold': sortAttribute==='mode'}">mode</th>
@@ -57,6 +61,22 @@
           <tr v-for="(node) in processedNodes" :key="node.id" @click="viewNodeDetails(node.id)">
             <td><CopyableText v-bind:text="node.id"></CopyableText></td>
             <td><CopyableText v-bind:text="node.name"></CopyableText></td>
+=======
+          <th>id</th>
+          <th>name</th>
+          <th>mode</th>
+          <th>health</th>
+          <th>uptime</th>
+          <th>vendor</th>
+        </thead>
+
+        <tbody ref="nodeListTableBody">
+          <tr v-for="(node) in processedNodes" :key="node.id">
+            <td class="copyable" @click="copyToClipboard(node.id)"
+                title="Click to copy">{{ node.id }}</td>
+            <td class="copyable col" @click="copyToClipboard(node.name)"
+                title="Click to copy">{{ node.name }}</td>
+>>>>>>> 05128e58e1429b500db0c421d0b4c9a18ff6086e
 
             <td :class="node.mode.toLowerCase()">{{ node.mode.toUpperCase() }}</td>
             <td :class="node.health.toLowerCase()">{{ node.health.toUpperCase() }}</td>
@@ -81,15 +101,23 @@
 <script>
 import axios from 'axios'
 import ApiRoutes from '../api/ApiRoutes'
+<<<<<<< HEAD
 import AppRoutes from '../router'
 import Spinner from './Spinner'
 import CopyableText from './CopyableText'
+=======
+import Spinner from './Spinner'
+>>>>>>> 05128e58e1429b500db0c421d0b4c9a18ff6086e
 
 export default {
   name: 'Home',
   components: {
+<<<<<<< HEAD
     Spinner,
     CopyableText
+=======
+    Spinner
+>>>>>>> 05128e58e1429b500db0c421d0b4c9a18ff6086e
   },
   data () {
     return {
@@ -169,6 +197,20 @@ export default {
     this.refreshData()
   },
   methods: {
+<<<<<<< HEAD
+=======
+    copyToClipboard (text) {
+      // Create an element with position -9999 px, focus it's content, copy the content, remove it
+      const el = document.createElement('textarea')
+      el.value = text
+      el.setAttribute('readonly', '')
+      el.style = {position: 'absolute', left: '-9999px'}
+      document.body.appendChild(el)
+      el.select()
+      document.execCommand('copy')
+      document.body.removeChild(el)
+    },
+>>>>>>> 05128e58e1429b500db0c421d0b4c9a18ff6086e
     clearControls () {
       this.sortAttribute = 'None'
       this.filter = ''
@@ -186,17 +228,28 @@ export default {
       }
 
       this.loading = false
+<<<<<<< HEAD
     },
     viewNodeDetails (nodeId) {
       this.$router.push({
         name: AppRoutes.NodeDetails.name,
         params: { nodeId: nodeId }
       })
+=======
+>>>>>>> 05128e58e1429b500db0c421d0b4c9a18ff6086e
     }
   }
 }
 </script>
 
 <style scoped>
+<<<<<<< HEAD
 
+=======
+  @import '../assets/styles/nodeStatus.css';
+
+  td, th {
+    text-align: left;
+  }
+>>>>>>> 05128e58e1429b500db0c421d0b4c9a18ff6086e
 </style>

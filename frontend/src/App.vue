@@ -19,5 +19,8 @@ export default {
 
 <style>
   @import './assets/styles/core.css';
+<<<<<<< HEAD
   @import './assets/styles/nodeStatus.css';
+=======
+>>>>>>> 05128e58e1429b500db0c421d0b4c9a18ff6086e
 </style>
