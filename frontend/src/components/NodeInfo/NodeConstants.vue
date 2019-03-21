@@ -8,7 +8,7 @@
 <template>
   <div :class="{'subtle-border' : !loading}">
     <div class="node-constants fit-border">
-      <div class="row d-flex flex-row d-flex flex-row d-flex flex-row">
+      <div class="row d-flex flex-row">
           <p class="mr-2">ID:</p>
           <CopyableText v-bind:text='nodeInfo.id' class="mr-5"></CopyableText>
 
@@ -56,11 +56,11 @@
     </div>
     <!-- /Data -->
 
-    <div v-if='loading && error.length != 0' class="row d-flex flex-row justify-content-center fit-border">
+    <div v-if="loading && error.length != 0" class="row d-flex flex-row justify-content-center fit-border">
       <Spinner></Spinner>
     </div>
 
-    <div class="row d-flex flex-row fit-border">
+    <div v-if="error!==''" class="row d-flex flex-row fit-border mt-2">
       <p class="text-center" style="color: red;">{{ error }}</p>
     </div>
   </div>
@@ -120,8 +120,5 @@ export default {
 </script>
 
 <style scoped>
-.fit-border {
-  margin-top: 12px;
-  margin-left: 22px;
-}
+
 </style>

@@ -7,18 +7,18 @@
 
 <template>
   <div>
-      <div class="row pl-0">
-        <h2 class="pull-left pl-0">Node Info</h2>
+      <div class="row">
+        <h2 class="pull-left ml-3">Node Info</h2>
       </div>
       <NodeConstants v-bind:nodeId="_nodeId"></NodeConstants>
 
       <div class="row">
-        <h2 class="pull-left">Controls</h2>
+        <h2 class="pull-left ml-3">Controls</h2>
       </div>
       <NodeControls v-bind:nodeId="_nodeId"></NodeControls>
 
       <div class="row">
-        <h2 class="pull-left">Configuration Parameters</h2>
+        <h2 class="pull-left ml-3">Configuration Parameters</h2>
       </div>
       <NodeConfigParams v-bind:nodeId="_nodeId"></NodeConfigParams>
   </div>

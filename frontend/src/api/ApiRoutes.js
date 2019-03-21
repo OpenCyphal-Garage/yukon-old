@@ -16,6 +16,8 @@ const ApiRoutes = {
   Nodes: {
     GetAll: NodesBase,
     GetDetailsById: nodeId => NodesBase + '/' + nodeId,
+    ShutdownById: nodeId => NodesBase + '/' + nodeId + '/shutdown',
+    StartFirmwareUpdateById: nodeId => NodesBase + '/' + nodeId + '/firmwareupdate',
     GetParametersById: nodeId => NodesBase + '/' + nodeId + '/parameters',
     UpdateParameterById: (nodeId, param) => NodesBase + '/' + nodeId + '/parameters/' + param
   }

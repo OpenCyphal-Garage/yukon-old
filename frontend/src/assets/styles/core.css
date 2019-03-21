@@ -32,4 +32,11 @@ td, th {
   border: 1px solid;
   border-radius: 5px;
   border-color: #c9c7c7;
+  margin-bottom: 12px;
+}
+
+.fit-border {
+  margin-top: 6px;
+  margin-bottom: 6px;
+  margin-left: 22px;
 }
