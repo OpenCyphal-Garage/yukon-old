@@ -1,0 +1,5 @@
+# Development-only dependencies (not required to use the library)
+pytest ~= 3.3
+coverage ~= 4.5
+mypy >= 0.670
+pycodestyle >= 2.5

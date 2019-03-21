@@ -1,0 +1,25 @@
+/*
+ * Copyright (C) 2019 UAVCAN Development Team  <uavcan.org>
+ * This software is distributed under the terms of the MIT License.
+ *
+ * Author: Theodoros Ntakouris <zarkopafilis@gmail.com>
+ */
+ 
+#app {
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+}
+
+.copyable:hover {
+  text-decoration: underline;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.clickable:hover {
+  cursor: pointer;
+}

@@ -6,17 +6,24 @@
  -->
 
 <template>
-  <div id="app" class="container">
-  <router-view/>
+  <div class="spinner">
+      <fingerprint-spinner
+        :animation-duration="1500"
+        :size="60"
+        :color="'#3366ff'" />
   </div>
 </template>
 
 <script>
+import {FingerprintSpinner} from 'epic-spinners'
 export default {
-  name: 'App'
+  name: 'Spinner',
+  components: {
+    FingerprintSpinner
+  }
 }
 </script>
 
 <style>
-  @import './assets/styles/core.css';
+
 </style>

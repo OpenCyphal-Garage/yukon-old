@@ -6,10 +6,9 @@
 
 ## Build Setup // Generated
 
-``` bash
-# install dependencies
-todo
+Python 3.7 at least required
 
+``` bash
 # run server
-todo
+python app.py
 ```
