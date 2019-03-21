@@ -10,6 +10,7 @@
     <!-- Controls -->
     <div class="row">
       <h2 class="pull-left" id="textFilter">Filters</h2>
+          <p @click="viewNodeDetails('0123')"> To random node Id</p>
     </div>
 
     <div class="row align-items-baseline">
@@ -44,20 +45,18 @@
 
       <div v-if="!loading && processedNodes.length > 0" class="table table-striped">
         <thead>
-          <th>id</th>
-          <th>name</th>
-          <th>mode</th>
-          <th>health</th>
-          <th>uptime</th>
-          <th>vendor</th>
+          <th :class="{'font-weight-bold': sortAttribute==='id'}">id</th>
+          <th :class="{'font-weight-bold': sortAttribute==='name'}">name</th>
+          <th :class="{'font-weight-bold': sortAttribute==='mode'}">mode</th>
+          <th :class="{'font-weight-bold': sortAttribute==='health'}">health</th>
+          <th :class="{'font-weight-bold': sortAttribute==='uptime'}">uptime</th>
+          <th :class="{'font-weight-bold': sortAttribute==='vendor'}">vendor</th>
         </thead>
 
         <tbody ref="nodeListTableBody">
-          <tr v-for="(node) in processedNodes" :key="node.id">
-            <td class="copyable" @click="copyToClipboard(node.id)"
-                title="Click to copy">{{ node.id }}</td>
-            <td class="copyable col" @click="copyToClipboard(node.name)"
-                title="Click to copy">{{ node.name }}</td>
+          <tr v-for="(node) in processedNodes" :key="node.id" @click="viewNodeDetails(node.id)">
+            <td><CopyableText v-bind:text="node.id"></CopyableText></td>
+            <td><CopyableText v-bind:text="node.name"></CopyableText></td>
 
             <td :class="node.mode.toLowerCase()">{{ node.mode.toUpperCase() }}</td>
             <td :class="node.health.toLowerCase()">{{ node.health.toUpperCase() }}</td>
@@ -82,12 +81,15 @@
 <script>
 import axios from 'axios'
 import ApiRoutes from '../api/ApiRoutes'
+import AppRoutes from '../router'
 import Spinner from './Spinner'
+import CopyableText from './CopyableText'
 
 export default {
   name: 'Home',
   components: {
-    Spinner
+    Spinner,
+    CopyableText
   },
   data () {
     return {
@@ -167,17 +169,6 @@ export default {
     this.refreshData()
   },
   methods: {
-    copyToClipboard (text) {
-      // Create an element with position -9999 px, focus it's content, copy the content, remove it
-      const el = document.createElement('textarea')
-      el.value = text
-      el.setAttribute('readonly', '')
-      el.style = {position: 'absolute', left: '-9999px'}
-      document.body.appendChild(el)
-      el.select()
-      document.execCommand('copy')
-      document.body.removeChild(el)
-    },
     clearControls () {
       this.sortAttribute = 'None'
       this.filter = ''
@@ -195,15 +186,17 @@ export default {
       }
 
       this.loading = false
+    },
+    viewNodeDetails (nodeId) {
+      this.$router.push({
+        name: AppRoutes.NodeDetails.name,
+        params: { nodeId: nodeId }
+      })
     }
   }
 }
 </script>
 
 <style scoped>
-  @import '../assets/styles/nodeStatus.css';
 
-  td, th {
-    text-align: left;
-  }
 </style>

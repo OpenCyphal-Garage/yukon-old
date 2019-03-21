@@ -34,3 +34,58 @@ async def list_of_nodes() -> Any:
     ]
 
     return jsonify([e.serialise() for e in mock_responses])
+
+
+@nodes_controller.route('/<nodeId>', methods=['GET'])
+async def node_details(nodeId) -> Any:
+    class NodeGetDetailsResponse(object):
+        def __init__(self, name: str, id: int, health: str, mode: str, uptime: int, vendor_code: int,
+                     software_version: str, crc: str, hardware_version: str, uid: str, authenticity: str) -> None:
+            self.name = name
+            self.id = id
+            self.health = health
+            self.mode = mode
+            self.uptime = uptime
+            self.vendor_code = vendor_code
+            self.software_version = software_version
+            self.crc = crc
+            self.hardware_version = hardware_version
+            self.uid = uid
+            self.authenticity = authenticity
+
+        def serialise(self) -> Dict[str, Any]:
+            return {
+                'name': self.name,
+                'id': self.id,
+                'health': self.health,
+                'mode': self.mode,
+                'uptime': self.uptime,
+                'vendorCode': self.vendor_code
+                'softwareVersion': self.softwareVersion,
+                'crc': self.crc,
+                'hardware_version': self.hardware_version,
+                'uid': self.uid,
+                'authenticity': self.authenticity
+            }
+
+    mock_responses = NodeGetDetailsResponse('node_0', 1, 'OK', 'OPERATIONAL', 200,
+                                            990, '4.3.2.1', '0xTOOMUCHBEEF', '1.2.3.4', 'my-awesome-uid', 'I am authentic')
+
+    return jsonify(mock_response.serialise())
+
+
+@nodes_controller.route('/<nodeId>/parameters', methods=['GET'])
+async def node_details(nodeId) -> Any:
+    class NodeParametersResponse(object):
+        def __init__(self) -> None:
+            pass
+
+        def serialise(self) -> None:
+            pass
+
+    return jsonify('OK')
+
+
+@nodes_controller.route('/<nodeId>/parameters/<param>', methods=['POST'])
+async def node_details(nodeId, param) -> Any:
+    return jsonify('OK')

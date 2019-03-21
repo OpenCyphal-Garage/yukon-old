@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/components/Home'
+import NodeInfoPage from '@/components/NodeInfo/NodeInfoPage'
 
 Vue.use(Router)
 
@@ -9,6 +10,13 @@ const AppRoutes = {
     path: '/',
     name: 'Home',
     component: Home
+  },
+  NodeDetails: {
+    path: '/nodes/:nodeId',
+    name: 'Node Details',
+    component: NodeInfoPage,
+    props: true,
+    of: nodeId => '/nodes/' + nodeId
   }
 }
 

@@ -15,7 +15,9 @@ const ApiRoutes = {
   ApiBaseUrl: ApiBaseUrl,
   Nodes: {
     GetAll: NodesBase,
-    GetById: nodeId => NodesBase + '/' + nodeId
+    GetDetailsById: nodeId => NodesBase + '/' + nodeId,
+    GetParametersById: nodeId => NodesBase + '/' + nodeId + '/parameters',
+    UpdateParameterById: (nodeId, param) => NodesBase + '/' + nodeId + '/parameters/' + param
   }
 }
 

@@ -6,18 +6,16 @@
  -->
 
 <template>
-  <div id="app" class="container">
-  <router-view/>
+  <div>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'App'
+  name: 'NodeConfigParams'
 }
 </script>
 
 <style>
-  @import './assets/styles/core.css';
-  @import './assets/styles/nodeStatus.css';
+
 </style>
