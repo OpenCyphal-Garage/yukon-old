@@ -14,10 +14,19 @@
   },
   "host" : "virtserver.swaggerhub.com",
   "basePath" : "/Zarkopafilis/Yukon/1.0.0",
+  "tags" : [ {
+    "name" : "nodes"
+  }, {
+    "name" : "commands"
+  }, {
+    "name" : "config",
+    "description" : "Yukon and pyuavcan debug node configuration"
+  } ],
   "schemes" : [ "https", "http" ],
   "paths" : {
     "/nodes" : {
       "get" : {
+        "tags" : [ "nodes" ],
         "summary" : "Queries the list of nodes on the bus",
         "operationId" : "nodeList",
         "produces" : [ "application/json" ],
@@ -34,6 +43,152 @@
           },
           "404" : {
             "description" : "UAVCAN bus not found"
+          }
+        }
+      }
+    },
+    "/nodes/{nodeId}" : {
+      "get" : {
+        "tags" : [ "nodes" ],
+        "summary" : "Queries immutable node details information",
+        "operationId" : "nodeDetailsById",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "nodeId",
+          "in" : "path",
+          "required" : true,
+          "type" : "integer"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Selected node's information",
+            "schema" : {
+              "$ref" : "#/definitions/NodeDetailsByIdResponse"
+            }
+          },
+          "404" : {
+            "description" : "Selected node id not found on the bus or node timed out UAVCAN NodeInfo query"
+          }
+        }
+      }
+    },
+    "/nodes/{nodeId}/shutdown" : {
+      "post" : {
+        "tags" : [ "nodes", "commands" ],
+        "summary" : "Instructs selected node to shut down",
+        "operationId" : "nodeShutdownById",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "nodeId",
+          "in" : "path",
+          "required" : true,
+          "type" : "integer"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Node started shutting down sucessfully"
+          },
+          "404" : {
+            "description" : "Selected node id not found on the bus or node timed out UAVCAN shutdown command"
+          }
+        }
+      }
+    },
+    "/nodes/{nodeId}/firmwareupdate" : {
+      "post" : {
+        "tags" : [ "nodes", "commands" ],
+        "summary" : "Instructs selected node to start a firmware update",
+        "operationId" : "nodeFirmwareUpdateById",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "nodeId",
+          "in" : "path",
+          "required" : true,
+          "type" : "integer"
+        }, {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/StartNodeFirmwareUpdateByIdRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Node started firmware update sucessfully"
+          },
+          "400" : {
+            "description" : "Bad request",
+            "schema" : {
+              "type" : "string"
+            }
+          },
+          "404" : {
+            "description" : "Selected node id not found on the bus or node timed out UAVCAN shutdown command"
+          }
+        }
+      }
+    },
+    "/nodes/{nodeId}/parameters/" : {
+      "get" : {
+        "tags" : [ "nodes" ],
+        "summary" : "Queries changeable node parameters",
+        "operationId" : "getNodeParametersById",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "nodeId",
+          "in" : "path",
+          "description" : "ID of node to query",
+          "required" : true,
+          "type" : "integer"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Selected node's available parameters",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/GetNodeParametersByIdResponse"
+              }
+            }
+          },
+          "404" : {
+            "description" : "Selected node id not found on the bus"
+          }
+        }
+      }
+    },
+    "/nodes/{nodeId}/parameters/{param}" : {
+      "put" : {
+        "tags" : [ "nodes", "commands" ],
+        "summary" : "Update selected node's parameter by name",
+        "operationId" : "updateNodeParameterById",
+        "parameters" : [ {
+          "name" : "nodeId",
+          "in" : "path",
+          "description" : "ID of node to query",
+          "required" : true,
+          "type" : "integer"
+        }, {
+          "name" : "param",
+          "in" : "path",
+          "description" : "Parameter name to change",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/UpdateNodeParameterByIdRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Parameter update message delivered sucessfully"
+          },
+          "404" : {
+            "description" : "Selected node id not found on the bus"
           }
         }
       }
@@ -73,6 +228,91 @@
         "vendorCode" : {
           "type" : "integer",
           "example" : 0
+        }
+      }
+    },
+    "NodeDetailsByIdResponse" : {
+      "type" : "object",
+      "required" : [ "authenticity", "crc", "hardwareVersion", "health", "id", "mode", "name", "softwareVersion", "uid", "uptime", "vendorCode" ],
+      "properties" : {
+        "id" : {
+          "type" : "integer",
+          "example" : 0
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "node_0"
+        },
+        "health" : {
+          "$ref" : "#/definitions/NodeHealth"
+        },
+        "mode" : {
+          "$ref" : "#/definitions/NodeMode"
+        },
+        "uptime" : {
+          "type" : "integer",
+          "example" : 10
+        },
+        "vendorCode" : {
+          "type" : "integer",
+          "example" : 0
+        },
+        "softwareVersion" : {
+          "type" : "string",
+          "example" : "4.3.2.1"
+        },
+        "crc" : {
+          "type" : "string",
+          "example" : "0xBEEFALOT"
+        },
+        "hardwareVersion" : {
+          "type" : "string",
+          "example" : "0.1.2.3"
+        },
+        "uid" : {
+          "type" : "string",
+          "example" : "my-uid-is-amazing"
+        },
+        "authenticity" : {
+          "type" : "string",
+          "example" : "I AM LEGIT 0x0987"
+        }
+      }
+    },
+    "GetNodeParametersByIdResponse" : {
+      "type" : "object",
+      "required" : [ "index", "name" ],
+      "properties" : {
+        "index" : {
+          "type" : "integer",
+          "example" : 0
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "uavcan.mock.velocity"
+        }
+      }
+    },
+    "UpdateNodeParameterByIdRequest" : {
+      "type" : "object",
+      "required" : [ "name", "value" ],
+      "properties" : {
+        "name" : {
+          "type" : "string",
+          "example" : "uavcan.mock.velocity"
+        },
+        "value" : {
+          "type" : "object",
+          "properties" : { }
+        }
+      }
+    },
+    "StartNodeFirmwareUpdateByIdRequest" : {
+      "type" : "object",
+      "properties" : {
+        "name" : {
+          "type" : "string",
+          "example" : "firmware_file_name.hex"
         }
       }
     }
