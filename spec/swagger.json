@@ -203,6 +203,19 @@
       "type" : "string",
       "enum" : [ "OPERATIONAL", "INITIALIZATION", "MAINTAINANCE", "SOFTWARE_UPDATE", "OFFLINE" ]
     },
+    "ParameterTypeHint" : {
+      "type" : "string",
+      "enum" : [ "boolean", "integer", "real", "string" ]
+    },
+    "ParameterTypeValue" : {
+      "allOf" : [ {
+        "type" : "integer"
+      }, {
+        "type" : "string"
+      }, {
+        "type" : "boolean"
+      } ]
+    },
     "NodeListEntryResponse" : {
       "type" : "object",
       "required" : [ "health", "id", "mode", "name", "uptime", "vendorCode" ],
@@ -281,29 +294,35 @@
     },
     "GetNodeParametersByIdResponse" : {
       "type" : "object",
-      "required" : [ "index", "name" ],
+      "required" : [ "default", "name", "type", "value" ],
       "properties" : {
-        "index" : {
-          "type" : "integer",
-          "example" : 0
-        },
         "name" : {
           "type" : "string",
-          "example" : "uavcan.mock.velocity"
+          "example" : "gnss.uart_on"
+        },
+        "type" : {
+          "$ref" : "#/definitions/ParameterTypeHint"
+        },
+        "value" : {
+          "$ref" : "#/definitions/ParameterTypeValue"
+        },
+        "default" : {
+          "$ref" : "#/definitions/ParameterTypeValue"
+        },
+        "min" : {
+          "$ref" : "#/definitions/ParameterTypeValue"
+        },
+        "max" : {
+          "$ref" : "#/definitions/ParameterTypeValue"
         }
       }
     },
     "UpdateNodeParameterByIdRequest" : {
       "type" : "object",
-      "required" : [ "name", "value" ],
+      "required" : [ "value" ],
       "properties" : {
-        "name" : {
-          "type" : "string",
-          "example" : "uavcan.mock.velocity"
-        },
         "value" : {
-          "type" : "object",
-          "properties" : { }
+          "$ref" : "#/definitions/ParameterTypeValue"
         }
       }
     },
