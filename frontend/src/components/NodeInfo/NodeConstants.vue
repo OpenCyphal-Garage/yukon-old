@@ -7,49 +7,49 @@
 
 <template>
   <div :class="{'subtle-border' : !loading}">
-    <div class="node-constants fit-border">
+    <div class="node-constants fit-border pl-2 pt-2">
       <div class="row d-flex flex-row">
-          <p class="mr-2">ID:</p>
+          <p class="mr-2 key">ID:</p>
           <CopyableText v-bind:text='nodeInfo.id' class="mr-5"></CopyableText>
 
-          <p class="mr-2">Name:</p>
+          <p class="mr-2 key">Name:</p>
           <CopyableText v-bind:text='nodeInfo.name'></CopyableText>
       </div>
 
       <div class="row d-flex flex-row">
-          <p class="mr-2">Mode:</p>
+          <p class="mr-2 key">Mode:</p>
           <p :class='nodeInfo.mode.toLowerCase()' class="mr-5">{{ nodeInfo.mode }}</p>
 
-          <p class="mr-2">Health:</p>
+          <p class="mr-2 key">Health:</p>
           <p :class='nodeInfo.health.toLowerCase()' class="mr-5">{{ nodeInfo.health }}</p>
 
-          <p class="mr-2">Uptime:</p>
+          <p class="mr-2 key">Uptime:</p>
           <p class="mr-5">{{ nodeInfo.uptime }}</p>
       </div>
 
       <div class="row d-flex flex-row">
-          <p class="mr-2">Vendor Code:</p>
+          <p class="mr-2 key">Vendor Code:</p>
           <CopyableText v-bind:text='nodeInfo.vendorCode' class="mr-5"></CopyableText>
       </div>
 
       <div class="row d-flex flex-row">
-          <p class="mr-2">Software Version:</p>
+          <p class="mr-2 key">Software Version:</p>
           <p class="mr-5">{{ nodeInfo.softwareVersion }}</p>
 
-          <p class="mr-2">CRC 64:</p>
+          <p class="mr-2 key">CRC 64:</p>
           <CopyableText v-bind:text='nodeInfo.crc' class="mr-5"></CopyableText>
       </div>
 
       <div class="row d-flex flex-row">
-          <p class="mr-2">Hardware Version:</p>
+          <p class="mr-2 key">Hardware Version:</p>
           <p class="mr-5">{{ nodeInfo.hardwareVersion }}</p>
 
-          <p class="mr-2">UID:</p>
+          <p class="mr-2 key">UID:</p>
           <CopyableText v-bind:text='nodeInfo.uid' class="mr-5"></CopyableText>
       </div>
 
       <div class="row d-flex flex-row">
-          <p class="mr-2">Certificate of authenticity:</p>
+          <p class="mr-2 key">Certificate of authenticity:</p>
           <CopyableText v-bind:text='nodeInfo.authenticity' class="mr-5"></CopyableText>
       </div>
 
@@ -120,5 +120,10 @@ export default {
 </script>
 
 <style scoped>
-
+.flex-row {
+  align-items: flex-start;
+}
+.key {
+  font-weight: bold;
+}
 </style>

@@ -18,7 +18,7 @@
       <NodeControls v-bind:nodeId="_nodeId"></NodeControls>
 
       <div class="row">
-        <h2 class="pull-left ml-3">Configuration Parameters</h2>
+        <h2 class="pull-left ml-3">Configurable Parameters</h2>
       </div>
       <NodeConfigParams v-bind:nodeId="_nodeId"></NodeConfigParams>
   </div>

@@ -38,14 +38,15 @@
     <div class="row">
       <p v-if="error == '' && !loading && processedNodes.length == 0">No nodes found</p>
 
-      <div v-if="!loading && processedNodes.length > 0" class="table table-striped">
+      <div v-if="!loading && processedNodes.length > 0" class="table-responsive">
+        <table class="table table-striped">
         <thead>
-          <th :class="{'font-weight-bold': sortAttribute==='id'}">id</th>
-          <th :class="{'font-weight-bold': sortAttribute==='name'}">name</th>
-          <th :class="{'font-weight-bold': sortAttribute==='mode'}">mode</th>
-          <th :class="{'font-weight-bold': sortAttribute==='health'}">health</th>
-          <th :class="{'font-weight-bold': sortAttribute==='uptime'}">uptime</th>
-          <th :class="{'font-weight-bold': sortAttribute==='vendor'}">vendor</th>
+          <th>id</th>
+          <th>name</th>
+          <th>mode</th>
+          <th>health</th>
+          <th>uptime</th>
+          <th>vendor</th>
         </thead>
 
         <tbody ref="nodeListTableBody">
@@ -60,6 +61,7 @@
             <td>{{ node.vendorCode }}</td>
           </tr>
         </tbody>
+      </table>
       </div>
     </div>
 
@@ -90,16 +92,7 @@ export default {
     return {
       msg: 'Welcome to Yukon',
       loading: false,
-      nodes: [
-        {
-          name: 'bnode_0',
-          id: '9999',
-          health: 'OK',
-          mode: 'OPERATIONAL',
-          uptime: 200,
-          vendorCode: '000'
-        }
-      ],
+      nodes: [],
       error: '',
       filter: '',
       sortAttribute: 'None',
@@ -201,11 +194,6 @@ export default {
 }
 </script>
 
-<style scoped>
-tr {
-  z-index: 1;
-}
-td {
-  z-index: 2;
-}
+<style>
+
 </style>

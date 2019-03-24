@@ -28,6 +28,19 @@ td, th {
   text-align: left;
 }
 
+tr {
+  z-index: 1;
+}
+
+tr:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+td {
+  z-index: 2;
+}
+
 .subtle-border {
   border: 1px solid;
   border-radius: 5px;
@@ -39,4 +52,5 @@ td, th {
   margin-top: 6px;
   margin-bottom: 6px;
   margin-left: 22px;
+  margin-right: 22px;
 }
