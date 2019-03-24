@@ -8,8 +8,8 @@
 <template>
   <div>
     <div id="navBar">
-      <a class="ml-2" @click="goHome">Home</a>
-      <a class="ml-3" @click="goBack">Back</a>
+      <a class="ml-2" @click="goHome" ref="homeButton">Home</a>
+      <a class="ml-3" @click="goBack" ref="backButton">Back</a>
     </div>
     <div id="app" class="container">
     <router-view/>

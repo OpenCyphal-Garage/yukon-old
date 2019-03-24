@@ -9,6 +9,7 @@ import Home from '@/components/Home'
 import { mount } from '@vue/test-utils'
 import axios from 'axios'
 import flushPromises from 'flush-promises'
+import ApiRoutes from '@/api/ApiRoutes'
 
 jest.mock('axios', () => {
   return {
@@ -60,12 +61,14 @@ jest.mock('axios', () => {
 
 describe('Home.vue', () => {
   it('should render correct contents with filtering', async () => {
-
     var wrapper = mount(Home)
+    const viewNodeDetails = jest.fn()
+    wrapper.setMethods({ viewNodeDetails })
 
     await flushPromises()
 
     expect(axios.get).toHaveBeenCalledTimes(1)
+    expect(axios.get).toHaveBeenCalledWith(ApiRoutes.Nodes.GetAll)
 
     expect(wrapper.find({ ref: 'nodeListTableBody' }).findAll('tr').length).toEqual(5)
 
@@ -157,5 +160,15 @@ describe('Home.vue', () => {
     expect(wrapper.vm.processedNodes.length).toEqual(4)
     expect(wrapper.vm.processedNodes[0].id).toEqual('9999')
     expect(wrapper.vm.processedNodes[1].id).toEqual('1000')
+
+    // - clear filter controls
+    wrapper.vm.clearControls()
+    expect(wrapper.vm.filter).toEqual('')
+    expect(wrapper.vm.sortAttribute).toEqual('None')
+    expect(wrapper.vm.sortWay).toEqual('None')
+
+    // - navigate to node details page component
+    wrapper.find({ ref: 'nodeListTableBody' }).find('tr').trigger('click')
+    expect(viewNodeDetails).toBeCalledWith('9999')
   })
 })

@@ -8,11 +8,6 @@
 <template>
   <div>
     <!-- Controls -->
-    <div class="row">
-      <h2 class="pull-left" id="textFilter">Filters</h2>
-          <p @click="viewNodeDetails('0123')"> To random node Id</p>
-    </div>
-
     <div class="row align-items-baseline">
       <div class="btn-group col-3 pl-0 mr-2 align-items-baseline">
         <input v-model="filter" ref="textFilter" class="form-control" type="text" placeholder="Filter" aria-label="Search">
@@ -95,7 +90,16 @@ export default {
     return {
       msg: 'Welcome to Yukon',
       loading: false,
-      nodes: [],
+      nodes: [
+        {
+          name: 'bnode_0',
+          id: '9999',
+          health: 'OK',
+          mode: 'OPERATIONAL',
+          uptime: 200,
+          vendorCode: '000'
+        }
+      ],
       error: '',
       filter: '',
       sortAttribute: 'None',
@@ -198,4 +202,10 @@ export default {
 </script>
 
 <style scoped>
+tr {
+  z-index: 1;
+}
+td {
+  z-index: 2;
+}
 </style>

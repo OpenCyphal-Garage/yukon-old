@@ -9,8 +9,8 @@
   <div class="subtle-border">
     <div class="fit-border">
       <div class="row d-flex flex-row">
-        <button type="button" @click="shutdownNode" class="btn btn-danger mr-2">Shutdown</button>
-        <button type="button" @click="startFirmwareUpdate" class="btn btn-warning">Start firmware update</button>
+        <button type="button" @click="shutdownNode" class="btn btn-danger mr-2" ref="shutdownButton">Shutdown</button>
+        <button type="button" @click="startFirmwareUpdate" class="btn btn-warning" ref="startFirmwareUpdateButton">Start firmware update</button>
       </div>
 
       <div v-if="text!==''" class="row d-flex flex-row fit-border">
