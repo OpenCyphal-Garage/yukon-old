@@ -1,4 +1,4 @@
-from quart import Blueprint, jsonify
+from quart import Blueprint, jsonify, request
 from typing import Any, Dict
 
 nodes_controller = Blueprint('nodes', __name__)
@@ -37,20 +37,46 @@ async def list_of_nodes() -> Any:
 
 
 @nodes_controller.route('/<int:nodeId>/parameters', methods=['GET'])
-async def node_details(nodeId) -> Any:
+async def node_parameter_list(nodeId) -> Any:
     class NodeParametersResponse(object):
-        def __init__(self) -> None:
-            pass
+        def __init__(self, name: str, type_: str, value: Any, default: Any, min: Any = None, max: Any = None) -> None:
+            self.name = name
+            self.type = type_
+            self.value = value
+            self.default = default
+            self.min = min
+            self.max = max
 
-        def serialise(self) -> None:
-            pass
+        def serialise(self) -> Dict[str, Any]:
+            ret = {
+                'name': self.name,
+                'type': self.type.lower(),
+                'value': self.value,
+                'default': self.default,
+            }
 
-    return jsonify('OK')
+            if (self.value is str):
+                ret['value'] = self.value.lower()
+
+            if (self.min is not None):
+                ret['min'] = self.min
+
+            if (self.max is not None):
+                ret['max'] = self.max
+
+            return ret
+
+    mock_responses = [
+        NodeParametersResponse('gnss.uart_on', 'boolean', True, False, None, None),
+        NodeParametersResponse('gnss.somemetric', 'real', 0.445, 1.0, 0.0, 10.0)]
+
+    return jsonify([e.serialise() for e in mock_responses])
 
 
-@nodes_controller.route('/<int:nodeId>/parameters/<string:param>', methods=['POST'])
-async def node_details(nodeId, param) -> Any:
-    return jsonify('Param set: ' + param)
+@nodes_controller.route('/<int:nodeId>/parameters/<string:param>', methods=['PUT'])
+async def node_parameter_update(nodeId, param) -> Any:
+    body = await request.get_json()
+    return body['value'], 200
 
 
 @nodes_controller.route('/<int:nodeId>', methods=['GET'])
@@ -86,6 +112,18 @@ async def node_details(nodeId) -> Any:
             }
 
     mock_responses = NodeGetDetailsResponse('node_0', nodeId, 'OK', 'OPERATIONAL', 200,
-                                            990, '4.3.2.1', '0xTOOMUCHBEEF', '1.2.3.4', 'my-awesome-uid', 'I am authentic')
+                                            990, '4.3.2.1', '0xTOOMUCHBEEF', '1.2.3.4', 'my-awesome-uid',
+                                            'I am authentic')
 
     return jsonify(mock_response.serialise())
+
+
+@nodes_controller.route('/<int:nodeId>/shutdown', methods=['PUT'])
+async def node_shutdown(nodeId) -> Any:
+    return "", 200
+
+
+@nodes_controller.route('/<int:nodeId>/firmwareupdate', methods=['PUT'])
+async def node_firmware_update(nodeId, param) -> Any:
+    body = await request.get_json()
+    return body['name'], 200
