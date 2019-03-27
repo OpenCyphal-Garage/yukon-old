@@ -5,7 +5,7 @@
  * Author: Theodoros Ntakouris <zarkopafilis@gmail.com>
  */
 
-import NodeConfigParams from '@/components/NodeInfo/NodeConfigParams'
+import NodeRegisters from '@/components/NodeInfo/NodeRegisters'
 import {
   mount
 } from '@vue/test-utils'
@@ -48,9 +48,9 @@ jest.mock('axios', () => {
   }
 })
 
-describe('NodeConfigParams.vue', () => {
+describe('NodeRegisters.vue', () => {
   it('should render correct contents and call edit param on tr click', async () => {
-    var wrapper = mount(NodeConfigParams, {
+    var wrapper = mount(NodeRegisters, {
       propsData: {
         nodeId: 1234
       }

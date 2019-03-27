@@ -18,8 +18,8 @@ const ApiRoutes = {
     GetDetailsById: nodeId => NodesBase + '/' + nodeId,
     ShutdownById: nodeId => NodesBase + '/' + nodeId + '/shutdown',
     StartFirmwareUpdateById: nodeId => NodesBase + '/' + nodeId + '/firmwareupdate',
-    GetParametersById: nodeId => NodesBase + '/' + nodeId + '/parameters',
-    UpdateParameterById: (nodeId, param) => NodesBase + '/' + nodeId + '/parameters/' + param
+    GetRegistersByNodeId: nodeId => NodesBase + '/' + nodeId + '/registers',
+    UpdateRegisterByNameAndNodeId: (nodeId, param) => NodesBase + '/' + nodeId + '/registers/' + param
   }
 }
 

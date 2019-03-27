@@ -10,6 +10,8 @@
     <div id="navBar">
       <a class="ml-2" @click="goHome" ref="homeButton">Home</a>
       <a class="ml-3" @click="goBack" ref="backButton">Back</a>
+      <a class="ml-3" @click="goRegisterView" ref="globalRegisterViewButton">Global Register View</a>
+
     </div>
     <div id="app" class="container">
     <router-view/>
@@ -27,6 +29,9 @@ export default {
     },
     goHome () {
       this.$router.push(AppRoutes.Home)
+    },
+    goRegisterView () {
+      this.$router.push(AppRoutes.GlobalRegisterView)
     }
   }
 }

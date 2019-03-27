@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/components/Home'
 import NodeInfoPage from '@/components/NodeInfo/NodeInfoPage'
+import GlobalRegisterView from '@/components/GlobalRegisterView'
 
 Vue.use(Router)
 
@@ -16,6 +17,11 @@ const AppRoutes = {
     name: 'Node Details',
     component: NodeInfoPage,
     props: true
+  },
+  GlobalRegisterView: {
+    path: '/registers',
+    name: 'Global Register View',
+    component: GlobalRegisterView
   }
 }
 

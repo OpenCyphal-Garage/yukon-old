@@ -18,23 +18,23 @@
       <NodeControls v-bind:nodeId="_nodeId"></NodeControls>
 
       <div class="row">
-        <h2 class="pull-left ml-3">Configurable Parameters</h2>
+        <h2 class="pull-left ml-3">Registers</h2>
       </div>
-      <NodeConfigParams v-bind:nodeId="_nodeId"></NodeConfigParams>
+      <NodeRegisters v-bind:nodeId="_nodeId"></NodeRegisters>
   </div>
 </template>
 
 <script>
 import NodeConstants from './NodeConstants'
 import NodeControls from './NodeControls'
-import NodeConfigParams from './NodeConfigParams'
+import NodeRegisters from './NodeRegisters'
 
 export default {
   name: 'NodeInfoPage',
   components: {
     NodeConstants,
     NodeControls,
-    NodeConfigParams
+    NodeRegisters
   },
   props: ['nodeId'],
   data () {

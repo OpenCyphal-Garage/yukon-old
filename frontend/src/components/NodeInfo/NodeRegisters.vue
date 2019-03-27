@@ -59,7 +59,7 @@ import ApiRoutes from '../../api/ApiRoutes'
 import Spinner from '../Spinner'
 
 export default {
-  name: 'NodeConfigParams',
+  name: 'NodeRegisters',
   props: ['nodeId'],
   components: {
     Spinner
@@ -108,7 +108,7 @@ export default {
 
       try {
         const response = await axios.get(
-          ApiRoutes.Nodes.GetParametersById(this.nodeId)
+          ApiRoutes.Nodes.GetRegistersByNodeId(this.nodeId)
         )
         this.nodeInfo = response.data
       } catch (e) {
