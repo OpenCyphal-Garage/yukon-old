@@ -22,8 +22,8 @@
           <tr v-for="row in registerTableRows" :key="row.key">
 
             <td v-bind:style="{ 'padding-left': (12 + (row.indent * 15)) + 'px'}">
-              <div v-if="!row.leaf && !row.collapsed" style="display: inline;" class="clickable" @click="toggleCollapse(row.namePart)">&#8595;</div>
-              <div v-if="!row.leaf && row.collapsed" style="display: inline;" class="clickable" @click="toggleCollapse(row.namePart)">&#8594;</div>
+              <div v-if="!row.leaf && (collapsedRegisters[row.namePart] === undefined || !collapsedRegisters[row.namePart].should)" style="display: inline;" class="clickable" @click="toggleCollapse(row.namePart)">&#8595;</div>
+              <div v-if="!row.leaf && (collapsedRegisters[row.namePart] !== undefined && collapsedRegisters[row.namePart].should)" style="display: inline;" class="clickable" @click="toggleCollapse(row.namePart)">&#8594;</div>
 
                {{ row.name }}
             </td>
