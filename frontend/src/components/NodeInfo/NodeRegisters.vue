@@ -125,4 +125,8 @@ export default {
 </script>
 
 <style scoped>
+tr:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
 </style>

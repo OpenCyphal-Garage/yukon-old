@@ -4,14 +4,18 @@
  *
  * Author: Theodoros Ntakouris <zarkopafilis@gmail.com>
  */
- 
+
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  margin-top: 12px;
+}
+
+.container {
+  margin: 0;
 }
 
 .copyable:hover {
@@ -22,6 +26,7 @@
 
 .clickable:hover {
   cursor: pointer;
+  text-decoration: underline;
 }
 
 td, th {
@@ -30,11 +35,6 @@ td, th {
 
 tr {
   z-index: 1;
-}
-
-tr:hover {
-  cursor: pointer;
-  text-decoration: underline;
 }
 
 td {
