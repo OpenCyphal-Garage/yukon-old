@@ -7,12 +7,33 @@
 
 <template>
   <div>
-    <div id="navBar">
-      <a class="ml-2" @click="goHome" ref="homeButton">Home</a>
-      <a class="ml-3" @click="goBack" ref="backButton">Back</a>
-      <a class="ml-3" @click="goRegisterView" ref="globalRegisterViewButton">Global Register View</a>
+  <div>
+    <b-navbar>
+      <b-navbar-brand href="#" @click="goHome">
+         <img src="./assets/logo.svg" alt="Home" style="width: 100px;">
+      </b-navbar-brand>
 
-    </div>
+      <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+
+        <b-navbar-nav>
+          <b-nav-item @click="goBack" class="mr-4">Back</b-nav-item>
+
+          <b-nav-item v-for="route in navigationRouteOptions"
+            v-bind:key="route.name"
+            @click="goTo(route.path)">{{ route.name }}</b-nav-item>
+        </b-navbar-nav>
+
+        <div class="navbar-nav ml-auto">
+          <b-nav-item-dropdown text="Useful Links" right>
+            <b-dropdown-item href="https://new.uavcan.org/">UAVCAN</b-dropdown-item>
+            <b-dropdown-item href="https://new.uavcan.org/specification">Specification</b-dropdown-item>
+            <b-dropdown-item href="https://forum.uavcan.org/">Forums</b-dropdown-item>
+            <b-dropdown-item href="https://github.com/UAVCAN">Github</b-dropdown-item>
+          </b-nav-item-dropdown>
+        </div>
+    </b-navbar>
+  </div>
+
     <div id="app" class="container">
     <router-view/>
     </div>
@@ -23,6 +44,14 @@
 import AppRoutes from './router'
 export default {
   name: 'App',
+  data () {
+    return {
+      navigationRouteOptions: [AppRoutes.Home, AppRoutes.GlobalRegisterView]
+    }
+  },
+  mounted () {
+    console.log(JSON.stringify(this.navigationRouteOptions))
+  },
   methods: {
     goBack () {
       this.$router.back()
@@ -30,8 +59,8 @@ export default {
     goHome () {
       this.$router.push(AppRoutes.Home)
     },
-    goRegisterView () {
-      this.$router.push(AppRoutes.GlobalRegisterView)
+    goTo (routeName) {
+      this.$router.push(routeName)
     }
   }
 }
