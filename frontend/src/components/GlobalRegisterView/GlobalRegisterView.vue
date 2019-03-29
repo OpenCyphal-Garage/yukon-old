@@ -65,7 +65,12 @@
                {{ row.name }}
             </td>
 
-            <td v-for="(d, index) in row.data" :key="index"> {{ d }}</td>
+            <td v-for="(d, index) in row.data" :key="index"
+            >
+              <div v-if="d === undefined"> </div>
+              <div v-else v-bind:class="{ 'immutable': !d.mutable, 'persistent': d.persistent, 'mutable': d.mutable, 'volatile': !d.persistent }"
+              > {{ d.text }} </div>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -83,61 +88,81 @@ export default {
           nodeId: 0,
           nodeName: 'esc0',
           registerName: 'uavcan.a.b',
-          value: 'asdf'
+          value: 'asdf',
+          mutable: true,
+          persistent: true
         },
         {
           nodeId: 1,
           nodeName: 'esc1',
           registerName: 'uavcan.a.b',
-          value: 'ghjk'
+          value: 'ghjk',
+          mutable: false,
+          persistent: true
         },
         {
           nodeId: 2,
           nodeName: 'esc2',
           registerName: 'uavcan.a.b',
-          value: 'qwer'
+          value: 'qwer',
+          mutable: false,
+          persistent: false
         },
         {
           nodeId: 3,
           nodeName: 'esc3',
           registerName: 'uavcan.a.b',
-          value: 'tyui'
+          value: 'tyui',
+          mutable: true,
+          persistent: false
         },
         {
           nodeId: 0,
           nodeName: 'esc0',
           registerName: 'uavcan.a.something',
-          value: 0
+          value: 0,
+          mutable: true,
+          persistent: true
         },
         {
           nodeId: 0,
           nodeName: 'esc0',
           registerName: 'other.whatever',
-          value: [4, 7, 9]
+          value: [4, 7, 9],
+          mutable: false,
+          persistent: true
         },
         {
           nodeId: 4,
           nodeName: 'gps',
           registerName: 'uavcan.gps.a',
-          value: 1
+          value: 1,
+          mutable: false,
+          persistent: true
         },
         {
           nodeId: 4,
           nodeName: 'gps',
           registerName: 'uavcan.gps.b',
-          value: 2
+          value: 2,
+          mutable: false,
+          persistent: false
         },
         {
           nodeId: 4,
           nodeName: 'gps',
           registerName: 'other.whatever',
-          value: [0, 1, 2, 3]
+          value: [0, 1, 2, 3],
+          mutable: false,
+          persistent: true
         },
         {
           nodeId: 4,
           nodeName: 'gps',
           registerName: 'other.uart_on',
-          value: true
+          value: true,
+          mutable: false,
+          persistent: true
         }],
       nodeNameFilter: '',
       nodeIdFilter: '',
@@ -157,7 +182,9 @@ export default {
         }
 
         nodes[element.nodeName][element.registerName] = {
-          value: element.value
+          value: element.value,
+          mutable: element.mutable,
+          persistent: element.persistent
         }
       })
 
@@ -220,13 +247,18 @@ export default {
             let i = 0
             for (const [_, node] of Object.entries(self.nodeMap)) { // eslint-disable-line no-unused-vars
               const payload = node[leaf]
+              console.log(JSON.stringify(payload))
               if (payload !== undefined) {
-                rows[row].data[i++] = payload.value === undefined && payload.value != null ? '' : payload.value
+                rows[row].data[i++] = (payload.value === undefined && payload.value == null) ? { text: '' }
+                  : {
+                    text: payload.value,
+                    mutable: payload.mutable,
+                    persistent: payload.persistent
+                  }
               } else {
                 i++ // empty column -- padding (leaf nodes only)
               }
             }
-
             rows[row].register = leaf
             row++
           }
@@ -245,7 +277,6 @@ export default {
         const collapse = collapsedRegisters[row.namePart]
 
         if (collapse !== undefined && collapse.should) { // flagged as should-collapse
-          console.log(`collapsing: --- ${row.namePart}`)
           if (row.indent < targetIndent) { // if _not_ already collapsing from a lower indentation level
             targetIndent = row.indent // start collapsing from current indentaion level
           }

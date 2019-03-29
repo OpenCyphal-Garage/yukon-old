@@ -1,5 +1,5 @@
 .mutable {
-    color: blue;
+    color: blue !important;
     cursor: pointer;
     text-decoration: underline;
 }
@@ -13,5 +13,5 @@
 }
 
 .volatile {
-    color: red;
+    color: red !important;
 }
