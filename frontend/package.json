@@ -23,6 +23,7 @@
     "popper.js": "^1.14.7",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1",
+    "vue-truncate-filter": "^1.1.7",
     "vueify": "^9.4.1"
   },
   "devDependencies": {

@@ -6,7 +6,7 @@
  -->
 
 <template>
-  <div>
+  <div class="m-3">
     <!-- Controls -->
     <div class="row align-items-baseline">
       <div class="btn-group col-3 pl-0 mr-2 align-items-baseline">

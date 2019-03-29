@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/components/Home'
 import NodeInfoPage from '@/components/NodeInfo/NodeInfoPage'
-import GlobalRegisterView from '@/components/GlobalRegisterView'
+import GlobalRegisterView from '@/components/GlobalRegisterView/GlobalRegisterView'
 
 Vue.use(Router)
 

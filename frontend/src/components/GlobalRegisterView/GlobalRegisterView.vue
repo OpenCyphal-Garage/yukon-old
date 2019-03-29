@@ -7,29 +7,65 @@
 
 <template>
   <div>
+    <div class="subtle-border">
+      <div class="row ml-2 fit-border mb-0">
+        <h4>Legend</h4>
+      </div>
+      <div class="d-flex flex-row">
+          <div class="p-2 immutable">Immutable</div>
+          <div class="p-2 persistent">Persistent</div>
+          <div class="p-2 mutable">Mutable</div>
+          <div class="p-2 volatile">Volatile</div>
+      </div>
+    </div>
+
+    <div class="d-flex flex-row">
+      <h2 class="p-2 align-self-baseline">
+        Filters
+      </h2>
+
+      <div class="p-2">
+        <input v-model="registerNameFilter" class="form-control" type="text" placeholder="Register Name Filter" aria-label="Search">
+      </div>
+
+      <div class="p-2">
+        <input v-model="nodeNameFilter" class="form-control" type="text" placeholder="Node Name Filter" aria-label="Search">
+      </div>
+
+      <div class="p-2">
+        <input v-model="nodeIdFilter" class="form-control" type="text" placeholder="Node Id Filter" aria-label="Search">
+      </div>
+
+      <div class="p-2">
+        <button type="button" class="btn btn-secondary" @click="clearFilters()">Clear</button>
+      </div>
+    </div>
+
     <div class="table-responsive global-register-view">
       <table class="table table-striped table-bordered">
         <thead>
+          <th>full register name</th>
           <th>tree</th>
+
           <th v-for="node in nodeMap" :key="node.name">
             {{ node.name }}
           </th>
-
-          <th>full register name</th>
         </thead>
 
         <tbody>
           <tr v-for="row in registerTableRows" :key="row.key">
+            <td>{{ row.register === '' ? row.name + '.*' : row.register }}</td>
 
             <td v-bind:style="{ 'padding-left': (12 + (row.indent * 15)) + 'px'}">
-              <div v-if="!row.leaf && (collapsedRegisters[row.namePart] === undefined || !collapsedRegisters[row.namePart].should)" style="display: inline;" class="clickable" @click="toggleCollapse(row.namePart)">&#8595;</div>
-              <div v-if="!row.leaf && (collapsedRegisters[row.namePart] !== undefined && collapsedRegisters[row.namePart].should)" style="display: inline;" class="clickable" @click="toggleCollapse(row.namePart)">&#8594;</div>
+              <div v-if="!row.leaf && (collapsedRegisters[row.namePart] === undefined || !collapsedRegisters[row.namePart].should)"
+              style="display: inline;" class="clickable" @click="toggleCollapse(row.namePart)">&#8595;</div>
+              <div v-if="!row.leaf && (collapsedRegisters[row.namePart] !== undefined && collapsedRegisters[row.namePart].should)"
+              style="display: inline;" class="clickable" @click="toggleCollapse(row.namePart)">&#8594;</div>
 
                {{ row.name }}
             </td>
 
             <td v-for="(d, index) in row.data" :key="index"> {{ d }}</td>
-            <td>{{ row.register }}</td>
           </tr>
         </tbody>
       </table>
@@ -103,6 +139,9 @@ export default {
           registerName: 'other.uart_on',
           value: true
         }],
+      nodeNameFilter: '',
+      nodeIdFilter: '',
+      registerNameFilter: '',
       collapsedRegisters: {}
     }
   },
@@ -127,24 +166,29 @@ export default {
     registerRows: function () {
       const self = this
       let tree = {}
+      // filter based on node name and node id
       // construct registereter tree : leaf objects contain the full registereter name
-      this.registers.forEach(element => {
-        const registerNameParts = element.registerName.split('.')
-        const registerNameTreeBranches = registerNameParts.slice(0, -1)
+      this.registers
+        .filter(x => x.registerName.includes(this.registerNameFilter) || x.registerName.match(this.registerNameFilter))
+        .filter(x => x.nodeName.includes(this.nodeNameFilter) || x.nodeName.match(this.nodeNameFilter))
+        .filter(x => (x.nodeId + '').includes(this.nodeIdFilter) || (x.nodeId + '').match(this.nodeIdFilter))
+        .forEach(element => {
+          const registerNameParts = element.registerName.split('.')
+          const registerNameTreeBranches = registerNameParts.slice(0, -1)
 
-        // split on '.' (dots) and if the branch is non-existent, populate the tree
-        let pos = tree
-        registerNameTreeBranches.forEach(register => {
-          if (pos[register] === undefined) {
-            pos[register] = {}
-          }
+          // split on '.' (dots) and if the branch is non-existent, populate the tree
+          let pos = tree
+          registerNameTreeBranches.forEach(register => {
+            if (pos[register] === undefined) {
+              pos[register] = {}
+            }
 
-          pos = pos[register]
+            pos = pos[register]
+          })
+
+          // if it's a leaf node, add the full registerName as a string (not as an 'object')
+          pos[registerNameParts.slice(-1)[0]] = element.registerName
         })
-
-        // if it's a leaf node, add the full registerName as a string (not as an 'object')
-        pos[registerNameParts.slice(-1)[0]] = element.registerName
-      })
 
       const numberOfNodes = Object.keys(this.nodeMap).length // used to avoid extra allocations on the 2d array
 
@@ -213,16 +257,13 @@ export default {
         // if on a lower indent, reset target indent
         if (row.indent <= targetIndent) {
           targetIndent = 999
-          console.log(`reseting indent target: --- ${row.namePart}`)
         }
 
         const shouldCollapse = row.indent > targetIndent
-        console.log(`${row.namePart} -- Visibility: ${!shouldCollapse}`)
         return !shouldCollapse
       }
 
       const ret = rows.filter(collapseFilter)
-      console.log(`registerTableRows: ${JSON.stringify(ret)}`)
       return ret
     }
   },
@@ -237,12 +278,17 @@ export default {
 
       const current = this.collapsedRegisters[namePart].should
       this.collapsedRegisters[namePart].should = !current
-      this.collapsedRegisters = Object.assign({}, this.collapsedRegisters)
-      console.log(`toggle on: ${namePart} -- ${JSON.stringify(this.collapsedRegisters)}`)
+      this.collapsedRegisters = Object.assign({}, this.collapsedRegisters) // trigger watchers
+    },
+    clearFilters () {
+      this.registerNameFilter = ''
+      this.nodeNameFilter = ''
+      this.nodeIdFilter = ''
     }
   }
 }
 </script>
 
 <style scoped>
+@import '../../assets/styles/registers.css';
 </style>

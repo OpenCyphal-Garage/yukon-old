@@ -15,9 +15,11 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import BootstrapVue from 'bootstrap-vue'
 
+import VueTruncate from 'vue-truncate-filter'
 import configureAxios from './api/AxiosConfig'
 
 Vue.use(BootstrapVue)
+Vue.use(VueTruncate)
 
 configureAxios()
 

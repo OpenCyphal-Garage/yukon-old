@@ -1,0 +1,17 @@
+.mutable {
+    color: blue;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.immutable {
+    color: black;
+}
+
+.persistent {
+    color: black;
+}
+
+.volatile {
+    color: red;
+}
