@@ -42,7 +42,7 @@
     </div>
 
     <div class="table-responsive global-register-view">
-      <table class="table table-striped table-bordered">
+      <table class="table table-striped table-bordered table-sm">
         <thead>
           <th>full register name</th>
           <th>tree</th>

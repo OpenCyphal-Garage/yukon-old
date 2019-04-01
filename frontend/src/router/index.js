@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Home from '@/components/Home'
 import NodeInfoPage from '@/components/NodeInfo/NodeInfoPage'
 import GlobalRegisterView from '@/components/GlobalRegisterView/GlobalRegisterView'
+import Plotter from '@/components/Plotter/Plotter'
 
 Vue.use(Router)
 
@@ -22,6 +23,11 @@ const AppRoutes = {
     path: '/registers',
     name: 'Global Register View',
     component: GlobalRegisterView
+  },
+  Plotter: {
+    path: '/plotter',
+    name: 'Plotter',
+    component: Plotter
   }
 }
 

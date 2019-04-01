@@ -46,11 +46,8 @@ export default {
   name: 'App',
   data () {
     return {
-      navigationRouteOptions: [AppRoutes.Home, AppRoutes.GlobalRegisterView]
+      navigationRouteOptions: [AppRoutes.Home, AppRoutes.GlobalRegisterView, AppRoutes.Plotter]
     }
-  },
-  mounted () {
-    console.log(JSON.stringify(this.navigationRouteOptions))
   },
   methods: {
     goBack () {
