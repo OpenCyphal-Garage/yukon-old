@@ -9,6 +9,23 @@
   <div>
     <div class="subtle-border">
       <div class="row ml-2 fit-border mb-0">
+        <h4>Workset</h4>
+      </div>
+      <div class="ml-2">
+        <!-- For each register in the workset -->
+        <div class="row m-0 col-12" v-for="reg in Object.keys(workset)" :key="reg">
+          <h5 class="ml-1 col-12 text-left">{{ reg }}:</h5>
+          <!-- For node with that register -->
+          <div class="col-12 text-left ml-2" v-for="id in workset[reg]" :key="reg + ':' + id">
+              <h6 class="">Node{{ id }} -></h6>
+              <TypeValue class="ml-4" v-bind:val="valueOf(id, reg)" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subtle-border">
+      <div class="row ml-2 fit-border mb-0">
         <h4>Legend</h4>
       </div>
       <div class="d-flex flex-row">
@@ -79,16 +96,60 @@
 </template>
 
 <script>
+import TypeValue from '../Dsdl/TypeValue'
+
 export default {
   name: 'GlobalRegisterView',
+  components: {
+    TypeValue
+  },
   data () {
     return {
+      workset: {
+        'uavcan.a.b.1': {
+          nodeIds: [0]
+        }
+      },
+      typeInfo: {
+        'uavcan.a.b.1': {
+          _type: ['uavcan.a.b.1', 0],
+          version: [1, 0],
+          fields: {
+            foo: {
+              _type: ['uavcan.register.Value.1', 0]
+            },
+            bar: {
+              _type: 'saturated int32[<=123]'
+            }
+          }
+        },
+        'uavcan.register.Value.1': {
+          _type: ['uavcan.register.Value.1', 0],
+          version: [1, 0],
+          fields: {
+            first: {
+              _type: 'string'
+            },
+            second: {
+              _type: 'string'
+            }
+          }
+        }
+      },
       registers: [
         {
           nodeId: 0,
           nodeName: 'esc0',
-          registerName: 'uavcan.a.b',
-          value: 'asdf',
+          registerName: 'uavcan.a.b.1',
+          value: {
+            _type: ['uavcan.register.Access.Request.1', 0],
+            foo: {
+              _type: ['uavcan.register.Value.1', 0],
+              first: 'Zarko',
+              last: 'Pafilis'
+            },
+            bar: 123
+          },
           mutable: true,
           persistent: true
         },
@@ -247,7 +308,6 @@ export default {
             let i = 0
             for (const [_, node] of Object.entries(self.nodeMap)) { // eslint-disable-line no-unused-vars
               const payload = node[leaf]
-              console.log(JSON.stringify(payload))
               if (payload !== undefined) {
                 rows[row].data[i++] = (payload.value === undefined && payload.value == null) ? { text: '' }
                   : {
@@ -299,6 +359,11 @@ export default {
     }
   },
   methods: {
+    valueOf (nodeId, registerName) {
+      return this.registers.find(o => {
+        return o.nodeId === nodeId[0] && o.registerName === registerName
+      }).value
+    },
     toggleCollapse (namePart) {
       const currentState = this.collapsedRegisters[namePart]
       if (currentState === undefined) {
