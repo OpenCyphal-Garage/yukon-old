@@ -9,12 +9,12 @@
   <div class="ml-4 mb-0">
     <div :if="val !== undefined">
       <p class="mb-0">
-        {{ val._type[0] }}
+        {{ val._type_[0] }}
       </p>
       <div class="ml-2" v-for="k in keys" :key="k">
-        <TypeValue v-if="val[k]._type !== undefined" v-bind:val="val[k]"/>
+        <TypeValue v-if="val[k]._type_ !== undefined" v-bind:val="val[k]"/>
 
-        <p class="ml-2 mb-0" v-else-if="k !== '_type'">
+        <p class="ml-2 mb-0" v-else-if="k !== '_type_'">
           {{ "- " + k + ": " +val[k] }}
         </p>
       </div>

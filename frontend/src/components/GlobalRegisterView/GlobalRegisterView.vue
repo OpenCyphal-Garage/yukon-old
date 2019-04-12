@@ -64,8 +64,8 @@
           <th>full register name</th>
           <th>tree</th>
 
-          <th v-for="node in nodeMap" :key="node.name">
-            {{ node.name }}
+          <th v-for="node in Object.keys(nodeMap)" :key="node">
+            {{ node }}
           </th>
         </thead>
 
@@ -112,26 +112,26 @@ export default {
       },
       typeInfo: {
         'uavcan.a.b.1': {
-          _type: ['uavcan.a.b.1', 0],
+          _type_: ['uavcan.a.b.1', 0],
           version: [1, 0],
           fields: {
             foo: {
-              _type: ['uavcan.register.Value.1', 0]
+              type: ['uavcan.register.Value.1', 0]
             },
             bar: {
-              _type: 'saturated int32[<=123]'
+              type: 'saturated int32[<=123]'
             }
           }
         },
         'uavcan.register.Value.1': {
-          _type: ['uavcan.register.Value.1', 0],
+          _type_: ['uavcan.register.Value.1', 0],
           version: [1, 0],
           fields: {
             first: {
-              _type: 'string'
+              _type_: 'string'
             },
             second: {
-              _type: 'string'
+              _type_: 'string'
             }
           }
         }
@@ -142,9 +142,9 @@ export default {
           nodeName: 'esc0',
           registerName: 'uavcan.a.b.1',
           value: {
-            _type: ['uavcan.register.Access.Request.1', 0],
+            _type_: ['uavcan.register.Access.Request.1', 0],
             foo: {
-              _type: ['uavcan.register.Value.1', 0],
+              _type_: ['uavcan.register.Value.1', 0],
               first: 'Zarko',
               last: 'Pafilis'
             },
@@ -237,12 +237,28 @@ export default {
 
       this.registers.forEach(element => {
         if (nodes[element.nodeName] === undefined) {
-          nodes[element.nodeName] = {
-            name: element.nodeName
-          }
+          nodes[element.nodeName] = {}
         }
 
         nodes[element.nodeName][element.registerName] = {
+          value: element.value,
+          mutable: element.mutable,
+          persistent: element.persistent
+        }
+      })
+
+      return nodes
+    },
+    nodeMapById: function () {
+            let nodes = {}
+
+      this.registers.forEach(element => {
+        if (nodes[element.nodeId] === undefined) {
+          nodes[element.nodeId] = {}
+        }
+
+        nodes[element.nodeId][element.registerName] = {
+          name: element.nodeName
           value: element.value,
           mutable: element.mutable,
           persistent: element.persistent
