@@ -14,10 +14,10 @@
       <div class="ml-2">
         <!-- For each register in the workset -->
         <div class="row m-0 col-12" v-for="reg in Object.keys(workset)" :key="reg">
-          <h5 class="ml-1 col-12 text-left">{{ reg }}:</h5>
+          <h5 class="ml-1 col-12 text-left">~ {{ reg }}</h5>
           <!-- For node with that register -->
-          <div class="col-12 text-left ml-2" v-for="id in workset[reg]" :key="reg + ':' + id">
-              <h6 class="">Node{{ id }} -></h6>
+          <div class="col-12 text-left ml-2 pb-2" v-for="id in workset[reg]" :key="reg + ':' + id">
+              <h6 class="ml-2">- {{ nodeMapById[`${id}`].name + '[' + id + ']'}} -></h6>
               <TypeValue class="ml-4" v-bind:val="valueOf(id, reg)" />
           </div>
         </div>
@@ -112,11 +112,11 @@ export default {
       },
       typeInfo: {
         'uavcan.a.b.1': {
-          _type_: ['uavcan.a.b.1', 0],
+          _type_: ['uavcan.a.b', 1, 0],
           version: [1, 0],
           fields: {
             foo: {
-              type: ['uavcan.register.Value.1', 0]
+              type: ['uavcan.register.Value', 1, 0]
             },
             bar: {
               type: 'saturated int32[<=123]'
@@ -124,14 +124,14 @@ export default {
           }
         },
         'uavcan.register.Value.1': {
-          _type_: ['uavcan.register.Value.1', 0],
+          _type_: ['uavcan.register.Value', 1, 0],
           version: [1, 0],
           fields: {
             first: {
-              _type_: 'string'
+              type: 'string'
             },
             second: {
-              _type_: 'string'
+              type: 'string'
             }
           }
         }
@@ -142,9 +142,9 @@ export default {
           nodeName: 'esc0',
           registerName: 'uavcan.a.b.1',
           value: {
-            _type_: ['uavcan.register.Access.Request.1', 0],
+            _type_: ['uavcan.register.Access.Request', 1, 0],
             foo: {
-              _type_: ['uavcan.register.Value.1', 0],
+              _type_: ['uavcan.register.Value', 1, 0],
               first: 'Zarko',
               last: 'Pafilis'
             },
@@ -237,7 +237,9 @@ export default {
 
       this.registers.forEach(element => {
         if (nodes[element.nodeName] === undefined) {
-          nodes[element.nodeName] = {}
+          nodes[element.nodeName] = {
+            id: element.nodeId
+          }
         }
 
         nodes[element.nodeName][element.registerName] = {
@@ -250,20 +252,23 @@ export default {
       return nodes
     },
     nodeMapById: function () {
-            let nodes = {}
+      let nodes = {}
 
       this.registers.forEach(element => {
         if (nodes[element.nodeId] === undefined) {
-          nodes[element.nodeId] = {}
+          nodes[element.nodeId] = {
+            name: element.nodeName
+          }
         }
 
         nodes[element.nodeId][element.registerName] = {
-          name: element.nodeName
           value: element.value,
           mutable: element.mutable,
           persistent: element.persistent
         }
       })
+
+      console.log(JSON.stringify(nodes))
 
       return nodes
     },
@@ -376,9 +381,12 @@ export default {
   },
   methods: {
     valueOf (nodeId, registerName) {
-      return this.registers.find(o => {
-        return o.nodeId === nodeId[0] && o.registerName === registerName
-      }).value
+      const n = this.nodeMapById[nodeId]
+      if (n === undefined) {
+        return undefined
+      }
+
+      return n[registerName]
     },
     toggleCollapse (namePart) {
       const currentState = this.collapsedRegisters[namePart]
