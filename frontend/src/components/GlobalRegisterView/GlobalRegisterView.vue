@@ -16,11 +16,20 @@
         <div class="row m-0 col-12" v-for="reg in Object.keys(workset)" :key="reg">
           <h5 class="ml-1 col-12 text-left">~ {{ reg }}</h5>
           <!-- For node with that register -->
-          <div class="col-12 text-left ml-2 pb-2" v-for="id in workset[reg]" :key="reg + ':' + id">
+          <div class="col-12 text-left ml-2 pb-2" v-for="id in workset[reg].nodeIds" :key="reg + ':' + id">
               <h6 class="ml-2">- {{ nodeMapById[`${id}`].name + '[' + id + ']'}} -></h6>
               <TypeValue class="ml-4" v-bind:val="valueOf(id, reg)" />
           </div>
         </div>
+      </div>
+    </div>
+
+    <div class="subtle-border">
+      <div class="row ml-2 fit-border mb-0">
+        <h4>Register Edit</h4>
+      </div>
+      <div class="row m-0 col-12 text-left pb-2" v-if="Object.keys(workset).length > 0">
+          <TypeEditForm v-bind:type="firstKeyOf(workset).type"/>
       </div>
     </div>
 
@@ -97,43 +106,20 @@
 
 <script>
 import TypeValue from '../Dsdl/TypeValue'
+import TypeEditForm from '../Dsdl/TypeEditForm'
 
 export default {
   name: 'GlobalRegisterView',
   components: {
-    TypeValue
+    TypeValue,
+    TypeEditForm
   },
   data () {
     return {
       workset: {
         'uavcan.a.b.1': {
-          nodeIds: [0]
-        }
-      },
-      typeInfo: {
-        'uavcan.a.b.1': {
-          _type_: ['uavcan.a.b', 1, 0],
-          version: [1, 0],
-          fields: {
-            foo: {
-              type: ['uavcan.register.Value', 1, 0]
-            },
-            bar: {
-              type: 'saturated int32[<=123]'
-            }
-          }
-        },
-        'uavcan.register.Value.1': {
-          _type_: ['uavcan.register.Value', 1, 0],
-          version: [1, 0],
-          fields: {
-            first: {
-              type: 'string'
-            },
-            second: {
-              type: 'string'
-            }
-          }
+          nodeIds: [0],
+          type: 'uavcan.register.Access.Request'
         }
       },
       registers: [
@@ -268,8 +254,6 @@ export default {
         }
       })
 
-      console.log(JSON.stringify(nodes))
-
       return nodes
     },
     registerRows: function () {
@@ -332,7 +316,7 @@ export default {
               if (payload !== undefined) {
                 rows[row].data[i++] = (payload.value === undefined && payload.value == null) ? { text: '' }
                   : {
-                    text: payload.value,
+                    text: self.truncatedValueDisplayOf(payload.value),
                     mutable: payload.mutable,
                     persistent: payload.persistent
                   }
@@ -380,6 +364,9 @@ export default {
     }
   },
   methods: {
+    firstKeyOf (obj) {
+      return obj[Object.keys(obj)[0]]
+    },
     valueOf (nodeId, registerName) {
       const n = this.nodeMapById[nodeId]
       if (n === undefined) {
@@ -387,6 +374,9 @@ export default {
       }
 
       return n[registerName]
+    },
+    truncatedValueDisplayOf (val) {
+      return val // for now
     },
     toggleCollapse (namePart) {
       const currentState = this.collapsedRegisters[namePart]
