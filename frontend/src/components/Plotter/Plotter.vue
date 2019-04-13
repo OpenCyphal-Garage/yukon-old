@@ -9,7 +9,7 @@
   <div>
     <div class="d-flex flex-row">
       <h3 class="p-2 mr-3">
-        Data Targets
+        Subscriptions
       </h3>
 
       <div class="p-2">
@@ -54,7 +54,7 @@
 
     <div class="d-flex flex-row">
       <h3 class="p-2 mr-3 align-self-baseline">
-        Scalar Mapping
+        Value Extractors
       </h3>
 
       <div class="p-2">
