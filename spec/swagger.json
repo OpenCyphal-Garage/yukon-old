@@ -24,6 +24,31 @@
   } ],
   "schemes" : [ "https", "http" ],
   "paths" : {
+    "/types/{type}" : {
+      "get" : {
+        "tags" : [ "types" ],
+        "summary" : "Queries dsdl type information",
+        "operationId" : "typeInformationByName",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "type",
+          "in" : "path",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Type information",
+            "schema" : {
+              "$ref" : "#/definitions/DataTypeDefinition"
+            }
+          },
+          "404" : {
+            "description" : "Requested type not found"
+          }
+        }
+      }
+    },
     "/nodes" : {
       "get" : {
         "tags" : [ "nodes" ],
@@ -129,11 +154,11 @@
         }
       }
     },
-    "/nodes/{nodeId}/parameters/" : {
+    "/nodes/{nodeId}/registers/" : {
       "get" : {
         "tags" : [ "nodes" ],
-        "summary" : "Queries changeable node parameters",
-        "operationId" : "getNodeParametersById",
+        "summary" : "Queries changeable node registers",
+        "operationId" : "getNodeRegistersById",
         "produces" : [ "application/json" ],
         "parameters" : [ {
           "name" : "nodeId",
@@ -144,11 +169,11 @@
         } ],
         "responses" : {
           "200" : {
-            "description" : "Selected node's available parameters",
+            "description" : "Selected node's available registers",
             "schema" : {
               "type" : "array",
               "items" : {
-                "$ref" : "#/definitions/GetNodeParametersByIdResponse"
+                "$ref" : "#/definitions/GetNodeRegistersByIdResponse"
               }
             }
           },
@@ -158,11 +183,11 @@
         }
       }
     },
-    "/nodes/{nodeId}/parameters/{param}" : {
+    "/nodes/{nodeId}/registers/{reg}" : {
       "put" : {
         "tags" : [ "nodes", "commands" ],
-        "summary" : "Update selected node's parameter by name",
-        "operationId" : "updateNodeParameterById",
+        "summary" : "Update selected node's register by name",
+        "operationId" : "updateNodeRegisterById",
         "parameters" : [ {
           "name" : "nodeId",
           "in" : "path",
@@ -170,9 +195,9 @@
           "required" : true,
           "type" : "integer"
         }, {
-          "name" : "param",
+          "name" : "reg",
           "in" : "path",
-          "description" : "Parameter name to change",
+          "description" : "Register name to change",
           "required" : true,
           "type" : "string"
         }, {
@@ -180,12 +205,12 @@
           "name" : "body",
           "required" : true,
           "schema" : {
-            "$ref" : "#/definitions/UpdateNodeParameterByIdRequest"
+            "$ref" : "#/definitions/DataTypeValue"
           }
         } ],
         "responses" : {
           "200" : {
-            "description" : "Parameter update message delivered sucessfully"
+            "description" : "Register update message delivered sucessfully"
           },
           "404" : {
             "description" : "Selected node id not found on the bus"
@@ -202,19 +227,6 @@
     "NodeMode" : {
       "type" : "string",
       "enum" : [ "OPERATIONAL", "INITIALIZATION", "MAINTAINANCE", "SOFTWARE_UPDATE", "OFFLINE" ]
-    },
-    "ParameterTypeHint" : {
-      "type" : "string",
-      "enum" : [ "boolean", "integer", "real", "string" ]
-    },
-    "ParameterTypeValue" : {
-      "allOf" : [ {
-        "type" : "integer"
-      }, {
-        "type" : "string"
-      }, {
-        "type" : "boolean"
-      } ]
     },
     "NodeListEntryResponse" : {
       "type" : "object",
@@ -288,41 +300,20 @@
         },
         "authenticity" : {
           "type" : "string",
-          "example" : "I AM LEGIT 0x0987"
+          "example" : "base64 encoding of authenticity byte string"
         }
       }
     },
-    "GetNodeParametersByIdResponse" : {
+    "GetNodeRegistersByIdResponse" : {
       "type" : "object",
-      "required" : [ "default", "name", "type", "value" ],
+      "required" : [ "name", "value" ],
       "properties" : {
         "name" : {
           "type" : "string",
           "example" : "gnss.uart_on"
         },
-        "type" : {
-          "$ref" : "#/definitions/ParameterTypeHint"
-        },
         "value" : {
-          "$ref" : "#/definitions/ParameterTypeValue"
-        },
-        "default" : {
-          "$ref" : "#/definitions/ParameterTypeValue"
-        },
-        "min" : {
-          "$ref" : "#/definitions/ParameterTypeValue"
-        },
-        "max" : {
-          "$ref" : "#/definitions/ParameterTypeValue"
-        }
-      }
-    },
-    "UpdateNodeParameterByIdRequest" : {
-      "type" : "object",
-      "required" : [ "value" ],
-      "properties" : {
-        "value" : {
-          "$ref" : "#/definitions/ParameterTypeValue"
+          "$ref" : "#/definitions/DataTypeValue"
         }
       }
     },
@@ -331,7 +322,63 @@
       "properties" : {
         "name" : {
           "type" : "string",
-          "example" : "firmware_file_name.hex"
+          "example" : "base64 encoded bytes of the image to update the node with"
+        }
+      }
+    },
+    "DataTypeValue" : {
+      "type" : "object",
+      "required" : [ "_type_", "mutable", "persistent" ],
+      "properties" : {
+        "_type_" : {
+          "type" : "string",
+          "example" : "uavcan.register.Access.Request"
+        },
+        "_version_" : {
+          "type" : "array",
+          "example" : [ 1, 0 ],
+          "items" : {
+            "type" : "integer"
+          }
+        },
+        "mutable" : {
+          "type" : "boolean"
+        },
+        "persistent" : {
+          "type" : "boolean"
+        }
+      },
+      "description" : "Object also contains keys which correspond to each field from the Data Type Definition"
+    },
+    "DataTypeDefinition" : {
+      "type" : "object",
+      "required" : [ "constants", "fields", "full_name", "is_service_type", "version" ],
+      "properties" : {
+        "full_name" : {
+          "type" : "string",
+          "example" : "uavcan.register.Access.Request"
+        },
+        "version" : {
+          "type" : "array",
+          "example" : [ 1, 0 ],
+          "items" : {
+            "type" : "integer"
+          }
+        },
+        "is_service_type" : {
+          "type" : "boolean"
+        },
+        "fixed_port_id" : {
+          "type" : "integer",
+          "example" : 384
+        },
+        "constants" : {
+          "type" : "object",
+          "properties" : { }
+        },
+        "fields" : {
+          "type" : "object",
+          "properties" : { }
         }
       }
     }
