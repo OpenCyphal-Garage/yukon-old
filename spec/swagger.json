@@ -374,12 +374,6 @@
         },
         "constants" : {
           "type" : "object",
-          "example" : {
-            "EXAMPLE_CONSTANT" : {
-              "type" : "saturated float64",
-              "value" : 123.456
-            }
-          },
           "properties" : { }
         },
         "fields" : {
