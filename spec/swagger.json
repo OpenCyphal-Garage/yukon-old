@@ -84,6 +84,26 @@
         }
       }
     },
+    "/bus" : {
+      "get" : {
+        "tags" : [ "bus" ],
+        "summary" : "Queries information for the underlying data bus",
+        "operationId" : "getBusInfo",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Bus Information",
+            "schema" : {
+              "$ref" : "#/definitions/BusInfoResponse"
+            }
+          },
+          "404" : {
+            "description" : "Bus Not Found"
+          }
+        }
+      }
+    },
     "/types/{type}" : {
       "get" : {
         "tags" : [ "types" ],
@@ -202,14 +222,8 @@
           "200" : {
             "description" : "Node started firmware update sucessfully"
           },
-          "400" : {
-            "description" : "Bad request",
-            "schema" : {
-              "type" : "string"
-            }
-          },
           "404" : {
-            "description" : "Selected node id not found on the bus or node timed out UAVCAN shutdown command"
+            "description" : "Selected node id not found on the bus or node timed out UAVCAN firmware update command"
           }
         }
       }
@@ -280,8 +294,30 @@
     }
   },
   "definitions" : {
+    "BusInfoResponse" : {
+      "type" : "object",
+      "required" : [ "resilience" ],
+      "properties" : {
+        "resilience" : {
+          "type" : "integer",
+          "example" : 2
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "whateverbus0"
+        },
+        "protocol" : {
+          "$ref" : "#/definitions/SupportedProtocols"
+        }
+      }
+    },
+    "SupportedProtocols" : {
+      "type" : "string",
+      "enum" : [ "CAN", "CANFD", "UDP" ]
+    },
     "ServerHealthResponse" : {
       "type" : "object",
+      "required" : [ "health", "uptime", "version" ],
       "properties" : {
         "uptime" : {
           "type" : "integer",
