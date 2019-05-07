@@ -296,7 +296,6 @@
   "definitions" : {
     "BusInfoResponse" : {
       "type" : "object",
-      "required" : [ "resilience" ],
       "properties" : {
         "resilience" : {
           "type" : "integer",
