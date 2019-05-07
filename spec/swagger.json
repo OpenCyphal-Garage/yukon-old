@@ -61,6 +61,29 @@
         }
       }
     },
+    "/bus/monitor" : {
+      "get" : {
+        "tags" : [ "bus" ],
+        "summary" : "Returns all the bus messages based on query params",
+        "operationId" : "busMonitor",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Queried messages",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/BusMonitorResponse"
+              }
+            }
+          },
+          "404" : {
+            "description" : "Bus not found"
+          }
+        }
+      }
+    },
     "/types/{type}" : {
       "get" : {
         "tags" : [ "types" ],
@@ -273,6 +296,9 @@
           "example" : "1.2.3"
         }
       }
+    },
+    "BusMonitorResponse" : {
+      "type" : "object"
     },
     "NodeHealth" : {
       "type" : "string",
