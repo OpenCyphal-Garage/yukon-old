@@ -24,6 +24,23 @@
   } ],
   "schemes" : [ "https", "http" ],
   "paths" : {
+    "/health" : {
+      "get" : {
+        "tags" : [ "general" ],
+        "summary" : "Returns backend's health status, build number and other relevant info",
+        "operationId" : "getServerHealth",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "This endpoint only returns HTTP 200 OK responses",
+            "schema" : {
+              "$ref" : "#/definitions/ServerHealthResponse"
+            }
+          }
+        }
+      }
+    },
     "/types/{type}" : {
       "get" : {
         "tags" : [ "types" ],
@@ -220,6 +237,23 @@
     }
   },
   "definitions" : {
+    "ServerHealthResponse" : {
+      "type" : "object",
+      "properties" : {
+        "uptime" : {
+          "type" : "integer",
+          "example" : 1000
+        },
+        "health" : {
+          "type" : "string",
+          "example" : "Anything"
+        },
+        "version" : {
+          "type" : "string",
+          "example" : "1.2.3"
+        }
+      }
+    },
     "NodeHealth" : {
       "type" : "string",
       "enum" : [ "OK", "WARNING", "ERROR", "CRITICAL" ]
