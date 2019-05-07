@@ -41,6 +41,26 @@
         }
       }
     },
+    "/bus/dynamicallocations" : {
+      "get" : {
+        "tags" : [ "bus" ],
+        "summary" : "Returns the current node id <-> uid dynamic allocation map",
+        "operationId" : "getDynamicAllocations",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Returned allocation table (can be empty)",
+            "schema" : {
+              "type" : "object",
+              "example" : {
+                "200" : 123456789
+              }
+            }
+          }
+        }
+      }
+    },
     "/types/{type}" : {
       "get" : {
         "tags" : [ "types" ],
@@ -114,11 +134,11 @@
         }
       }
     },
-    "/nodes/{nodeId}/shutdown" : {
+    "/nodes/{nodeId}/restart" : {
       "post" : {
         "tags" : [ "nodes", "commands" ],
-        "summary" : "Instructs selected node to shut down",
-        "operationId" : "nodeShutdownById",
+        "summary" : "Instructs selected node to restart",
+        "operationId" : "nodeRestartById",
         "produces" : [ "application/json" ],
         "parameters" : [ {
           "name" : "nodeId",
@@ -128,10 +148,10 @@
         } ],
         "responses" : {
           "200" : {
-            "description" : "Node started shutting down sucessfully"
+            "description" : "Node started restarting sucessfully"
           },
           "404" : {
-            "description" : "Selected node id not found on the bus or node timed out UAVCAN shutdown command"
+            "description" : "Selected node id not found on the bus or node timed out for UAVCAN restart command"
           }
         }
       }
