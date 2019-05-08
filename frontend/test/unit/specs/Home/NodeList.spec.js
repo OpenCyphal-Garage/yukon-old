@@ -5,7 +5,7 @@
  * Author: Theodoros Ntakouris <zarkopafilis@gmail.com>
  */
 
-import Home from '@/components/Home/Home'
+import NodeList from '@/components/Home/NodeList'
 import { mount } from '@vue/test-utils'
 import axios from 'axios'
 import flushPromises from 'flush-promises'
@@ -59,9 +59,9 @@ jest.mock('axios', () => {
   }
 })
 
-describe('Home.vue', () => {
+describe('NodeList.vue', () => {
   it('should render correct contents with filtering', async () => {
-    var wrapper = mount(Home)
+    var wrapper = mount(NodeList)
     const viewNodeDetails = jest.fn()
     wrapper.setMethods({ viewNodeDetails })
 

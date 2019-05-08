@@ -28,7 +28,9 @@
             <b-dropdown-item href="https://new.uavcan.org/">UAVCAN</b-dropdown-item>
             <b-dropdown-item href="https://new.uavcan.org/specification">Specification</b-dropdown-item>
             <b-dropdown-item href="https://forum.uavcan.org/">Forums</b-dropdown-item>
-            <b-dropdown-item href="https://github.com/UAVCAN">Github</b-dropdown-item>
+            <b-dropdown-item href="https://github.com/UAVCAN">Github</b-dropdown-item>            <b-dropdown-item href="\">Swagger API</b-dropdown-item>
+            <b-dropdown-item href="https://github.com/UAVCAN/Yukon/blob/master/README.md">Readme</b-dropdown-item>
+            <b-dropdown-item href="https://app.swaggerhub.com/apis-docs/Zarkopafilis/Yukon/1.0.0">Swagger API Docs</b-dropdown-item>
           </b-nav-item-dropdown>
         </div>
     </b-navbar>
