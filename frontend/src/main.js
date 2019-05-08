@@ -18,8 +18,11 @@ import BootstrapVue from 'bootstrap-vue'
 import VueTruncate from 'vue-truncate-filter'
 import configureAxios from '@/api/AxiosConfig'
 
+import underscore from 'vue-underscore'
+
 Vue.use(BootstrapVue)
 Vue.use(VueTruncate)
+Vue.use(underscore)
 
 configureAxios()
 
