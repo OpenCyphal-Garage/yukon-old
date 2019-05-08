@@ -6,7 +6,8 @@
  -->
 
 <template>
-  <div class="m-3">
+  <div class="m-3 mt-0">
+    <ServerHealth class="mb-2"/>
     <!-- Controls -->
     <div class="row align-items-baseline">
       <div class="btn-group col-3 pl-0 mr-2 align-items-baseline">
@@ -81,12 +82,14 @@ import ApiRoutes from '@/api/ApiRoutes'
 import AppRoutes from '@/Router'
 import Spinner from '@/components/Util/Spinner'
 import CopyableText from '@/components/Util/CopyableText'
+import ServerHealth from './ServerHealth'
 
 export default {
   name: 'Home',
   components: {
     Spinner,
-    CopyableText
+    CopyableText,
+    ServerHealth
   },
   data () {
     return {
