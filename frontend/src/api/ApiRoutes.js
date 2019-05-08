@@ -10,12 +10,29 @@ const BasePrefix = '/api'
 
 const Base = ApiBaseUrl + BasePrefix + '/v1'
 const NodesBase = Base + '/nodes'
+const TypesBase = Base + '/types'
+const BusBase = Base + '/bus'
 
 const ApiRoutes = {
   ApiBaseUrl: ApiBaseUrl,
   Nodes: {
     GetAll: NodesBase,
-    GetById: nodeId => NodesBase + '/' + nodeId
+    GetDetailsById: nodeId => NodesBase + '/' + nodeId,
+    RestartById: nodeId => NodesBase + '/' + nodeId + '/restart',
+    StartFirmwareUpdateById: nodeId => NodesBase + '/' + nodeId + '/firmwareupdate',
+    GetRegistersById: nodeId => NodesBase + '/' + nodeId + '/registers',
+    UpdateRegisterByIdAndName: (nodeId, param) => NodesBase + '/' + nodeId + '/registers/' + param
+  },
+  General: {
+    Health: Base + '/health'
+  },
+  Types: {
+    GetTypeInfoByName: type => TypesBase + '/' + type
+  },
+  Bus: {
+    GetInfo: BusBase,
+    Monitor: BusBase + '/monitor',
+    PlugAndPlayTable: BusBase + '/plugandplay'
   }
 }
 

@@ -6,12 +6,8 @@
  -->
 
 <template>
-  <div>
+  <div class="m-3">
     <!-- Controls -->
-    <div class="row">
-      <h2 class="pull-left" id="textFilter">Filters</h2>
-    </div>
-
     <div class="row align-items-baseline">
       <div class="btn-group col-3 pl-0 mr-2 align-items-baseline">
         <input v-model="filter" ref="textFilter" class="form-control" type="text" placeholder="Filter" aria-label="Search">
@@ -42,7 +38,8 @@
     <div class="row">
       <p v-if="error == '' && !loading && processedNodes.length == 0">No nodes found</p>
 
-      <div v-if="!loading && processedNodes.length > 0" class="table table-striped">
+      <div v-if="!loading && processedNodes.length > 0" class="table-responsive">
+        <table class="table table-striped">
         <thead>
           <th>id</th>
           <th>name</th>
@@ -53,11 +50,9 @@
         </thead>
 
         <tbody ref="nodeListTableBody">
-          <tr v-for="(node) in processedNodes" :key="node.id">
-            <td class="copyable" @click="copyToClipboard(node.id)"
-                title="Click to copy">{{ node.id }}</td>
-            <td class="copyable col" @click="copyToClipboard(node.name)"
-                title="Click to copy">{{ node.name }}</td>
+          <tr v-for="(node) in processedNodes" :key="node.id" @click="viewNodeDetails(node.id)">
+            <td><CopyableText v-bind:text="node.id"></CopyableText></td>
+            <td><CopyableText v-bind:text="node.name"></CopyableText></td>
 
             <td :class="node.mode.toLowerCase()">{{ node.mode.toUpperCase() }}</td>
             <td :class="node.health.toLowerCase()">{{ node.health.toUpperCase() }}</td>
@@ -66,6 +61,7 @@
             <td>{{ node.vendorCode }}</td>
           </tr>
         </tbody>
+      </table>
       </div>
     </div>
 
@@ -81,13 +77,16 @@
 
 <script>
 import axios from 'axios'
-import ApiRoutes from '../api/ApiRoutes'
-import Spinner from './Spinner'
+import ApiRoutes from '@/api/ApiRoutes'
+import AppRoutes from '@/Router'
+import Spinner from '@/components/Util/Spinner'
+import CopyableText from '@/components/Util/CopyableText'
 
 export default {
   name: 'Home',
   components: {
-    Spinner
+    Spinner,
+    CopyableText
   },
   data () {
     return {
@@ -167,17 +166,6 @@ export default {
     this.refreshData()
   },
   methods: {
-    copyToClipboard (text) {
-      // Create an element with position -9999 px, focus it's content, copy the content, remove it
-      const el = document.createElement('textarea')
-      el.value = text
-      el.setAttribute('readonly', '')
-      el.style = {position: 'absolute', left: '-9999px'}
-      document.body.appendChild(el)
-      el.select()
-      document.execCommand('copy')
-      document.body.removeChild(el)
-    },
     clearControls () {
       this.sortAttribute = 'None'
       this.filter = ''
@@ -195,15 +183,17 @@ export default {
       }
 
       this.loading = false
+    },
+    viewNodeDetails (nodeId) {
+      this.$router.push({
+        name: AppRoutes.NodeDetails.name,
+        params: { nodeId: nodeId }
+      })
     }
   }
 }
 </script>
 
-<style scoped>
-  @import '../assets/styles/nodeStatus.css';
+<style>
 
-  td, th {
-    text-align: left;
-  }
 </style>
