@@ -24,6 +24,20 @@
   } ],
   "schemes" : [ "https", "http" ],
   "paths" : {
+    "/reconfigure" : {
+      "get" : {
+        "tags" : [ "config" ],
+        "summary" : "Reconfigures backend and/or pyuavcan, spinning up a new uavcan node if required for the changes to take effect",
+        "operationId" : "reconfigure",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Reconfiguration saved and applied sucessfully"
+          }
+        }
+      }
+    },
     "/health" : {
       "get" : {
         "tags" : [ "general" ],
@@ -41,10 +55,10 @@
         }
       }
     },
-    "/bus/dynamicallocations" : {
+    "/bus/plugandplay" : {
       "get" : {
         "tags" : [ "bus" ],
-        "summary" : "Returns the current node id <-> uid dynamic allocation map",
+        "summary" : "Returns the current node id <-> uid dynamic allocation id map",
         "operationId" : "getDynamicAllocations",
         "produces" : [ "application/json" ],
         "parameters" : [ ],
