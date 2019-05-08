@@ -8,8 +8,13 @@
 <template>
   <div class="m-3 mt-0">
     <div class="row mb-2">
-      <ServerHealth class="mr-2"/>
-      <BusInfo />
+      <div class="col-sm-4">
+        <ServerHealth class="mb-2"/>
+        <BusInfo />
+      </div>
+      <div class="col-sm-8">
+        <PlugAndPlayTable />
+      </div>
     </div>
     <div class="row m-1 mb-3">
       <NodeList />
@@ -21,13 +26,15 @@
 import ServerHealth from './ServerHealth'
 import BusInfo from './BusInfo'
 import NodeList from './NodeList'
+import PlugAndPlayTable from './PlugAndPlayTable'
 
 export default {
   name: 'Home',
   components: {
     ServerHealth,
     BusInfo,
-    NodeList
+    NodeList,
+    PlugAndPlayTable
   }
 }
 </script>

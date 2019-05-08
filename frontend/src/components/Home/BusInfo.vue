@@ -8,8 +8,8 @@
 <template>
   <div>
     <div v-if="error === ''">
-      <span class="badge" :class="resilienceColor">Resilience: {{ info.resilience }}</span>
-      <p style="display: inline-block;">Bus: {{ info.name }} running on {{ info.protocol }} protocol</p>
+      <span class="badge float-left" :class="resilienceColor">Resilience: {{ info.resilience }}</span>
+      <p style="vertical-align: middle;">Bus: {{ info.name }} running on {{ info.protocol }}</p>
     </div>
     <div v-else>
       <p style="color: red;"> {{ error }} </p>
