@@ -1,0 +1,515 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "Rest API interface of pyuavcan",
+    "version" : "1.0.0",
+    "title" : "Yukon",
+    "contact" : {
+      "email" : "zarkopafilis@gmail.com"
+    },
+    "license" : {
+      "name" : "MIT License",
+      "url" : "https://github.com/UAVCAN/Yukon/blob/master/LICENSE"
+    }
+  },
+  "host" : "virtserver.swaggerhub.com",
+  "basePath" : "/Zarkopafilis/Yukon/1.0.0",
+  "tags" : [ {
+    "name" : "nodes"
+  }, {
+    "name" : "commands"
+  }, {
+    "name" : "config",
+    "description" : "Yukon and pyuavcan debug node configuration"
+  } ],
+  "schemes" : [ "https", "http" ],
+  "paths" : {
+    "/reconfigure" : {
+      "get" : {
+        "tags" : [ "config" ],
+        "summary" : "Reconfigures backend and/or pyuavcan, spinning up a new uavcan node if required for the changes to take effect",
+        "operationId" : "reconfigure",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Reconfiguration saved and applied sucessfully"
+          }
+        }
+      }
+    },
+    "/health" : {
+      "get" : {
+        "tags" : [ "general" ],
+        "summary" : "Returns backend's health status, build number and other relevant info",
+        "operationId" : "getServerHealth",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "This endpoint only returns HTTP 200 OK responses",
+            "schema" : {
+              "$ref" : "#/definitions/ServerHealthResponse"
+            }
+          }
+        }
+      }
+    },
+    "/bus/plugandplay" : {
+      "get" : {
+        "tags" : [ "bus" ],
+        "summary" : "Returns the current node id <-> uid dynamic allocation id map",
+        "operationId" : "getDynamicAllocations",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Returned allocation table (can be empty)",
+            "schema" : {
+              "type" : "object",
+              "example" : {
+                "200" : 123456789
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bus/monitor" : {
+      "get" : {
+        "tags" : [ "bus" ],
+        "summary" : "Returns all the bus messages based on query params",
+        "operationId" : "busMonitor",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Queried messages",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/BusMonitorResponse"
+              }
+            }
+          },
+          "404" : {
+            "description" : "Bus not found"
+          }
+        }
+      }
+    },
+    "/bus" : {
+      "get" : {
+        "tags" : [ "bus" ],
+        "summary" : "Queries information for the underlying data bus",
+        "operationId" : "getBusInfo",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Bus Information",
+            "schema" : {
+              "$ref" : "#/definitions/BusInfoResponse"
+            }
+          },
+          "404" : {
+            "description" : "Bus Not Found"
+          }
+        }
+      }
+    },
+    "/types/{type}" : {
+      "get" : {
+        "tags" : [ "types" ],
+        "summary" : "Queries dsdl type information",
+        "operationId" : "typeInformationByName",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "type",
+          "in" : "path",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Type information",
+            "schema" : {
+              "$ref" : "#/definitions/DataTypeDefinition"
+            }
+          },
+          "404" : {
+            "description" : "Requested type not found"
+          }
+        }
+      }
+    },
+    "/nodes" : {
+      "get" : {
+        "tags" : [ "nodes" ],
+        "summary" : "Queries the list of nodes on the bus",
+        "operationId" : "nodeList",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "list of nodes",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/NodeListEntryResponse"
+              }
+            }
+          },
+          "404" : {
+            "description" : "UAVCAN bus not found"
+          }
+        }
+      }
+    },
+    "/nodes/{nodeId}" : {
+      "get" : {
+        "tags" : [ "nodes" ],
+        "summary" : "Queries immutable node details information",
+        "operationId" : "nodeDetailsById",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "nodeId",
+          "in" : "path",
+          "required" : true,
+          "type" : "integer"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Selected node's information",
+            "schema" : {
+              "$ref" : "#/definitions/NodeDetailsByIdResponse"
+            }
+          },
+          "404" : {
+            "description" : "Selected node id not found on the bus or node timed out UAVCAN NodeInfo query"
+          }
+        }
+      }
+    },
+    "/nodes/{nodeId}/restart" : {
+      "post" : {
+        "tags" : [ "nodes", "commands" ],
+        "summary" : "Instructs selected node to restart",
+        "operationId" : "nodeRestartById",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "nodeId",
+          "in" : "path",
+          "required" : true,
+          "type" : "integer"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Node started restarting sucessfully"
+          },
+          "404" : {
+            "description" : "Selected node id not found on the bus or node timed out for UAVCAN restart command"
+          }
+        }
+      }
+    },
+    "/nodes/{nodeId}/firmwareupdate" : {
+      "post" : {
+        "tags" : [ "nodes", "commands" ],
+        "summary" : "Instructs selected node to start a firmware update",
+        "operationId" : "nodeFirmwareUpdateById",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "nodeId",
+          "in" : "path",
+          "required" : true,
+          "type" : "integer"
+        }, {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/StartNodeFirmwareUpdateByIdRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Node started firmware update sucessfully"
+          },
+          "404" : {
+            "description" : "Selected node id not found on the bus or node timed out UAVCAN firmware update command"
+          }
+        }
+      }
+    },
+    "/nodes/{nodeId}/registers/" : {
+      "get" : {
+        "tags" : [ "nodes" ],
+        "summary" : "Queries changeable node registers",
+        "operationId" : "getNodeRegistersById",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "nodeId",
+          "in" : "path",
+          "description" : "ID of node to query",
+          "required" : true,
+          "type" : "integer"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Selected node's available registers",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/GetNodeRegistersByIdResponse"
+              }
+            }
+          },
+          "404" : {
+            "description" : "Selected node id not found on the bus"
+          }
+        }
+      }
+    },
+    "/nodes/{nodeId}/registers/{reg}" : {
+      "put" : {
+        "tags" : [ "nodes", "commands" ],
+        "summary" : "Update selected node's register by name",
+        "operationId" : "updateNodeRegisterById",
+        "parameters" : [ {
+          "name" : "nodeId",
+          "in" : "path",
+          "description" : "ID of node to query",
+          "required" : true,
+          "type" : "integer"
+        }, {
+          "name" : "reg",
+          "in" : "path",
+          "description" : "Register name to change",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/DataTypeValue"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Register update message delivered sucessfully"
+          },
+          "404" : {
+            "description" : "Selected node id not found on the bus"
+          }
+        }
+      }
+    }
+  },
+  "definitions" : {
+    "BusInfoResponse" : {
+      "type" : "object",
+      "properties" : {
+        "resilience" : {
+          "type" : "integer",
+          "example" : 2
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "whateverbus0"
+        },
+        "protocol" : {
+          "$ref" : "#/definitions/SupportedProtocols"
+        }
+      }
+    },
+    "SupportedProtocols" : {
+      "type" : "string",
+      "enum" : [ "CAN", "CANFD", "UDP" ]
+    },
+    "ServerHealthResponse" : {
+      "type" : "object",
+      "required" : [ "health", "uptime", "version" ],
+      "properties" : {
+        "uptime" : {
+          "type" : "integer",
+          "example" : 1000
+        },
+        "health" : {
+          "type" : "string",
+          "example" : "Anything"
+        },
+        "version" : {
+          "type" : "string",
+          "example" : "1.2.3"
+        }
+      }
+    },
+    "BusMonitorResponse" : {
+      "type" : "object"
+    },
+    "NodeHealth" : {
+      "type" : "string",
+      "enum" : [ "OK", "WARNING", "ERROR", "CRITICAL" ]
+    },
+    "NodeMode" : {
+      "type" : "string",
+      "enum" : [ "OPERATIONAL", "INITIALIZATION", "MAINTAINANCE", "SOFTWARE_UPDATE", "OFFLINE" ]
+    },
+    "NodeListEntryResponse" : {
+      "type" : "object",
+      "required" : [ "health", "id", "mode", "name", "uptime", "vendorCode" ],
+      "properties" : {
+        "id" : {
+          "type" : "integer",
+          "example" : 0
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "node_0"
+        },
+        "health" : {
+          "$ref" : "#/definitions/NodeHealth"
+        },
+        "mode" : {
+          "$ref" : "#/definitions/NodeMode"
+        },
+        "uptime" : {
+          "type" : "integer",
+          "example" : 10
+        },
+        "vendorCode" : {
+          "type" : "integer",
+          "example" : 0
+        }
+      }
+    },
+    "NodeDetailsByIdResponse" : {
+      "type" : "object",
+      "required" : [ "authenticity", "crc", "hardwareVersion", "health", "id", "mode", "name", "softwareVersion", "uid", "uptime", "vendorCode" ],
+      "properties" : {
+        "id" : {
+          "type" : "integer",
+          "example" : 0
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "node_0"
+        },
+        "health" : {
+          "$ref" : "#/definitions/NodeHealth"
+        },
+        "mode" : {
+          "$ref" : "#/definitions/NodeMode"
+        },
+        "uptime" : {
+          "type" : "integer",
+          "example" : 10
+        },
+        "vendorCode" : {
+          "type" : "integer",
+          "example" : 0
+        },
+        "softwareVersion" : {
+          "type" : "string",
+          "example" : "4.3.2.1"
+        },
+        "crc" : {
+          "type" : "string",
+          "example" : "0xBEEFALOT"
+        },
+        "hardwareVersion" : {
+          "type" : "string",
+          "example" : "0.1.2.3"
+        },
+        "uid" : {
+          "type" : "string",
+          "example" : "my-uid-is-amazing"
+        },
+        "authenticity" : {
+          "type" : "string",
+          "example" : "base64 encoding of authenticity byte string"
+        }
+      }
+    },
+    "GetNodeRegistersByIdResponse" : {
+      "type" : "object",
+      "required" : [ "name", "value" ],
+      "properties" : {
+        "name" : {
+          "type" : "string",
+          "example" : "gnss.uart_on"
+        },
+        "value" : {
+          "$ref" : "#/definitions/DataTypeValue"
+        }
+      }
+    },
+    "StartNodeFirmwareUpdateByIdRequest" : {
+      "type" : "object",
+      "properties" : {
+        "name" : {
+          "type" : "string",
+          "example" : "base64 encoded bytes of the image to update the node with"
+        }
+      }
+    },
+    "DataTypeValue" : {
+      "type" : "object",
+      "required" : [ "_type_", "mutable", "persistent" ],
+      "properties" : {
+        "_type_" : {
+          "type" : "string",
+          "example" : "uavcan.register.Access.Request"
+        },
+        "_version_" : {
+          "type" : "array",
+          "example" : [ 1, 0 ],
+          "items" : {
+            "type" : "integer"
+          }
+        },
+        "mutable" : {
+          "type" : "boolean"
+        },
+        "persistent" : {
+          "type" : "boolean"
+        }
+      },
+      "description" : "Object also contains keys which correspond to each field from the Data Type Definition"
+    },
+    "DataTypeDefinition" : {
+      "type" : "object",
+      "required" : [ "constants", "fields", "full_name", "is_service_type", "version" ],
+      "properties" : {
+        "full_name" : {
+          "type" : "string",
+          "example" : "uavcan.register.Access.Request"
+        },
+        "version" : {
+          "type" : "array",
+          "example" : [ 1, 0 ],
+          "items" : {
+            "type" : "integer"
+          }
+        },
+        "is_service_type" : {
+          "type" : "boolean"
+        },
+        "fixed_port_id" : {
+          "type" : "integer",
+          "example" : 384
+        },
+        "constants" : {
+          "type" : "object",
+          "properties" : { }
+        },
+        "fields" : {
+          "type" : "object",
+          "properties" : { }
+        }
+      }
+    }
+  }
+}
