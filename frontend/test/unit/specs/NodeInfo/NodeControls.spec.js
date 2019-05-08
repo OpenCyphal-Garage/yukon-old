@@ -29,11 +29,11 @@ describe('NodeControls.vue', () => {
 
     await flushPromises()
 
-    expect(wrapper.find({ref: 'shutdownButton'}).is('button')).toBe(true)
-    wrapper.find({ref: 'shutdownButton'}).trigger('click')
+    expect(wrapper.find({ref: 'restartButton'}).is('button')).toBe(true)
+    wrapper.find({ref: 'restartButton'}).trigger('click')
 
     expect(axios.post).toHaveBeenCalledTimes(1)
-    expect(axios.post).toHaveBeenCalledWith(ApiRoutes.Nodes.ShutdownById(1234))
+    expect(axios.post).toHaveBeenCalledWith(ApiRoutes.Nodes.RestartById(1234))
 
     expect(wrapper.find({ref: 'startFirmwareUpdateButton'}).is('button')).toBe(true)
     wrapper.find({ref: 'startFirmwareUpdateButton'}).trigger('click')

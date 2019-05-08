@@ -62,7 +62,7 @@ describe('NodeRegisters.vue', () => {
     await flushPromises()
 
     expect(axios.get).toHaveBeenCalledTimes(1)
-    expect(axios.get).toHaveBeenCalledWith(ApiRoutes.Nodes.GetParametersById(1234))
+    expect(axios.get).toHaveBeenCalledWith(ApiRoutes.Nodes.GetRegistersById(1234))
 
     // - rendered contents check
     expect(wrapper.find({ ref: 'nodeListParamsTableBody' }).findAll('tr').length).toBe(4)

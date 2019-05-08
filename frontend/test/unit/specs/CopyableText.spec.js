@@ -5,7 +5,7 @@
  * Author: Theodoros Ntakouris <zarkopafilis@gmail.com>
  */
 
-import CopyableText from '@/components/CopyableText'
+import CopyableText from '@/components/Util/CopyableText.vue'
 import {
   mount
 } from '@vue/test-utils'

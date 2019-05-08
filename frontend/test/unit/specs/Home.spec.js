@@ -5,7 +5,7 @@
  * Author: Theodoros Ntakouris <zarkopafilis@gmail.com>
  */
 
-import Home from '@/components/Home'
+import Home from '@/components/Home/Home'
 import { mount } from '@vue/test-utils'
 import axios from 'axios'
 import flushPromises from 'flush-promises'

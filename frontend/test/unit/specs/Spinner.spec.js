@@ -6,7 +6,7 @@
  */
 
 import { mount } from '@vue/test-utils'
-import Spinner from '@/components/Spinner.vue'
+import Spinner from '@/components/Util/Spinner'
 
 describe('Spinner.vue', () => {
   it('should render correct contents', () => {

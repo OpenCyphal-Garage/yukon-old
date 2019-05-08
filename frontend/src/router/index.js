@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Home from '@/components/Home'
+import Home from '@/components/Home/Home'
 import NodeInfoPage from '@/components/NodeInfo/NodeInfoPage'
 import GlobalRegisterView from '@/components/GlobalRegisterView/GlobalRegisterView'
 import Plotter from '@/components/Plotter/Plotter'

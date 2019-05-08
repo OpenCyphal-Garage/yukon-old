@@ -105,8 +105,8 @@
 </template>
 
 <script>
-import TypeValue from '../Dsdl/TypeValue'
-import TypeEditForm from '../Dsdl/TypeEditForm'
+import TypeValue from '@/components/Dsdl/TypeValue'
+import TypeEditForm from '@/components/Dsdl/TypeEditForm'
 
 export default {
   name: 'GlobalRegisterView',

@@ -55,8 +55,8 @@
 
 <script>
 import axios from 'axios'
-import ApiRoutes from '../../api/ApiRoutes'
-import Spinner from '../Spinner'
+import ApiRoutes from '@/api/ApiRoutes'
+import Spinner from '@/components/Util/Spinner'
 
 export default {
   name: 'NodeRegisters',
@@ -108,7 +108,7 @@ export default {
 
       try {
         const response = await axios.get(
-          ApiRoutes.Nodes.GetRegistersByNodeId(this.nodeId)
+          ApiRoutes.Nodes.GetRegistersById(this.nodeId)
         )
         this.nodeInfo = response.data
       } catch (e) {

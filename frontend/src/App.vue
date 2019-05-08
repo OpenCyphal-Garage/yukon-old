@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import AppRoutes from './router'
+import AppRoutes from '@/Router'
 export default {
   name: 'App',
   data () {

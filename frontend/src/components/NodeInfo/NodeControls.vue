@@ -9,7 +9,7 @@
   <div class="subtle-border">
     <div class="fit-border">
       <div class="row d-flex flex-row">
-        <button type="button" @click="shutdownNode" class="btn btn-danger mr-2" ref="shutdownButton">Shutdown</button>
+        <button type="button" @click="restartNode" class="btn btn-danger mr-2" ref="restartButton">Restart</button>
         <button type="button" @click="startFirmwareUpdate" class="btn btn-warning" ref="startFirmwareUpdateButton">Start firmware update</button>
       </div>
 
@@ -26,7 +26,7 @@
 
 <script>
 import axios from 'axios'
-import ApiRoutes from '../../api/ApiRoutes'
+import ApiRoutes from '@/api/ApiRoutes'
 
 export default {
   name: 'NodeControls',
@@ -48,14 +48,14 @@ export default {
         this.error = `Firmware update start failed: ${e}`
       }
     },
-    async shutdownNode () {
+    async restartNode () {
       try {
-        const response = await axios.post(ApiRoutes.Nodes.ShutdownById(this.nodeId))
+        const response = await axios.post(ApiRoutes.Nodes.RestartById(this.nodeId))
         if (response.status === 200) {
-          this.text = 'Sucessfully started node shutdown'
+          this.text = 'Sucessfully started node restart operation'
         }
       } catch (e) {
-        this.error = `Node shutdown failed: ${e}`
+        this.error = `Node restart failed: ${e}`
       }
     }
   }

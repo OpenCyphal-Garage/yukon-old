@@ -68,9 +68,9 @@
 
 <script>
 import axios from 'axios'
-import ApiRoutes from '../../api/ApiRoutes'
-import Spinner from '../Spinner'
-import CopyableText from '../CopyableText'
+import ApiRoutes from '@/api/ApiRoutes'
+import Spinner from '@/components/Util/Spinner'
+import CopyableText from '@/components/Util/CopyableText'
 
 export default {
   name: 'NodeConstants',
