@@ -6,7 +6,7 @@
  -->
 
 <template>
-  <div class="row">
+  <div>
     <div v-if="error === ''">
       <span class="badge" :class="heuristicHealthBadgeColor">{{ health.health }}</span>
       <span class="badge badge-info">Uptime: {{ health.uptime }}s</span>

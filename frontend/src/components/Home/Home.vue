@@ -7,7 +7,10 @@
 
 <template>
   <div class="m-3 mt-0">
-    <ServerHealth class="mb-2"/>
+    <div class="row mb-2">
+      <ServerHealth class="mr-2"/>
+      <BusInfo />
+    </div>
     <!-- Controls -->
     <div class="row align-items-baseline">
       <div class="btn-group col-3 pl-0 mr-2 align-items-baseline">
@@ -83,13 +86,15 @@ import AppRoutes from '@/Router'
 import Spinner from '@/components/Util/Spinner'
 import CopyableText from '@/components/Util/CopyableText'
 import ServerHealth from './ServerHealth'
+import BusInfo from './BusInfo'
 
 export default {
   name: 'Home',
   components: {
     Spinner,
     CopyableText,
-    ServerHealth
+    ServerHealth,
+    BusInfo
   },
   data () {
     return {
