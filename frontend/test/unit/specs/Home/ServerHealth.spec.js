@@ -5,7 +5,7 @@
  * Author: Theodoros Ntakouris <zarkopafilis@gmail.com>
  */
 
-import BusInfo from '@/components/Home/BusInfo'
+import ServerHealth from '@/components/Home/ServerHealth'
 import { mount } from '@vue/test-utils'
 import axios from 'axios'
 import flushPromises from 'flush-promises'
@@ -15,19 +15,19 @@ jest.mock('axios', () => {
   return {
     get: jest.fn()
       .mockImplementationOnce(() => ({
-        data: {
-          resilience: 1,
-          name: 'cansocket',
-          protocol: 'CanFD'
+        health: {
+          uptime: 1000,
+          health: 'Health is good',
+          version: '1.2.3'
         }
       }))
       .mockImplementationOnce(() => Promise.reject(new Error('theerror')))
   }
 })
 
-describe('BusInfo.vue', () => {
+describe('ServerHealth.vue', () => {
   it('should render correct contents', async () => {
-    var wrapper = mount(BusInfo)
+    var wrapper = mount(ServerHealth)
 
     await flushPromises()
 
@@ -35,13 +35,13 @@ describe('BusInfo.vue', () => {
     expect(axios.get).toHaveBeenCalledWith(ApiRoutes.Bus.GetInfo)
 
     const html = wrapper.html().toLowerCase()
-    const includes = ['resilience', 1, 'CanFD', 'cansocket']
+    const includes = ['uptime', 1000, 'health is good', '1.2.3']
 
     includes.forEach(x => expect(html.includes(x)))
   })
 
   it('should render correct error', async () => {
-    var wrapper = mount(BusInfo)
+    var wrapper = mount(ServerHealth)
 
     await flushPromises()
 
@@ -49,7 +49,7 @@ describe('BusInfo.vue', () => {
     expect(axios.get).toHaveBeenCalledWith(ApiRoutes.Bus.GetInfo)
 
     const html = wrapper.html().toLowerCase()
-    const includes = ['resilience', 1, 'CanFD', 'cansocket']
+    const includes = ['uptime', 1000, 'health is good', '1.2.3']
 
     includes.forEach(x => !expect(html.includes(x)))
 
