@@ -34,20 +34,27 @@
 </template>
 
 <script>
+import { mapState, mapActions } from 'vuex'
+
 export default {
   name: 'PlugAndPlayTable',
   data () {
     return {
       search: '',
-      data: {
-        '500': 9816439167,
-        '352': 9928488809103,
-        '101': 21309
-      },
       error: ''
     }
   },
+  async mounted () {
+    try {
+      await this.$store.dispatch('nodes/getPlugAndPlayTable')
+    } catch (e) {
+      this.error = e
+    }
+  },
   computed: {
+    ...mapState({
+      data: state => state.nodes.plugAndPlayTable
+    }),
     filteredData: function () {
       const search = this.search
       const data = this.data

@@ -21,7 +21,8 @@ const ApiRoutes = {
     RestartById: nodeId => NodesBase + '/' + nodeId + '/restart',
     StartFirmwareUpdateById: nodeId => NodesBase + '/' + nodeId + '/firmwareupdate',
     GetRegistersById: nodeId => NodesBase + '/' + nodeId + '/registers',
-    UpdateRegisterByIdAndName: (nodeId, param) => NodesBase + '/' + nodeId + '/registers/' + param
+    UpdateRegisterByIdAndName: (nodeId, param) => NodesBase + '/' + nodeId + '/registers/' + param,
+    GetPlugAndPlayTable: NodesBase + '/plugandplay'
   },
   General: {
     Health: Base + '/health'
@@ -31,8 +32,7 @@ const ApiRoutes = {
   },
   Bus: {
     GetInfo: BusBase,
-    Monitor: BusBase + '/monitor',
-    PlugAndPlayTable: BusBase + '/plugandplay'
+    Monitor: BusBase + '/monitor'
   }
 }
 

@@ -19,19 +19,26 @@
 </template>
 
 <script>
+import { mapState, mapActions } from 'vuex'
+
 export default {
   name: 'ServerHealth',
   data () {
     return {
-      health: {
-        uptime: 1000,
-        health: 'Health is good',
-        version: '1.2.3'
-      },
       error: ''
     }
   },
+  async mounted () {
+    try {
+      await this.$store.dispatch('general/getServerHealth')
+    } catch (e) {
+      this.error = e
+    }
+  },
   computed: {
+    ...mapState({
+      nodes: state => state.general.serverHealth
+    }),
     heuristicHealthBadgeColor: function () {
       const health = this.health.health.toLowerCase()
 

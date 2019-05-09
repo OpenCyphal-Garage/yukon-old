@@ -76,8 +76,7 @@
 </template>
 
 <script>
-import axios from 'axios'
-import ApiRoutes from '@/api/ApiRoutes'
+import { mapState, mapActions } from 'vuex'
 import AppRoutes from '@/Router'
 import Spinner from '@/components/Util/Spinner'
 import CopyableText from '@/components/Util/CopyableText'
@@ -91,7 +90,6 @@ export default {
   data () {
     return {
       loading: false,
-      nodes: [],
       error: '',
       filter: '',
       sortAttribute: 'None',
@@ -124,6 +122,9 @@ export default {
     }
   },
   computed: {
+    ...mapState({
+      nodes: state => state.nodes.nodeList
+    }),
     processedNodes: function () {
       let filtered = this.nodes
       const lowerFilter = this.filter.toLowerCase()
@@ -161,8 +162,14 @@ export default {
       return filtered
     }
   },
-  mounted () {
-    this.refreshData()
+  async mounted () {
+    this.loading = true
+    try {
+      await this.$store.dispatch('nodes/getNodeList')
+    } catch (e) {
+      this.error = e
+    }
+    this.loading = false
   },
   methods: {
     clearControls () {
@@ -175,7 +182,7 @@ export default {
       this.loading = true
 
       try {
-        const response = await axios.get(ApiRoutes.Nodes.PlugAndPlayTable)
+        const response = await axios.get(ApiRoutes.Nodes.Ge)
         this.nodes = response.data
       } catch (e) {
         this.error = e
