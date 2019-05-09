@@ -8,9 +8,9 @@
 <template>
   <div class="text-left">
     <div v-if="error === ''">
-      <span class="badge" :class="heuristicHealthBadgeColor">{{ health.health }}</span>
-      <span class="badge badge-info">Uptime: {{ health.uptime }}s</span>
-      <span class="badge badge-secondary">Version {{ health.version }}</span>
+      <span class="badge" :class="heuristicHealthBadgeColor">{{ serverHealth.health }}</span>
+      <span class="badge badge-info">Uptime: {{ serverHealth.uptime }}s</span>
+      <span class="badge badge-secondary">Version {{ serverHealth.version }}</span>
     </div>
     <div v-else>
       <p style="color: red;"> {{ error }} </p>
@@ -33,10 +33,11 @@ export default {
   },
   computed: {
     ...mapState({
-      nodes: state => state.general.serverHealth
+      serverHealth: state => state.general.serverHealth
     }),
     heuristicHealthBadgeColor: function () {
-      const health = this.health.health.toLowerCase()
+      console.log(this.serverHealth.health)
+      const health = this.serverHealth.health.toLowerCase()
 
       if (health.includes('good') ||
       health.includes('running') ||

@@ -4,47 +4,47 @@
       "name": "esc_0",
       "health": "OK",
       "mode": "OPERATIONAL",
-      "uptime": 10,
-      "vendorCode": 0
+      "uptime": 30,
+      "vendorCode": 77777
     },
     {
         "id": 1,
         "name": "esc_1",
         "health": "OK",
         "mode": "OPERATIONAL",
-        "uptime": 10,
-        "vendorCode": 0
+        "uptime": 100,
+        "vendorCode": 7968
     },
     {
         "id": 44,
-        "name": "node_0",
-        "health": "OK",
-        "mode": "OPERATIONAL",
-        "uptime": 10,
-        "vendorCode": 0
+        "name": "gps",
+        "health": "CRITICAL",
+        "mode": "INITIALIZATION",
+        "uptime": 905,
+        "vendorCode": 123
     },
     {
         "id": 918,
-        "name": "node_0",
-        "health": "OK",
-        "mode": "OPERATIONAL",
-        "uptime": 10,
+        "name": "uart0",
+        "health": "ERROR",
+        "mode": "MAINTAINANCE",
+        "uptime": 999999,
         "vendorCode": 0
     },
     {
         "id": 12,
-        "name": "node_0",
-        "health": "OK",
-        "mode": "OPERATIONAL",
-        "uptime": 10,
+        "name": "uart1",
+        "health": "WARNING",
+        "mode": "SOFTWARE_UPDATE",
+        "uptime": -1,
         "vendorCode": 0
     },
     {
         "id": 3,
-        "name": "node_0",
+        "name": "magnet_0",
         "health": "OK",
-        "mode": "OPERATIONAL",
-        "uptime": 10,
-        "vendorCode": 0
+        "mode": "OFFLINE",
+        "uptime": 5,
+        "vendorCode": 8080
     }
 ]
