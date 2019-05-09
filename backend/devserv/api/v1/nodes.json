@@ -1,0 +1,50 @@
+[
+    {
+      "id": 0,
+      "name": "esc_0",
+      "health": "OK",
+      "mode": "OPERATIONAL",
+      "uptime": 10,
+      "vendorCode": 0
+    },
+    {
+        "id": 1,
+        "name": "esc_1",
+        "health": "OK",
+        "mode": "OPERATIONAL",
+        "uptime": 10,
+        "vendorCode": 0
+    },
+    {
+        "id": 44,
+        "name": "node_0",
+        "health": "OK",
+        "mode": "OPERATIONAL",
+        "uptime": 10,
+        "vendorCode": 0
+    },
+    {
+        "id": 918,
+        "name": "node_0",
+        "health": "OK",
+        "mode": "OPERATIONAL",
+        "uptime": 10,
+        "vendorCode": 0
+    },
+    {
+        "id": 12,
+        "name": "node_0",
+        "health": "OK",
+        "mode": "OPERATIONAL",
+        "uptime": 10,
+        "vendorCode": 0
+    },
+    {
+        "id": 3,
+        "name": "node_0",
+        "health": "OK",
+        "mode": "OPERATIONAL",
+        "uptime": 10,
+        "vendorCode": 0
+    }
+]

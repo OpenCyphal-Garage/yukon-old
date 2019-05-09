@@ -1,0 +1,5 @@
+{
+    "resilience": 2,
+    "name": "socketcan0",
+    "protocol": "CANFD"
+  }

@@ -1,3 +1,5 @@
 {
-    "a": "b"
-}
+    "uptime": 1000,
+    "health": "All good",
+    "version": "1.2.3"
+  }
