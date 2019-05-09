@@ -32,7 +32,7 @@ describe('ServerHealth.vue', () => {
     await flushPromises()
 
     expect(axios.get).toHaveBeenCalledTimes(1)
-    expect(axios.get).toHaveBeenCalledWith(ApiRoutes.Bus.GetInfo)
+    expect(axios.get).toHaveBeenCalledWith(ApiRoutes.General.Health)
 
     const html = wrapper.html().toLowerCase()
     const includes = ['uptime', 1000, 'health is good', '1.2.3']

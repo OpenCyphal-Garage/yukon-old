@@ -175,7 +175,7 @@ export default {
       this.loading = true
 
       try {
-        const response = await axios.get(ApiRoutes.Nodes.GetAll)
+        const response = await axios.get(ApiRoutes.Nodes.PlugAndPlayTable)
         this.nodes = response.data
       } catch (e) {
         this.error = e

@@ -8,6 +8,8 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
+import Vuex from 'vuex'
+
 import App from '@/App'
 import {AppRouter} from '@/Router'
 
@@ -19,6 +21,8 @@ import VueTruncate from 'vue-truncate-filter'
 import configureAxios from '@/api/AxiosConfig'
 
 import underscore from 'vue-underscore'
+
+Vue.use(Vuex)
 
 Vue.use(BootstrapVue)
 Vue.use(VueTruncate)

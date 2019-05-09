@@ -19,13 +19,15 @@
     "bootstrap": "^4.3.1",
     "bootstrap-vue": "^2.0.0-rc.14",
     "epic-spinners": "^1.0.4",
+    "es6-promise": "^4.2.6",
     "jquery": "^3.3.1",
     "popper.js": "^1.14.7",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1",
     "vue-truncate-filter": "^1.1.7",
     "vue-underscore": "^0.1.4",
-    "vueify": "^9.4.1"
+    "vueify": "^9.4.1",
+    "vuex": "^3.1.1"
   },
   "devDependencies": {
     "@vue/server-test-utils": "^1.0.0-beta.29",
