@@ -18,19 +18,22 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+
 export default {
   name: 'BusInfo',
   data () {
     return {
-      info: {
-        resilience: 1,
-        name: 'cansocket',
-        protocol: 'CanFD'
-      },
       error: ''
     }
   },
+  async mounted () {
+    await this.loadData()
+  },
   computed: {
+    ...mapState({
+      info: state => state.general.busInfo
+    }),
     resilienceColor: function () {
       const res = this.info.resilience
 
@@ -47,6 +50,16 @@ export default {
       }
 
       return 'badge-light'
+    }
+  },
+  methods: {
+    async loadData () {
+      this.error = ''
+      try {
+        await this.$store.dispatch('general/getBusInfo')
+      } catch (e) {
+        this.error = e
+      }
     }
   }
 }

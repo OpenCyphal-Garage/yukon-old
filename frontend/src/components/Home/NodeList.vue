@@ -76,7 +76,7 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex'
+import { mapState } from 'vuex'
 import AppRoutes from '@/Router'
 import Spinner from '@/components/Util/Spinner'
 import CopyableText from '@/components/Util/CopyableText'
@@ -163,13 +163,7 @@ export default {
     }
   },
   async mounted () {
-    this.loading = true
-    try {
-      await this.$store.dispatch('nodes/getNodeList')
-    } catch (e) {
-      this.error = e
-    }
-    this.loading = false
+    await this.loadData()
   },
   methods: {
     clearControls () {
@@ -177,17 +171,14 @@ export default {
       this.filter = ''
       this.sortWay = this.sortWays.none.name
     },
-    async refreshData () {
+    async loadData () {
       this.error = ''
       this.loading = true
-
       try {
-        const response = await axios.get(ApiRoutes.Nodes.Ge)
-        this.nodes = response.data
+        await this.$store.dispatch('nodes/getNodeList')
       } catch (e) {
         this.error = e
       }
-
       this.loading = false
     },
     viewNodeDetails (nodeId) {

@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex'
+import { mapState } from 'vuex'
 
 export default {
   name: 'ServerHealth',
@@ -29,11 +29,7 @@ export default {
     }
   },
   async mounted () {
-    try {
-      await this.$store.dispatch('general/getServerHealth')
-    } catch (e) {
-      this.error = e
-    }
+    await this.loadData()
   },
   computed: {
     ...mapState({
@@ -60,6 +56,16 @@ export default {
       }
 
       return 'badge-light'
+    }
+  },
+  methods: {
+    async loadData () {
+      this.error = ''
+      try {
+        await this.$store.dispatch('general/getServerHealth')
+      } catch (e) {
+        this.error = e
+      }
     }
   }
 }
