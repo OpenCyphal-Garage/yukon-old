@@ -14,16 +14,17 @@
 
       <div class="ml-4" v-for="k in typeFieldsKeys" :key="type + ':' + k">
         <TypeEditForm v-if="isCompositeType(typeFields[k].type)"
-        v-bind:type="typeFields[k].type"
-        :parent="stackedParentType + ':' + typeFields[k].type" />
+          v-bind:type="typeFields[k].type"
+          :parent="stackedParentType + ':' + typeFields[k].type" />
 
         <div v-else class="ml-4">
             <label :for="type + ':' + k" class="mr-2">
               - {{ k + ' (' + typeFields[k].type + ')'}}
             </label>
+
+            <!-- Root level form input -->
             <input class="float-right"
-            :id="stackedParentType + ':' + k"
-            required />
+              :id="stackedParentType + ':' + k"/>
         </div>
       </div>
     </div>
