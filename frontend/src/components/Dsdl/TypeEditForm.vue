@@ -23,8 +23,24 @@
             </label>
 
             <!-- Root level form input -->
-            <input class="float-right"
-              :id="stackedParentType + ':' + k"/>
+            <div class="float-right">
+              <input v-if="formMetaData.type === 'checkbox'"
+                v-model="inputValue"
+                type="checkbox"/>
+
+              <input v-else-if="formMetaData.array"
+                v-model="inputValue" />
+
+              <input v-else class="float-right type-edit-form"
+                v-model="inputValue"
+                :type="formMetaData.type"
+                :min="formMetaData.min"
+                :max="formMetaData.max"
+                :step="formMetaData.step"
+                :id="stackedParentType + ':' + k"/>
+
+              <p style="color: red; display: inline-block;" v-if="error !== ''"> {{ error }} </p>
+            </div>
         </div>
       </div>
     </div>
@@ -32,11 +48,15 @@
 </template>
 
 <script>
+import parseDataTypeStringDescriptor from '@/util/dsdl.js'
+
 export default {
   name: 'TypeEditForm',
   props: ['type', 'parent'],
   data () {
     return {
+      inputValue: '',
+      error: '',
       typeInfo: {
         'uavcan.register.Access.Request': {
           fields: {
@@ -70,11 +90,38 @@ export default {
     },
     typeFields: function () {
       return this.typeInfo[this.type].fields
+    },
+    formMetaData: function () {
+      if (this.isCompositeType(this.type)) {
+        return undefined
+      }
+
+      return parseDataTypeStringDescriptor(this.type)
     }
   },
   methods: {
     isCompositeType (type) {
       return type.includes('.')
+    },
+    validateInput () {
+      if (this.formMetaData === undefined) {
+        return
+      }
+      this.error = ''
+
+      if (this.formMetaData.array) {
+        const contents = this.inputValue.replace(/\s/g, '')
+        const items = contents.split(',')
+
+        if (items.length > this.formMetaData.capacity) {
+          this.error = `Exceeded max array capacity (${items.length} > ${this.formMetaData.capacity})`
+          return
+        }
+
+        items.forEach(item => {
+          // TODO
+        })
+      }
     }
   }
 }
