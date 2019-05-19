@@ -17,7 +17,7 @@
           <h5 class="ml-1 col-12 text-left">~ {{ reg }}</h5>
           <!-- For node with that register -->
           <div class="col-12 text-left ml-2 pb-2" v-for="id in workset[reg].nodeIds" :key="reg + ':' + id">
-              <h6 class="ml-2">- {{ nodeMapById[`${id}`].name + '[' + id + ']'}} -></h6>
+              <h6 class="ml-2">- {{ nodeMapById[id].name + '  ' + '[' + id + ']'}} -></h6>
               <TypeValue class="ml-4" v-bind:val="valueOf(id, reg)" />
           </div>
         </div>
@@ -107,6 +107,7 @@
 <script>
 import TypeValue from '@/components/Dsdl/TypeValue'
 import TypeEditForm from '@/components/Dsdl/TypeEditForm'
+import { mapState } from 'vuex'
 
 export default {
   name: 'GlobalRegisterView',
@@ -114,103 +115,18 @@ export default {
     TypeValue,
     TypeEditForm
   },
+  async mounted () {
+    await this.loadData()
+  },
   data () {
     return {
+      error: '',
       workset: {
         'uavcan.a.b.1': {
           nodeIds: [0],
           type: 'uavcan.register.Access.Request'
         }
       },
-      registers: [
-        {
-          nodeId: 0,
-          nodeName: 'esc0',
-          registerName: 'uavcan.a.b.1',
-          value: {
-            _type_: ['uavcan.register.Access.Request', 1, 0],
-            foo: {
-              _type_: ['uavcan.register.Value', 1, 0],
-              first: 'Zarko',
-              last: 'Pafilis'
-            },
-            bar: 123
-          },
-          mutable: true,
-          persistent: true
-        },
-        {
-          nodeId: 1,
-          nodeName: 'esc1',
-          registerName: 'uavcan.a.b',
-          value: 'ghjk',
-          mutable: false,
-          persistent: true
-        },
-        {
-          nodeId: 2,
-          nodeName: 'esc2',
-          registerName: 'uavcan.a.b',
-          value: 'qwer',
-          mutable: false,
-          persistent: false
-        },
-        {
-          nodeId: 3,
-          nodeName: 'esc3',
-          registerName: 'uavcan.a.b',
-          value: 'tyui',
-          mutable: true,
-          persistent: false
-        },
-        {
-          nodeId: 0,
-          nodeName: 'esc0',
-          registerName: 'uavcan.a.something',
-          value: 0,
-          mutable: true,
-          persistent: true
-        },
-        {
-          nodeId: 0,
-          nodeName: 'esc0',
-          registerName: 'other.whatever',
-          value: [4, 7, 9],
-          mutable: false,
-          persistent: true
-        },
-        {
-          nodeId: 4,
-          nodeName: 'gps',
-          registerName: 'uavcan.gps.a',
-          value: 1,
-          mutable: false,
-          persistent: true
-        },
-        {
-          nodeId: 4,
-          nodeName: 'gps',
-          registerName: 'uavcan.gps.b',
-          value: 2,
-          mutable: false,
-          persistent: false
-        },
-        {
-          nodeId: 4,
-          nodeName: 'gps',
-          registerName: 'other.whatever',
-          value: [0, 1, 2, 3],
-          mutable: false,
-          persistent: true
-        },
-        {
-          nodeId: 4,
-          nodeName: 'gps',
-          registerName: 'other.uart_on',
-          value: true,
-          mutable: false,
-          persistent: true
-        }],
       nodeNameFilter: '',
       nodeIdFilter: '',
       registerNameFilter: '',
@@ -218,6 +134,9 @@ export default {
     }
   },
   computed: {
+    ...mapState({
+      registers: state => state.nodes.globalRegisterView
+    }),
     nodeMap: function () {
       let nodes = {}
 
@@ -364,6 +283,14 @@ export default {
     }
   },
   methods: {
+    async loadData () {
+      this.error = ''
+      try {
+        await this.$store.dispatch('nodes/getGlobalRegisterView')
+      } catch (e) {
+        this.error = e
+      }
+    },
     firstKeyOf (obj) {
       return obj[Object.keys(obj)[0]]
     },
