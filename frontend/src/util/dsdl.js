@@ -3,18 +3,20 @@ function frac (f) {
   return f % 1
 }
 
+export function isNumber (n) {
+  return !isNaN(parseFloat(n)) && !isNaN(n - 0)
+}
+
 export function isInt (n) {
-  return n === parseInt(n, 10)
+  return (isNumber(n) || isNumber(parseInt(n)))
 }
 
 export function isFloat (n) {
-  return !isNaN(parseFloat(n))
+  return isNumber(n)
 }
 
 export function isUint (n) {
-  const x = parseInt(n, 10)
-
-  return n === x ? n >= 0 : false
+  return isNumber(n) && isInt(n) && parseInt(n, 10) >= 0
 }
 
 export default function parseDataTypeStringDescriptor (type) {
@@ -52,6 +54,12 @@ export default function parseDataTypeStringDescriptor (type) {
 
     ret.type = 'number'
     ret.step = 1
+  }
+
+  if (primitiveType.startsWith('float')) {
+    ret.primitiveType = 'float'
+
+    ret.type = 'number'
   }
 
   if (primitiveType.startsWith('bool')) {

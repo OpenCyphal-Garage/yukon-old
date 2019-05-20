@@ -12,15 +12,15 @@
       type="checkbox"/>
 
     <input v-else-if="formMetaData.array"
-      v-model="inputValue" />
+      v-model="inputValue"
+      v-on:input="validateInput()" />
 
     <input v-else class="float-right type-edit-form"
       v-model="inputValue"
       :type="formMetaData.type"
       :min="formMetaData.min"
       :max="formMetaData.max"
-      :step="formMetaData.step"
-      :id="stackedParentType + ':' + k"/>
+      :step="formMetaData.step"/>
 
     <p style="color: red; display: inline-block;" v-if="error !== ''"> {{ error }} </p>
   </div>
@@ -57,6 +57,10 @@ export default {
         if (items.length > this.formMetaData.capacity) {
           this.error = `Exceeded max array capacity (${items.length} > ${this.formMetaData.capacity})`
           return
+        }
+
+        if (items.length === 0) {
+          return // empty array
         }
 
         items.forEach(item => {
