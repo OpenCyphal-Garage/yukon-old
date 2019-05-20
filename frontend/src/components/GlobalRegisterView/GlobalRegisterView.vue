@@ -269,11 +269,11 @@ export default {
     },
     addToWorkset (nodeIndex, registerName) {
       const id = this.getNodeIdFromIndex(nodeIndex)
-      this.$store.dispatch('grv/addNodeRegisterToWorkset', { id, registerName })
+      this.$store.dispatch('grv/addRegisterToWorkset', { id, registerName })
     },
     removeFromWorkset (nodeIndex, registerName) {
       const id = this.getNodeIdFromIndex(nodeIndex)
-      this.$store.dispatch('grv/removeNodeRegisterFrom', { id, registerName })
+      this.$store.dispatch('grv/removeRegisterFromWorkset', { id, registerName })
     }
   }
 }

@@ -17,9 +17,9 @@
           <!-- For node with that register -->
           <div class="col-12 text-left ml-2 pb-2" v-for="id in workset[reg].nodeIds" :key="reg + ':' + id">
             <div style="display: inline-block;">
-              <h6 class="ml-2">- {{ nodeMapById[id].name + '  ' + '[' + id + ']'}} -></h6>
+              <h6 class="ml-2">- {{ nodeMapById[id].name + '  ' + '[' + id + ']' }} -></h6>
 
-              <a @click="removeFromWorkgroup(id, reg)">Remove</a>
+              <a @click="removeFromWorkset(id, reg)">Remove</a>
             </div>
             <TypeValue :ref="reg" class="ml-4" v-bind:val="valueOf(id, reg)" />
           </div>
@@ -83,7 +83,7 @@ export default {
       return obj[Object.keys(obj)[0]]
     },
     removeFromWorkset (nodeId, register) {
-      this.$store.dispatch('grv/removeNodeFromWorkset', { id: nodeId, register })
+      this.$store.dispatch('grv/removeRegisterFromWorkset', { id: nodeId, register })
     }
   }
 }

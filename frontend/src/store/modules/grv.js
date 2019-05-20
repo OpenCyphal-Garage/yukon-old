@@ -53,10 +53,10 @@ const actions = {
     const grv = response.data
     commit('setGlobalRegisterView', grv)
   },
-  addNodeRegisterToWorkset ({ commit }, payload) {
+  addRegisterToWorkset ({ commit }, payload) {
     commit('addToWorkset', payload)
   },
-  removeNodeRegisterFromWorkset ({commit}, payload) {
+  removeRegisterFromWorkset ({commit}, payload) {
     commit('removeFromWorkset', payload)
   }
 }
