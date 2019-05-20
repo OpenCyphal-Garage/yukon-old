@@ -36,11 +36,10 @@ export default {
       serverHealth: state => state.general.serverHealth
     }),
     heuristicHealthBadgeColor: function () {
-      if (!this.serverHealth) {
+      if (!this.serverHealth || !this.serverHealth.health) {
         return
       }
       const health = this.serverHealth.health.toLowerCase()
-
       if (health.includes('good') ||
       health.includes('running') ||
       health.includes('operational') ||
