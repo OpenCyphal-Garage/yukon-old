@@ -14,49 +14,36 @@
 
       <div class="ml-4" v-for="k in typeFieldsKeys" :key="type + ':' + k">
         <TypeEditForm v-if="isCompositeType(typeFields[k].type)"
-          v-bind:type="typeFields[k].type"
+          :type="typeFields[k].type"
           :parent="stackedParentType + ':' + typeFields[k].type" />
 
-        <div v-else class="ml-4">
+        <div v-else class="ml-4"> <!-- k (name) is leaf -->
             <label :for="type + ':' + k" class="mr-2">
               - {{ k + ' (' + typeFields[k].type + ')'}}
             </label>
 
-            <!-- Root level form input -->
+            <!-- Root level form actual input -->
             <div class="float-right">
-              <input v-if="formMetaData.type === 'checkbox'"
-                v-model="inputValue"
-                type="checkbox"/>
-
-              <input v-else-if="formMetaData.array"
-                v-model="inputValue" />
-
-              <input v-else class="float-right type-edit-form"
-                v-model="inputValue"
-                :type="formMetaData.type"
-                :min="formMetaData.min"
-                :max="formMetaData.max"
-                :step="formMetaData.step"
-                :id="stackedParentType + ':' + k"/>
-
-              <p style="color: red; display: inline-block;" v-if="error !== ''"> {{ error }} </p>
+              <TypeInput :type="typeFields[k].type" />
             </div>
         </div>
       </div>
+
     </div>
   </div>
 </template>
 
 <script>
-import parseDataTypeStringDescriptor from '@/util/dsdl.js'
+import TypeInput from './TypeInput'
 
 export default {
   name: 'TypeEditForm',
   props: ['type', 'parent'],
+  components: {
+    TypeInput
+  },
   data () {
     return {
-      inputValue: '',
-      error: '',
       typeInfo: {
         'uavcan.register.Access.Request': {
           fields: {
@@ -83,45 +70,19 @@ export default {
   },
   computed: {
     stackedParentType: function () {
-      return this.parent === undefined ? this.type : this.parent
+      return this.parent === undefined ? this.type : (this.parent ? this.parent : '')
     },
     typeFieldsKeys: function () {
       return Object.keys(this.typeInfo[this.type].fields)
     },
     typeFields: function () {
-      return this.typeInfo[this.type].fields
-    },
-    formMetaData: function () {
-      if (this.isCompositeType(this.type)) {
-        return undefined
-      }
-
-      return parseDataTypeStringDescriptor(this.type)
+      const fields = this.typeInfo[this.type].fields
+      return fields !== undefined ? fields : []
     }
   },
   methods: {
     isCompositeType (type) {
-      return type.includes('.')
-    },
-    validateInput () {
-      if (this.formMetaData === undefined) {
-        return
-      }
-      this.error = ''
-
-      if (this.formMetaData.array) {
-        const contents = this.inputValue.replace(/\s/g, '')
-        const items = contents.split(',')
-
-        if (items.length > this.formMetaData.capacity) {
-          this.error = `Exceeded max array capacity (${items.length} > ${this.formMetaData.capacity})`
-          return
-        }
-
-        items.forEach(item => {
-          // TODO
-        })
-      }
+      return type !== undefined && type.includes('.')
     }
   }
 }

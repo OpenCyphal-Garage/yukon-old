@@ -36,7 +36,6 @@ export default {
       serverHealth: state => state.general.serverHealth
     }),
     heuristicHealthBadgeColor: function () {
-      console.log(this.serverHealth.health)
       const health = this.serverHealth.health.toLowerCase()
 
       if (health.includes('good') ||

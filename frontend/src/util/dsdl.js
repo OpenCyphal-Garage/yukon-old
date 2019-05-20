@@ -1,3 +1,22 @@
+
+function frac (f) {
+  return f % 1
+}
+
+export function isInt (n) {
+  return n === parseInt(n, 10)
+}
+
+export function isFloat (n) {
+  return !isNaN(parseFloat(n))
+}
+
+export function isUint (n) {
+  const x = parseInt(n, 10)
+
+  return n === x ? n >= 0 : false
+}
+
 export default function parseDataTypeStringDescriptor (type) {
   const parts = type.split(' ')
   let ret = {}
@@ -76,18 +95,31 @@ export default function parseDataTypeStringDescriptor (type) {
   // min-max based on primitiveType
   if (primitiveType === 'uint') {
     ret.min = 0
-    ret.max = 2 ^ ret.bits
+    ret.max = (2 ^ ret.bits) - 1
   }
 
   if (primitiveType === 'int') {
-    const bound = 2 ^ (ret.bits - 1)
+    const bound = (2 ^ (ret.bits - 1)) - 1
     ret.min = -bound
-    ret.max = (bound - 1)
+    ret.max = bound
   }
 
   if (primitiveType === 'float') {
-    ret.min = -9999
-    ret.max = 9999
+    let max = 0
+    if (ret.bits === 16) {
+      max = (2 ^ 0x00F) * (2 - (frac(2.0)) ^ frac(-10.0))
+    }
+
+    if (ret.bits === 32) {
+      max = (2 ^ 0x07F) * (2 - (frac(2.0)) ^ frac(-23.0))
+    }
+
+    if (ret.bits === 64) {
+      max = (2 ^ 0x3FF) * (2 - (frac(2.0)) ^ frac(-52.0))
+    }
+
+    ret.max = max
+    ret.min = -max
   }
 
   return ret
