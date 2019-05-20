@@ -7,7 +7,7 @@ const state = {
 }
 
 const getters = {
-  nodeMap: function () {
+  nodeMapByName: function () {
     let nodes = {}
 
     state.globalRegisterView.forEach(element => {
@@ -65,24 +65,29 @@ const mutations = {
   setGlobalRegisterView (state, grv) {
     state.globalRegisterView = grv
   },
-  addToWorkset (state, {nodeId, registerName}) {
-    let member = state.registerWorkset[registerName]
+  addToWorkset (state, {id: nodeId, registerName}) {
+    const member = state.registerWorkset[registerName]
     if (member === undefined) {
       state.registerWorkset[registerName] = {
-        nodeIds: [nodeId]
+        nodeIds: [nodeId],
+        type: getters.nodeMapById()[nodeId][registerName].value._type_
       }
       return
     }
 
     member.nodeIds.push(nodeId)
   },
-  removeFromWorkset (state, {nodeId, registerName}) {
+  removeFromWorkset (state, {id: nodeId, registerName}) {
     let member = state.registerWorkset[registerName]
     if (member === undefined) {
       return
     }
 
     member.nodeIds = member.nodeIds.filter(e => e !== nodeId)
+
+    if (member.nodeIds.length === 0) {
+      state.registerWorkset[registerName] = undefined
+    }
   }
 }
 

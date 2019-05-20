@@ -7,31 +7,7 @@
 
 <template>
   <div>
-    <div class="subtle-border">
-      <div class="row ml-2 fit-border mb-0">
-        <h4>Workset</h4>
-      </div>
-      <div class="ml-2">
-        <!-- For each register in the workset -->
-        <div class="row m-0 col-12" v-for="reg in Object.keys(workset)" :key="reg">
-          <h5 class="ml-1 col-12 text-left">~ {{ reg }}</h5>
-          <!-- For node with that register -->
-          <div class="col-12 text-left ml-2 pb-2" v-for="id in workset[reg].nodeIds" :key="reg + ':' + id">
-              <h6 class="ml-2">- {{ nodeMapById[id].name + '  ' + '[' + id + ']'}} -></h6>
-              <TypeValue class="ml-4" v-bind:val="valueOf(id, reg)" />
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="subtle-border">
-      <div class="row ml-2 fit-border mb-0">
-        <h4>Register Edit</h4>
-      </div>
-      <div class="row m-0 col-12 text-left pb-2" v-if="Object.keys(workset).length > 0">
-          <TypeEditForm v-bind:type="firstKeyOf(workset).type"/>
-      </div>
-    </div>
+    <RegisterWorkset />
 
     <div class="subtle-border">
       <div class="row ml-2 fit-border mb-0">
@@ -73,7 +49,7 @@
           <th>full register name</th>
           <th>tree</th>
 
-          <th v-for="node in Object.keys(nodeMap)" :key="node">
+          <th v-for="node in Object.keys(nodeMapByName)" :key="node">
             {{ node }}
           </th>
         </thead>
@@ -94,8 +70,19 @@
             <td v-for="(d, index) in row.data" :key="index"
             >
               <div v-if="d === undefined"> </div>
-              <div v-else v-bind:class="{ 'immutable': !d.mutable, 'persistent': d.persistent, 'mutable': d.mutable, 'volatile': !d.persistent }"
-              > {{ d.text }} </div>
+              <div v-else>
+               <p style="display: inline-block;"
+                class="mb-0 pb-0"
+                v-bind:class="{ 'immutable': !d.mutable, 'persistent': d.persistent, 'mutable': d.mutable, 'volatile': !d.persistent }">
+                {{ d.text }}
+               </p>
+
+              <a v-if="workset[row.register] && workset[row.register].nodeIds.indexOf(getNodeIdFromIndex(index)) !== -1"
+                class="float-right" @click="removeFromWorkset(index, row.register)">-</a>
+              <a v-else
+                class="float-right" @click="addToWorkset(index, row.register)">+</a>
+              </div>
+
             </td>
           </tr>
         </tbody>
@@ -124,12 +111,6 @@ export default {
   data () {
     return {
       error: '',
-      workset: {
-        'uavcan.a.b.1': {
-          nodeIds: [0],
-          type: 'uavcan.register.Access.Request'
-        }
-      },
       nodeNameFilter: '',
       nodeIdFilter: '',
       registerNameFilter: '',
@@ -138,10 +119,11 @@ export default {
   },
   computed: {
     ...mapState({
+      workset: state => state.grv.registerWorkset,
       registers: state => state.grv.globalRegisterView
     }),
     ...mapGetters({
-      nodeMap: 'grv/nodeMap',
+      nodeMapByName: 'grv/nodeMapByName',
       nodeMapById: 'grv/nodeMapById'
     }),
     registerRows: function () {
@@ -171,7 +153,7 @@ export default {
           pos[registerNameParts.slice(-1)[0]] = element.registerName
         })
 
-      const numberOfNodes = Object.keys(this.nodeMap).length // used to avoid extra allocations on the 2d array
+      const numberOfNodes = Object.keys(this.nodeMapByName).length // used to avoid extra allocations on the 2d array
 
       let rows = []
       let row = -1
@@ -196,10 +178,10 @@ export default {
           } else {
             const leaf = possibleLeaf
 
-            // nodeMap is the register list, indexed by node name
+            // nodeMapByName is the register list, indexed by node name
             // for quick node[register name] lookup
             let i = 0
-            for (const [_, node] of Object.entries(self.nodeMap)) { // eslint-disable-line no-unused-vars
+            for (const [_, node] of Object.entries(self.nodeMapByName)) { // eslint-disable-line no-unused-vars
               const payload = node[leaf]
               if (payload !== undefined) {
                 rows[row].data[i++] = (payload.value === undefined && payload.value == null) ? { text: '' }
@@ -260,17 +242,6 @@ export default {
         this.error = e
       }
     },
-    firstKeyOf (obj) {
-      return obj[Object.keys(obj)[0]]
-    },
-    valueOf (nodeId, registerName) {
-      const n = this.nodeMapById[nodeId]
-      if (n === undefined) {
-        return undefined
-      }
-
-      return n[registerName]
-    },
     truncatedValueDisplayOf (val) {
       return val // for now
     },
@@ -290,6 +261,19 @@ export default {
       this.registerNameFilter = ''
       this.nodeNameFilter = ''
       this.nodeIdFilter = ''
+    },
+    getNodeIdFromIndex (nodeIndex) {
+      const k = Object.keys(this.nodeMapByName)[nodeIndex]
+      const node = this.nodeMapByName[k]
+      return node.id
+    },
+    addToWorkset (nodeIndex, registerName) {
+      const id = this.getNodeIdFromIndex(nodeIndex)
+      this.$store.dispatch('grv/addNodeRegisterToWorkset', { id, registerName })
+    },
+    removeFromWorkset (nodeIndex, registerName) {
+      const id = this.getNodeIdFromIndex(nodeIndex)
+      this.$store.dispatch('grv/removeNodeRegisterFrom', { id, registerName })
     }
   }
 }
