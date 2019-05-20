@@ -2,7 +2,6 @@
 const state = {
 }
 
-// getters
 const getters = {
 }
 

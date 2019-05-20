@@ -86,6 +86,10 @@ export default {
     isCompositeType (type) {
       return type !== undefined && type.includes('.')
     },
+    hasError () {
+      return Object.values(this.$refs).map(r => r[0])
+        .reduce((acc, cur) => acc || cur.hasError(), false)
+    },
     getValue () {
       let ret = {}
       Object.values(this.$refs).forEach(r => {

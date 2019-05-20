@@ -3,8 +3,7 @@ import ApiRoutes from '@/api/ApiRoutes'
 
 const state = {
   nodeList: [],
-  plugAndPlayTable: {},
-  globalRegisterView: []
+  plugAndPlayTable: {}
 }
 
 const getters = {}
@@ -19,11 +18,6 @@ const actions = {
     const response = await axios.get(ApiRoutes.Nodes.GetPlugAndPlayTable)
     const table = response.data
     commit('setPlugAndPlayTable', table)
-  },
-  async getGlobalRegisterView ({ commit }) {
-    const response = await axios.get(ApiRoutes.Nodes.GetGlobalRegisterView)
-    const grv = response.data
-    commit('setGlobalRegisterView', grv)
   }
 }
 
@@ -33,9 +27,6 @@ const mutations = {
   },
   setPlugAndPlayTable (state, table) {
     state.plugAndPlayTable = table
-  },
-  setGlobalRegisterView (state, grv) {
-    state.globalRegisterView = grv
   }
 }
 

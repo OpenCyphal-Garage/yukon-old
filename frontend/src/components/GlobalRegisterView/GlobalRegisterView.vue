@@ -107,7 +107,7 @@
 <script>
 import TypeValue from '@/components/Dsdl/TypeValue'
 import TypeEditForm from '@/components/Dsdl/TypeEditForm'
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 export default {
   name: 'GlobalRegisterView',
@@ -135,46 +135,12 @@ export default {
   },
   computed: {
     ...mapState({
-      registers: state => state.nodes.globalRegisterView
+      registers: state => state.grv.globalRegisterView
     }),
-    nodeMap: function () {
-      let nodes = {}
-
-      this.registers.forEach(element => {
-        if (nodes[element.nodeName] === undefined) {
-          nodes[element.nodeName] = {
-            id: element.nodeId
-          }
-        }
-
-        nodes[element.nodeName][element.registerName] = {
-          value: element.value,
-          mutable: element.mutable,
-          persistent: element.persistent
-        }
-      })
-
-      return nodes
-    },
-    nodeMapById: function () {
-      let nodes = {}
-
-      this.registers.forEach(element => {
-        if (nodes[element.nodeId] === undefined) {
-          nodes[element.nodeId] = {
-            name: element.nodeName
-          }
-        }
-
-        nodes[element.nodeId][element.registerName] = {
-          value: element.value,
-          mutable: element.mutable,
-          persistent: element.persistent
-        }
-      })
-
-      return nodes
-    },
+    ...mapGetters({
+      nodeMap: 'grv/nodeMap',
+      nodeMapById: 'grv/nodeMapById'
+    }),
     registerRows: function () {
       const self = this
       let tree = {}
@@ -286,7 +252,7 @@ export default {
     async loadData () {
       this.error = ''
       try {
-        await this.$store.dispatch('nodes/getGlobalRegisterView')
+        await this.$store.dispatch('grv/getGlobalRegisterView')
       } catch (e) {
         this.error = e
       }
