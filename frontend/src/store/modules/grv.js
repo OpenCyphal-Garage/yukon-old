@@ -2,7 +2,8 @@ import axios from 'axios'
 import ApiRoutes from '@/api/ApiRoutes'
 
 const state = {
-  globalRegisterView: []
+  globalRegisterView: [],
+  registerWorkset: {}
 }
 
 const getters = {
@@ -51,12 +52,37 @@ const actions = {
     const response = await axios.get(ApiRoutes.Nodes.GetGlobalRegisterView)
     const grv = response.data
     commit('setGlobalRegisterView', grv)
+  },
+  addNodeRegisterToWorkset ({ commit }, payload) {
+    commit('addToWorkset', payload)
+  },
+  removeNodeRegisterFromWorkset ({commit}, payload) {
+    commit('removeFromWorkset', payload)
   }
 }
 
 const mutations = {
   setGlobalRegisterView (state, grv) {
     state.globalRegisterView = grv
+  },
+  addToWorkset (state, {nodeId, registerName}) {
+    let member = state.registerWorkset[registerName]
+    if (member === undefined) {
+      state.registerWorkset[registerName] = {
+        nodeIds: [nodeId]
+      }
+      return
+    }
+
+    member.nodeIds.push(nodeId)
+  },
+  removeFromWorkset (state, {nodeId, registerName}) {
+    let member = state.registerWorkset[registerName]
+    if (member === undefined) {
+      return
+    }
+
+    member.nodeIds = member.nodeIds.filter(e => e !== nodeId)
   }
 }
 

@@ -107,13 +107,16 @@
 <script>
 import TypeValue from '@/components/Dsdl/TypeValue'
 import TypeEditForm from '@/components/Dsdl/TypeEditForm'
+import RegisterWorkset from './RegisterWorkset'
+
 import { mapState, mapGetters } from 'vuex'
 
 export default {
   name: 'GlobalRegisterView',
   components: {
     TypeValue,
-    TypeEditForm
+    TypeEditForm,
+    RegisterWorkset
   },
   async mounted () {
     await this.loadData()
