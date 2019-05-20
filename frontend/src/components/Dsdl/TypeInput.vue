@@ -31,7 +31,7 @@ import parseDataTypeStringDescriptor, {isInt, isUint, isFloat} from '@/util/dsdl
 
 export default {
   name: 'TypeInput',
-  props: ['type'],
+  props: ['type', 'name'],
   data () {
     return {
       inputValue: '',
@@ -44,6 +44,33 @@ export default {
     }
   },
   methods: {
+    getValue () { // returns the value for this type-input component
+      let ret = {}
+      ret[this.name] = ''
+
+      if (this.formMetaData.type === 'checkbox') {
+        ret[this.name] = this.inputValue ? 1 : 0
+      }
+
+      if (this.formMetaData.array) {
+        const contents = this.inputValue.replace(/\s/g, '')
+
+        if (contents !== '') {
+          const items = contents.split(',')
+          ret[this.name] = items.map(x => parseFloat(x))
+        } else {
+          ret[this.name] = []
+        }
+      }
+
+      if (['uint', 'int', 'float'].includes(this.formMetaData.type)) {
+        ret[this.name] = parseFloat(this.inputValue)
+      }
+      return ret
+    },
+    hasError () {
+      return this.error !== ''
+    },
     validateInput () {
       if (this.formMetaData === undefined) {
         return
@@ -86,8 +113,8 @@ export default {
             }
           }
 
-          // bound checks
-          const number = Number(item)
+          // min-max bound checks
+          const number = parseFloat(item)
           if (number <= this.formMetaData.min) {
             this.error = `'${number}' must be >= ${this.formMetaData.min}`
             return

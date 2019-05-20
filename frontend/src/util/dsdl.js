@@ -1,7 +1,7 @@
 
-function frac (f) {
-  return f % 1
-}
+// function frac (f) {
+//   return f % 1
+// }
 
 export function isNumber (n) {
   return !isNaN(parseFloat(n)) && !isNaN(n - 0)
@@ -74,7 +74,7 @@ export default function parseDataTypeStringDescriptor (type) {
   const firstDigit = type.match(/\d/)
   const indexOfFirstDigit = type.indexOf(firstDigit)
 
-  const indexOfLastDigit = ret.array ? type.indexOf('[') - 1 : type.length
+  const indexOfLastDigit = ret.array ? type.indexOf('[') : type.length
   if (indexOfLastDigit === -2) {
     console.log(`Invalid digits for type: '${type}'`)
   }
@@ -85,49 +85,50 @@ export default function parseDataTypeStringDescriptor (type) {
   if (ret.array) {
     ret.type = 'text'
 
-    const indexOfEndBracket = type.indexOf(']') - 1
+    const indexOfEndBracket = type.indexOf(']')
     if (indexOfEndBracket === -2) {
       console.log(`Invalid array bounds for type: '${type}'`)
     }
 
     const arrayStringDescriptor = type.substring(indexOfLastDigit, indexOfEndBracket)
+    const extraLength = arrayStringDescriptor.startsWith('[<=') ? 1 : 0 // assume it starts with '<'
 
-    const extraLength = arrayStringDescriptor.startsWith('<=') ? 0 : -1 // assume it starts with '<'
+    const operatorToLookFor = extraLength === 1 ? '<=' : '<'
+    const arrayLengthStart = arrayStringDescriptor.indexOf(operatorToLookFor) +
+      (arrayStringDescriptor.startsWith('[<=') ? 2 : 1)
 
-    const operatorToLookFor = extraLength === 0 ? '<=' : '<'
-    const arrayLengthStart = arrayStringDescriptor.indexOf(operatorToLookFor)
-
-    ret.capacity = parseInt(arrayStringDescriptor.substring(arrayLengthStart, arrayStringDescriptor.length))
+    ret.capacity = parseInt(arrayStringDescriptor
+      .substring(arrayLengthStart, arrayStringDescriptor.length)) + extraLength
   }
 
   // min-max based on primitiveType
-  if (primitiveType === 'uint') {
+  if (ret.primitiveType === 'uint' && ret.bits < 31) {
     ret.min = 0
     ret.max = (2 ^ ret.bits) - 1
   }
 
-  if (primitiveType === 'int') {
-    const bound = (2 ^ (ret.bits - 1)) - 1
+  if (ret.primitiveType === 'int' && ret.bits < 32) {
+    const bound = (2 ^ (ret.bits - 1))
     ret.min = -bound
     ret.max = bound
   }
 
-  if (primitiveType === 'float') {
-    let max = 0
-    if (ret.bits === 16) {
-      max = (2 ^ 0x00F) * (2 - (frac(2.0)) ^ frac(-10.0))
-    }
+  if (ret.primitiveType === 'float') {
+    // let max = 0
+    // if (ret.bits === 16) {
+    //   max = (2 ^ 0x00F) * (2 - (frac(2.0)) ^ frac(-10.0))
+    // }
 
-    if (ret.bits === 32) {
-      max = (2 ^ 0x07F) * (2 - (frac(2.0)) ^ frac(-23.0))
-    }
+    // if (ret.bits === 32) {
+    //   max = (2 ^ 0x07F) * (2 - (frac(2.0)) ^ frac(-23.0))
+    // }
 
-    if (ret.bits === 64) {
-      max = (2 ^ 0x3FF) * (2 - (frac(2.0)) ^ frac(-52.0))
-    }
+    // if (ret.bits === 64) {
+    //   max = (2 ^ 0x3FF) * (2 - (frac(2.0)) ^ frac(-52.0))
+    // }
 
-    ret.max = max
-    ret.min = -max
+    // ret.max = max
+    // ret.min = -max
   }
 
   return ret

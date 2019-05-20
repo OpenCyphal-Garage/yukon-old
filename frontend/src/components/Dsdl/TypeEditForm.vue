@@ -14,6 +14,7 @@
 
       <div class="ml-4" v-for="k in typeFieldsKeys" :key="type + ':' + k">
         <TypeEditForm v-if="isCompositeType(typeFields[k].type)"
+          :ref="typeFields[k].type"
           :type="typeFields[k].type"
           :parent="stackedParentType + ':' + typeFields[k].type" />
 
@@ -24,7 +25,8 @@
 
             <!-- Root level form actual input -->
             <div class="float-right">
-              <TypeInput :type="typeFields[k].type" />
+              <TypeInput :type="typeFields[k].type" :name="k"
+                :ref="k + ':' + typeFields[k].type" />
             </div>
         </div>
       </div>
@@ -83,6 +85,27 @@ export default {
   methods: {
     isCompositeType (type) {
       return type !== undefined && type.includes('.')
+    },
+    getValue () {
+      let ret = {}
+      Object.values(this.$refs).forEach(r => {
+        const ref = r[0]
+        if (ref.getValue !== undefined) {
+          ret = {
+            ...ret,
+            ...ref.getValue()
+          }
+        }
+      })
+
+      if (this.parent === undefined) {
+        return ret
+      }
+
+      const val = {}
+      val[this.type] = ret
+
+      return val
     }
   }
 }
