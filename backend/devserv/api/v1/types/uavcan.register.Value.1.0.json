@@ -1,0 +1,8 @@
+{
+    "first": {
+      "type": "bool"
+    },
+    "second": {
+      "type": "float32"
+    }
+}

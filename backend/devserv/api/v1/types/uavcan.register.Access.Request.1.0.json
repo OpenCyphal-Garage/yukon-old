@@ -1,0 +1,10 @@
+{
+    "fields": {
+      "foo": {
+        "type": "uavcan.register.Value"
+      },
+      "bar": {
+        "type": "saturated int32[<=123]"
+      }
+    }
+}
