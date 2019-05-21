@@ -77,7 +77,7 @@
                 {{ d.text }}
                </p>
 
-              <a v-if="workset[row.register] && workset[row.register].nodeIds.indexOf(getNodeIdFromIndex(index)) !== -1"
+              <a v-if="workset[row.register] && !workset[row.register].nodeIds.includes(getNodeIdFromIndex(index))"
                 class="float-right clickable" @click="removeFromWorkset(index, row.register)">-</a>
               <a v-else
                 class="float-right clickable" @click="addToWorkset(index, row.register)">+</a>

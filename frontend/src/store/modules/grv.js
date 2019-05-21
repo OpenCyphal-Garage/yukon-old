@@ -91,10 +91,12 @@ const mutations = {
   removeFromWorkset (state, {id: nodeId, registerName}) {
     let member = state.registerWorkset[registerName]
     if (member === undefined) {
+      // should not happen / ignore
       return
     }
 
     const newMembers = member.nodeIds.filter(e => e !== nodeId)
+    console.log(newMembers)
 
     state.registerWorkset[registerName].nodeIds = newMembers
 

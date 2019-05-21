@@ -95,7 +95,7 @@ export default {
       return obj[Object.keys(obj)[0]]
     },
     removeFromWorkset (nodeId, register) {
-      this.$store.dispatch('grv/removeNodeFromWorkset', { id: nodeId, register })
+      this.$store.dispatch('grv/removeNodeFromWorkset', { id: nodeId, registerName: register })
     },
     removeRegisterFromWorkset (register) {
       this.$store.dispatch('grv/removeRegisterFromWorkset', register)
