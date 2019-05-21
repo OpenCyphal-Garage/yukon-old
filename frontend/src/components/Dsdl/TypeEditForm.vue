@@ -16,6 +16,7 @@
         <TypeEditForm v-if="isCompositeType(typeFields[k].type)"
           :ref="typeFields[k].type"
           :type="typeFields[k].type"
+          :name="k"
           :parent="stackedParentType + ':' + typeFields[k].type" />
 
         <div v-else class="ml-4"> <!-- k (name) is leaf -->
@@ -40,7 +41,7 @@ import TypeInput from './TypeInput'
 
 export default {
   name: 'TypeEditForm',
-  props: ['type', 'parent'],
+  props: ['type', 'parent', 'name'],
   components: {
     TypeInput
   },
@@ -102,12 +103,12 @@ export default {
         }
       })
 
-      if (this.parent === undefined) {
+      if (!this.name) {
         return ret
       }
 
       const val = {}
-      val[this.type] = ret
+      val[this.name] = ret
 
       return val
     }
