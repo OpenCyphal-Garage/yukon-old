@@ -96,7 +96,6 @@ const mutations = {
     }
 
     const newMembers = member.nodeIds.filter(e => e !== nodeId)
-    console.log(newMembers)
 
     state.registerWorkset[registerName].nodeIds = newMembers
 

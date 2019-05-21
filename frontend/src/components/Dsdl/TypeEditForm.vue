@@ -45,33 +45,13 @@ export default {
   components: {
     TypeInput
   },
-  data () {
-    return {
-      typeInfo: {
-        'uavcan.register.Access.Request.1.0': {
-          fields: {
-            foo: {
-              type: 'uavcan.register.Value.1.0'
-            },
-            bar: {
-              type: 'saturated int32[<=123]'
-            }
-          }
-        },
-        'uavcan.register.Value.1.0': {
-          fields: {
-            first: {
-              type: 'bool'
-            },
-            second: {
-              type: 'float32'
-            }
-          }
-        }
-      }
-    }
+  async mounted () {
+    await this.loadTypeInfo()
   },
   computed: {
+    ...mapState({
+      typeInfo: state => state.types.typeInfo
+    }),
     stackedParentType: function () {
       return this.parent === undefined ? this.type : (this.parent ? this.parent : '')
     },
@@ -111,6 +91,9 @@ export default {
       val[this.name] = ret
 
       return val
+    },
+    async loadTypeInfo () {
+      await this.$store.dispatch('types/getTypeInfo', this.type)
     }
   }
 }
