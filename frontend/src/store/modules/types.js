@@ -22,9 +22,9 @@ const actions = {
     }
 
     state[type] = {}
-
     const response = await axios.get(ApiRoutes.Types.GetTypeInfoByName(type))
     const info = response.data
+
     const cacheHeader = response.headers['Cache-Control']
 
     if (cacheHeader && cacheHeader !== 'no-store') {
@@ -43,6 +43,7 @@ const actions = {
 
 const mutations = {
   updateTypeInfo (state, { name, info }) {
+    Vue.delete(state.typeInfo, name)
     Vue.set(state.typeInfo, name, info)
   }
 }

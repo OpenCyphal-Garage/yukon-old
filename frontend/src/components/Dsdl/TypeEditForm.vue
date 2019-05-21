@@ -9,10 +9,10 @@
     <div class="ml-4 mb-0">
     <div :if="type !== undefined">
       <p class="mb-0">
-        {{ type }}
+        {{ `${(name ? `- ${name}:  ` : '')}${type}` }}
       </p>
 
-      <div class="ml-4" v-for="k in typeFieldsKeys" :key="type + ':' + k">
+      <div class="ml-4" v-for="k in typeFieldKeys" :key="type + ':' + k">
         <TypeEditForm v-if="isCompositeType(typeFields[k].type)"
           :ref="typeFields[k].type"
           :type="typeFields[k].type"
@@ -21,7 +21,7 @@
 
         <div v-else class="ml-4"> <!-- k (name) is leaf -->
             <label :for="type + ':' + k" class="mr-2">
-              - {{ k + ' (' + typeFields[k].type + ')'}}
+              - {{ k + ':  (' + typeFields[k].type + ')'}}
             </label>
 
             <!-- Root level form actual input -->
@@ -38,6 +38,7 @@
 
 <script>
 import TypeInput from './TypeInput'
+import {mapState} from 'vuex'
 
 export default {
   name: 'TypeEditForm',
@@ -55,8 +56,19 @@ export default {
     stackedParentType: function () {
       return this.parent === undefined ? this.type : (this.parent ? this.parent : '')
     },
-    typeFieldsKeys: function () {
-      return Object.keys(this.typeInfo[this.type].fields)
+    typeFieldKeys: function () {
+      const obj = this.typeInfo[this.type]
+      if (!obj) {
+        return []
+      }
+
+      const fields = obj.fields
+      if (!fields) {
+        console.log(this.typeInfo[this.type])
+        return []
+      }
+
+      return Object.keys(fields)
     },
     typeFields: function () {
       const fields = this.typeInfo[this.type].fields
