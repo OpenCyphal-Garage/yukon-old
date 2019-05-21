@@ -86,29 +86,31 @@ export default {
           return
         }
 
-        if (items.length === 0) {
+        if (items.length === 0 || items[0].replace(' ', '') === '') {
+          this.error = ''
           return // empty array
         }
 
+        let err = ''
         items.forEach(item => {
           // correct type checks
           if (this.formMetaData.primitiveType === 'uint') {
             if (!isUint(item)) {
-              this.error = `'${item}' is not uint`
+              err = `'${item}' is not uint`
               return
             }
           }
 
           if (this.formMetaData.primitiveType === 'int') {
             if (!isInt(item)) {
-              this.error = `'${item}' is not int`
+              err = `'${item}' is not int`
               return
             }
           }
 
           if (this.formMetaData.primitiveType === 'float') {
             if (!isFloat(item)) {
-              this.error = `'${item}' is not float`
+              err = `'${item}' is not float`
               return
             }
           }
@@ -116,17 +118,16 @@ export default {
           // min-max bound checks
           const number = parseFloat(item)
           if (number <= this.formMetaData.min) {
-            this.error = `'${number}' must be >= ${this.formMetaData.min}`
+            err = `'${number}' must be >= ${this.formMetaData.min}`
             return
           }
 
           if (number >= this.formMetaData.max) {
-            this.error = `'${number}' must be <= ${this.formMetaData.max}`
-            return
+            err = `'${number}' must be <= ${this.formMetaData.max}`
           }
-
-          this.error = ''
         })
+
+        this.error = err
       }
     }
   }

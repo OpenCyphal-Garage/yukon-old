@@ -78,9 +78,9 @@
                </p>
 
               <a v-if="workset[row.register] && workset[row.register].nodeIds.indexOf(getNodeIdFromIndex(index)) !== -1"
-                class="float-right" @click="removeFromWorkset(index, row.register)">-</a>
+                class="float-right clickable" @click="removeFromWorkset(index, row.register)">-</a>
               <a v-else
-                class="float-right" @click="addToWorkset(index, row.register)">+</a>
+                class="float-right clickable" @click="addToWorkset(index, row.register)">+</a>
               </div>
 
             </td>
@@ -269,11 +269,11 @@ export default {
     },
     addToWorkset (nodeIndex, registerName) {
       const id = this.getNodeIdFromIndex(nodeIndex)
-      this.$store.dispatch('grv/addRegisterToWorkset', { id, registerName })
+      this.$store.dispatch('grv/addNodeToWorkset', { id, registerName })
     },
     removeFromWorkset (nodeIndex, registerName) {
       const id = this.getNodeIdFromIndex(nodeIndex)
-      this.$store.dispatch('grv/removeRegisterFromWorkset', { id, registerName })
+      this.$store.dispatch('grv/removeNodeFromWorkset', { id, registerName })
     }
   }
 }

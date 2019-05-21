@@ -47,17 +47,17 @@ export default {
   data () {
     return {
       typeInfo: {
-        'uavcan.register.Access.Request': {
+        'uavcan.register.Access.Request.1.0': {
           fields: {
             foo: {
-              type: 'uavcan.register.Value'
+              type: 'uavcan.register.Value.1.0'
             },
             bar: {
               type: 'saturated int32[<=123]'
             }
           }
         },
-        'uavcan.register.Value': {
+        'uavcan.register.Value.1.0': {
           fields: {
             first: {
               type: 'bool'

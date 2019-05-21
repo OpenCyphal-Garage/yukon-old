@@ -1,4 +1,5 @@
 import axios from 'axios'
+import Vue from 'vue'
 import ApiRoutes from '@/api/ApiRoutes'
 
 const state = {
@@ -53,11 +54,14 @@ const actions = {
     const grv = response.data
     commit('setGlobalRegisterView', grv)
   },
-  addRegisterToWorkset ({ commit }, payload) {
+  addNodeToWorkset ({ commit }, payload) {
     commit('addToWorkset', payload)
   },
-  removeRegisterFromWorkset ({commit}, payload) {
+  removeNodeFromWorkset ({commit}, payload) {
     commit('removeFromWorkset', payload)
+  },
+  removeRegisterFromWorkset ({commit}, register) {
+    commit('removeWorkset', register)
   }
 }
 
@@ -65,17 +69,24 @@ const mutations = {
   setGlobalRegisterView (state, grv) {
     state.globalRegisterView = grv
   },
+  removeWorkset (state, register) {
+    Vue.delete(state.registerWorkset, register)
+  },
   addToWorkset (state, {id: nodeId, registerName}) {
     const member = state.registerWorkset[registerName]
     if (member === undefined) {
-      state.registerWorkset[registerName] = {
+      Vue.set(state.registerWorkset, registerName, {
         nodeIds: [nodeId],
         type: getters.nodeMapById()[nodeId][registerName].value._type_
-      }
+      })
       return
     }
 
-    member.nodeIds.push(nodeId)
+    if (member.nodeIds.includes(nodeId)) {
+      return
+    }
+
+    state.registerWorkset[registerName].nodeIds = member.nodeIds.push(nodeId)
   },
   removeFromWorkset (state, {id: nodeId, registerName}) {
     let member = state.registerWorkset[registerName]
@@ -83,10 +94,12 @@ const mutations = {
       return
     }
 
-    member.nodeIds = member.nodeIds.filter(e => e !== nodeId)
+    const newMembers = member.nodeIds.filter(e => e !== nodeId)
 
-    if (member.nodeIds.length === 0) {
-      state.registerWorkset[registerName] = undefined
+    state.registerWorkset[registerName].nodeIds = newMembers
+
+    if (newMembers.length === 0) {
+      Vue.delete(state.registerWorkset, registerName)
     }
   }
 }

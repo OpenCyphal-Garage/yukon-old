@@ -2,11 +2,11 @@
     {
       "nodeId": 0,
       "nodeName": "esc0",
-      "registerName": "uavcan.a.b.1",
+      "registerName": "uavcan.a.b",
       "value": {
-        "_type_": ["uavcan.register.Access.Request", 1, 0],
+        "_type_": "uavcan.register.Access.Request.1.0",
         "foo": {
-          "_type_": ["uavcan.register.Value", 1, 0],
+          "_type_": "uavcan.register.Value.1.0",
           "first": "Zarko",
           "last": "Pafilis"
         },

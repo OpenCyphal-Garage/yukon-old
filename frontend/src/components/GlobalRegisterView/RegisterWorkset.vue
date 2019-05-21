@@ -6,9 +6,9 @@
  -->
 
 <template>
-  <div :f="Object.keys(workset).length > 0">
+  <div v-if="worksetLength > 0">
     <div class="row ml-2 fit-border mb-0">
-        <h4>Workset</h4>
+        <h4>Workset {{ worksetLength }}</h4>
       </div>
       <div class="ml-2">
         <!-- For each register in the workset -->
@@ -28,26 +28,35 @@
       <div class="row ml-2 fit-border mb-0">
         <h4>Register Edit</h4>
       </div>
-      <div class="row m-0 col-12 text-left pb-2" v-if="Object.keys(workset).length > 0">
+      <div class="row m-0 col-12 text-left pb-2">
         <TypeEditForm v-bind:type="firstKeyOf(workset).type"/>
-
-        <button @click="updateRegisters(reg)" class="btn btn-primary">Update {{ reg }}</button>
-        <p :if="error !== ''"> {{ error }} </p>
       </div>
-      <div class="row ml-2 mb-0">
+
+      <div class="row ml-4 mb-2">
+        <button @click="updateRegisters(Object.keys(workset)[0])" class="btn btn-primary">Update {{ Object.keys(workset)[0] }}</button>
+        <p :if="error !== ''"> {{ error }} </p>
       </div>
   </div>
 </template>
 
 <script>
+import TypeEditForm from '@/components/Dsdl/TypeEditForm'
+import TypeValue from '@/components/Dsdl/TypeValue'
+
 import { mapState, mapGetters } from 'vuex'
 
 export default {
   name: 'RegisterWorkset',
+  components: {
+    TypeValue,
+    TypeEditForm
+  },
   data () {
     return {
       error: ''
     }
+  },
+  mounted () {
   },
   computed: {
     ...mapState({
@@ -57,7 +66,10 @@ export default {
     ...mapGetters({
       nodeMap: 'grv/nodeMap',
       nodeMapById: 'grv/nodeMapById'
-    })
+    }),
+    worksetLength: function () {
+      return Object.keys(this.workset).length
+    }
   },
   methods: {
     updateRegisters (reg) {
@@ -83,7 +95,7 @@ export default {
       return obj[Object.keys(obj)[0]]
     },
     removeFromWorkset (nodeId, register) {
-      this.$store.dispatch('grv/removeRegisterFromWorkset', { id: nodeId, register })
+      this.$store.dispatch('grv/removeNodeFromWorkset', { id: nodeId, register })
     }
   }
 }

@@ -33,7 +33,7 @@ export default {
       return Object.keys(this.val)
     },
     displayName: function () {
-      return this.val._type_ === undefined ? '' : this.val._type_.join('.') + ' :'
+      return this.val._type_ === undefined ? '' : this.val._type_
     }
   },
   methods: {
