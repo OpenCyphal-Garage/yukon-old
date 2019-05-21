@@ -8,19 +8,19 @@
 <template>
   <div v-if="worksetLength > 0">
     <div class="row ml-2 fit-border mb-0">
-        <h4>Workset {{ worksetLength }}</h4>
+        <h4>Workset</h4>
       </div>
       <div class="ml-2">
         <!-- For each register in the workset -->
         <div class="row m-0 col-12" v-for="reg in Object.keys(workset)" :key="reg">
-          <h5 class="ml-1 col-12 text-left">~ {{ reg }}</h5>
+          <h5 class="ml-1 text-left mr-2">~ {{ reg }}</h5>
+          <a style="display: inline-block;" @click="removeRegisterFromWorkset(reg)">Remove</a>
+
           <!-- For node with that register -->
           <div class="col-12 text-left ml-2 pb-2" v-for="id in workset[reg].nodeIds" :key="reg + ':' + id">
-            <div style="display: inline-block;">
-              <h6 class="ml-2">- {{ nodeMapById[id].name + '  ' + '[' + id + ']' }} -></h6>
+            <a @click="removeFromWorkset(id, reg)">Remove</a>
+            <h6 style="display: inline-block;" class="ml-2">- {{ nodeMapById[id].name + '  ' + '[' + id + ']' }} -></h6>
 
-              <a @click="removeFromWorkset(id, reg)">Remove</a>
-            </div>
             <TypeValue :ref="reg" class="ml-4" v-bind:val="valueOf(id, reg)" />
           </div>
         </div>
@@ -96,6 +96,9 @@ export default {
     },
     removeFromWorkset (nodeId, register) {
       this.$store.dispatch('grv/removeNodeFromWorkset', { id: nodeId, register })
+    },
+    removeRegisterFromWorkset (register) {
+      this.$store.dispatch('grv/removeRegisterFromWorkset', register)
     }
   }
 }
