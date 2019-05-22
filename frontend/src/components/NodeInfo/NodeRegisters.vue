@@ -8,10 +8,10 @@
 <template>
   <div :class="{'subtle-border' : !loading}">
     <div v-if="!loading" class="row fit-border pt-2 ml-3 mb-0">
-      <p>Server responded with {{ params.length }} params</p>
+      <p>Server responded with {{ registers.length }} registers</p>
     </div>
     <div class="node-params">
-      <div v-if="!loading && params.length > 0" class="table-responsive">
+      <div v-if="!loading && registers.length > 0" class="table-responsive">
         <table class="table table-striped">
         <thead>
           <th>index</th>
@@ -24,21 +24,21 @@
         </thead>
 
         <tbody ref="nodeListParamsTableBody">
-          <tr v-for="(param, index) in params" :key="param.name" @click="editParam(param)">
+          <tr v-for="(reg, index) in registers" :key="reg.name" @click="editRegister(reg)">
             <td>{{ index }}</td>
-            <td>{{ param.name }}</td>
-            <td>{{ param.type }}</td>
-            <td>{{ param.value }}</td>
-            <td>{{ param.default }}</td>
+            <td>{{ reg.name }}</td>
+            <td>{{ reg.type }}</td>
+            <td>{{ reg.value }}</td>
+            <td>{{ reg.default }}</td>
             <!-- Optional -->
-            <td>{{ param.min }}</td>
-            <td>{{ param.max }}</td>
+            <td>{{ reg.min }}</td>
+            <td>{{ reg.max }}</td>
           </tr>
         </tbody>
       </table>
       </div>
     </div>
-    <!-- /Parameter Data -->
+    <!-- /Register Data -->
 
     <div
       v-if="loading && error.length != 0"
@@ -68,38 +68,11 @@ export default {
     return {
       loading: false,
       error: '',
-      params: [{
-        name: 'nmea.uart_on',
-        type: 'boolean',
-        value: 'false',
-        default: 'false'
-      },
-      {
-        name: 'uavcan.pubp.pres',
-        type: 'integer',
-        value: 1,
-        default: 0,
-        min: 0,
-        max: 10000
-      },
-      {
-        name: 'pres.variance',
-        type: 'real',
-        value: 100.5,
-        default: 100.0,
-        min: 1.0,
-        max: 4000.59
-      },
-      {
-        name: 'advertise.as',
-        type: 'string',
-        value: 'bestnodeinthebus',
-        default: 'simplenode'
-      }]
+      registers: []
     }
   },
-  mounted () {
-    this.refreshData()
+  async mounted () {
+    await this.refreshData()
   },
   methods: {
     async refreshData () {
@@ -107,10 +80,8 @@ export default {
       this.loading = true
 
       try {
-        const response = await axios.get(
-          ApiRoutes.Nodes.GetRegistersById(this.nodeId)
-        )
-        this.nodeInfo = response.data
+        const response = await axios.get(ApiRoutes.Nodes.GetRegistersById(this.nodeId))
+        this.registers = response.data
       } catch (e) {
         this.error = e
       }
@@ -118,8 +89,7 @@ export default {
       this.loading = false
     }
   },
-  editParam (param) {
-    console.log(JSON.stringify(param)) // stub, todo
+  editRegister (register) {
   }
 }
 </script>
