@@ -9,8 +9,10 @@
   <div class="subtle-border">
     <div class="fit-border">
       <div class="row d-flex flex-row">
-        <button type="button" @click="restartNode" class="btn btn-danger mr-2" ref="restartButton">Restart</button>
-        <button type="button" @click="startFirmwareUpdate" class="btn btn-warning" ref="startFirmwareUpdateButton">Start firmware update</button>
+        <button type="button" @click="restartNode()" class="btn btn-danger mr-2" ref="restartButton">Restart</button>
+        <button type="button" @click="openFileSelect()" class="btn btn-warning" ref="startFirmwareUpdateButton">Start firmware update</button>
+
+        <input ref="fileInput" style="display: none;" type="file" v-on:change="fileSelected"/>
       </div>
 
       <div v-if="text!==''" class="row d-flex flex-row fit-border">
@@ -38,6 +40,18 @@ export default {
     }
   },
   methods: {
+    openFileSelect () {
+      this.$refs.fileInput.click()
+    },
+    async fileSelected (ev) {
+      const file = ev.target.files[0]
+      const reader = new FileReader()
+
+      reader.onload = e => console.log(e.target.result)
+      const contents = reader.readAsText(file)
+
+      await this.startFirmwareUpdate(contents)
+    },
     async startFirmwareUpdate () {
       try {
         const response = await axios.post(ApiRoutes.Nodes.StartFirmwareUpdateById(this.nodeId))
