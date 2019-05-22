@@ -9,7 +9,7 @@
   <div class="subtle-border">
     <div class="fit-border">
       <div class="row d-flex flex-row">
-        <button type="button" @click="restartNode()" class="btn btn-danger mr-2" ref="restartButton">Restart</button>
+        <button type="button" @click="showRestartConfirmationDialog()" class="btn btn-danger mr-2" ref="restartButton">Restart</button>
         <button type="button" @click="openFileSelect()" class="btn btn-warning" ref="startFirmwareUpdateButton">Start firmware update</button>
 
         <input ref="fileInput" style="display: none;" type="file" v-on:change="fileSelected"/>
@@ -51,6 +51,13 @@ export default {
       const contents = reader.readAsText(file)
 
       await this.startFirmwareUpdate(contents)
+    },
+    async showRestartConfirmationDialog () {
+      const result = confirm(`Are you sure you want to restart node ${this.nodeId}? This operation is non-revertible.`)
+
+      if (result) {
+        await this.restartNode()
+      }
     },
     async startFirmwareUpdate () {
       try {
