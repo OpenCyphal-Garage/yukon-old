@@ -34,7 +34,8 @@ const ApiRoutes = {
   Bus: {
     GetInfo: BusBase,
     Monitor: BusBase + '/monitor'
-  }
+  },
+  EventSource: Base + '/eventSource'
 }
 
 export default ApiRoutes

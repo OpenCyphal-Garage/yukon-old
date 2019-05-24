@@ -1,10 +1,3 @@
-export const ParameterTypeHint = {
-  Boolean: 'boolean',
-  Integer: 'integer',
-  Real: 'real',
-  String: 'string'
-}
-
 export const NodeHealth = {
   Ok: 'OK',
   Warning: 'Warning',
