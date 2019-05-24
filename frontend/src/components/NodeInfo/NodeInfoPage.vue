@@ -42,7 +42,8 @@ export default {
   },
   computed: {
     _nodeId () {
-      if (this.nodeId === undefined || this.nodeId.trim() === '') {
+      console.log(this.nodeId)
+      if (this.nodeId === undefined || this.nodeId === '') {
         return this.$router.params.nodeId
       }
       return this.nodeId
