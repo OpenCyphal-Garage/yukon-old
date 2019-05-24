@@ -13,7 +13,11 @@ const state = {
   plugAndPlayTable: {}
 }
 
-const getters = {}
+const getters = {
+  statusOf: state => (nodeId) => {
+    return state.nodeList.find(node => node.id === nodeId)
+  }
+}
 
 const actions = {
   async getNodeList ({ commit }) {
@@ -34,6 +38,22 @@ const mutations = {
   },
   setPlugAndPlayTable (state, table) {
     state.plugAndPlayTable = table
+  },
+  updateNodeStatus (state, newNodeStatus) {
+    const target = state.nodeList.find(node => node.id === newNodeStatus.id)
+
+    if (!target) {
+      state.nodeList.push(newNodeStatus)
+      return
+    }
+
+    for (const key in newNodeStatus) {
+      if (key === 'id') {
+        continue
+      }
+
+      target[key] = newNodeStatus[key]
+    }
   }
 }
 

@@ -18,10 +18,10 @@
 
       <div class="row d-flex flex-row">
           <p class="mr-2 key">Mode:</p>
-          <p :class='nodeInfo.mode.toLowerCase()' class="mr-5">{{ nodeInfo.mode }}</p>
+          <p :class="modeClass" class="mr-5">{{ nodeStatus.mode }}</p>
 
           <p class="mr-2 key">Health:</p>
-          <p :class='nodeInfo.health.toLowerCase()' class="mr-5">{{ nodeInfo.health }}</p>
+          <p :class="healthClass" class="mr-5">{{ nodeStatus.health }}</p>
 
           <p class="mr-2 key">Uptime:</p>
           <p class="mr-5">{{ nodeInfo.uptime }}</p>
@@ -83,19 +83,20 @@ export default {
     return {
       loading: false,
       error: '',
-      nodeInfo: {
-        id: 1234,
-        name: 'asdf',
-        mode: 'OPERATIONAL',
-        health: 'OK',
-        uptime: 530,
-        vendorCode: 1234,
-        softwareVersion: '4.3.2.1',
-        crc: '0xBEEFALOT',
-        hardwareVersion: '0.1.2.4',
-        uid: 'my-uid-is-amazing',
-        authenticity: 'I AM LEGIT 0x0987'
-      }
+      nodeInfo: {}
+    }
+  },
+  computed: {
+    nodeStatus: function () {
+      return this.$store.getters['nodes/statusOf'](this.nodeId)
+    },
+    modeClass: function () {
+      const mode = this.nodeStatus.mode
+      return mode ? mode.toLowerCase() : ''
+    },
+    healthClass: function () {
+      const health = this.nodeStatus.health
+      return health ? health.toLowerCase() : ''
     }
   },
   mounted () {
