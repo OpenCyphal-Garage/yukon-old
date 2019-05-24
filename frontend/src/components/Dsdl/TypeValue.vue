@@ -8,7 +8,7 @@
 <template>
   <div class="ml-4 mb-0">
     <div :if="val !== undefined">
-      <p class="mb-0">
+      <p class="mb-0 copyable">
         {{ displayName }} <!-- Branch Subtree Header -->
       </p>
       <div class="ml-2" v-for="k in keys" :key="k">
@@ -23,6 +23,8 @@
 </template>
 
 <script>
+import copyToClipboard from '@/util/usability.js'
+
 export default {
   name: 'TypeValue',
   props: ['val'],
@@ -31,7 +33,12 @@ export default {
       return Object.keys(this.val)
     },
     displayName: function () {
-      return this.val._type_ === undefined ? '' : this.val._type_.join('.') + ' :'
+      return this.val._type_ === undefined ? '' : this.val._type_
+    }
+  },
+  methods: {
+    copySubtree () {
+      copyToClipboard(JSON.stringify(this.val))
     }
   }
 }

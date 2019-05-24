@@ -6,27 +6,18 @@
  -->
 
 <template>
-  <p class='copyable' @click="copyToClipboard(text)" title='Click to copy'>{{ text }}</p>
+  <p class='copyable' @click="copy(text)" title='Click to copy'>{{ text }}</p>
 </template>
 
 <script>
+import copyToClipboard from '@/util/usability.js'
+
 export default {
   name: 'CopyableText',
   props: ['text'],
   methods: {
-    copyToClipboard: text => {
-      // Create an element with position -9999 px, focus it's content, copy the content, remove it
-      const el = document.createElement('textarea')
-      el.value = text
-      el.setAttribute('readonly', '')
-      el.style = {
-        position: 'absolute',
-        left: '-9999px'
-      }
-      document.body.appendChild(el)
-      el.select()
-      document.execCommand('copy')
-      document.body.removeChild(el)
+    copy: text => {
+      copyToClipboard(text)
     }
   }
 }
