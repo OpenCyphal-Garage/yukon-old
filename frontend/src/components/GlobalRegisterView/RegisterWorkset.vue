@@ -31,7 +31,7 @@
         <h4>Register Edit</h4>
       </div>
       <div class="row m-0 col-12" v-for="reg in Object.keys(workset)" :key="reg">
-        <RegisterUpdater :register="reg" :type="workset[reg].type" />
+        <RegisterUpdater :register="reg" :type="workset[reg].type" :nodeIds="workset[reg].nodeIds" />
       </div>
   </div>
 </template>

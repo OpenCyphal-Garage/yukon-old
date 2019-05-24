@@ -68,7 +68,8 @@ export default {
     return {
       loading: false,
       error: '',
-      registers: []
+      registers: [],
+      targetRegister: ''
     }
   },
   async mounted () {
@@ -81,7 +82,8 @@ export default {
 
       try {
         const response = await axios.get(ApiRoutes.Nodes.GetRegistersById(this.nodeId))
-        this.registers = response.data
+        const reg = response.data
+        this.registers = reg
       } catch (e) {
         this.error = e
       }
@@ -90,6 +92,8 @@ export default {
     }
   },
   editRegister (register) {
+    this.targetRegister = register
+    this.$refs.modal.modal()
   }
 }
 </script>
