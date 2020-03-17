@@ -1,0 +1,24 @@
+steps:
+  - label: ':python::hammer: tox build, test, and release'
+    if: build.branch == "master" && pipeline.slug == "yukon-release"
+    id: toxic-docker-release
+    command: "./.buildkite/release.sh"
+    artifact_paths: 
+      - ".tox/report/tmp/*"
+      - ".tox/mypy/tmp/*"
+      - ".tox/flake8/tmp/*"
+      - ".tox/dist/*.zip"
+      - ".tox/py*-test/tmp/xunit-result.xml"
+    plugins:
+      - docker#v3.3.0:
+          workdir: /repo
+          image: "uavcan/toxic:py35-py38-sq"
+          propagate-environment: true
+          environment:
+            - "SONARQUBE_TOKEN"
+            - "PYPI_PASSWORD"
+            - "BUILDKITE"
+            - "BUILDKITE_BUILD_NUMBER"
+    agents:
+      queue: 'default'
+    timeout_in_minutes: 15
