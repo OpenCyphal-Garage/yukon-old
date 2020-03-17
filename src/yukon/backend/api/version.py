@@ -1,8 +1,8 @@
 #
-# Copyright (C) 2019  UAVCAN Development Team  <uavcan.org>
+# Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # This software is distributed under the terms of the MIT License.
 #
 
-__version__ = 0, 0, 1
+__version__ = "0.1.0"
 
 __license__ = 'MIT'
