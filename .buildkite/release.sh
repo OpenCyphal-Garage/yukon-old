@@ -24,7 +24,7 @@ set -o pipefail
 
 # +----------------------------------------------------------+
 
-export YUKON_FULL_VERSION=$(grep __version__ src/yukon/version.py | awk '{print $3}' | sed -E "s/'([0-9]+\.[0-9]+\.[0-9]+)'/\1/g")
+export YUKON_FULL_VERSION=$(grep __version__ src/yukon/backend/api/version.py | awk '{print $3}' | sed -E "s/'([0-9]+\.[0-9]+\.[0-9]+)'/\1/g")
 export YUKON_MAJOR_MINOR_VERSION=$(echo $YUKON_FULL_VERSION | sed -E "s/([0-9]+\.[0-9]+)\.[0-9]+/\1/g")
 tox
 tox -e sonar | grep -v "sonar.login"
