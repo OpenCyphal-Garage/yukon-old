@@ -1,6 +1,7 @@
 MIT License
 
-Copyright (c) 2019 UAVCAN
+Copyright (c) 2019 UAVCAN. All rights reserved.
+              2020 dronesolutions.io. All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
