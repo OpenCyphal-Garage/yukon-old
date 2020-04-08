@@ -11,11 +11,13 @@ import setuptools
 
 from typing import Dict
 
+os.chdir(os.path.abspath(os.path.dirname(__file__)))
+
 if int(setuptools.__version__.split('.')[0]) < 30:
     raise Exception('A newer version of setuptools is required. The current version does not support declarative config.')
 
 version = {}  # type: Dict
-with open(os.path.dirname(os.path.realpath(__file__)) + '/src/api/version.py') as fp:
+with open('src/api/version.py') as fp:
     exec(fp.read(), version)
 
 setuptools.setup(version=version['__version__'],
