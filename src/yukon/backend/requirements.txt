@@ -1,3 +1,7 @@
+quart
+quart_cors
+typing
+
 # Development-only dependencies (not required to use the library)
 pytest ~= 3.3
 coverage ~= 4.5
