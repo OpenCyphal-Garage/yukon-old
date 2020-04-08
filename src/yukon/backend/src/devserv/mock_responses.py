@@ -21,6 +21,38 @@ def fileresponse(path: str) -> Tuple[str, int]:
 
 
 class ServerSentEvent:
+    """
+    Sends a REST response to the client side. Example:
+
+    .. invisible-code-block:: python
+
+        from src.devserv import ServerSentEvent
+        import typing
+
+    .. code-block:: python
+
+        async def sse() -> typing.AsyncGenerator[bytes, None]:
+            async def send_events() -> typing.AsyncGenerator[bytes, None]:
+                data = [
+                    {
+                        "Test key": 0,
+                        "Test value": "CRITICAL"
+                    }
+                ]
+
+                while True:
+                    await asyncio.sleep(2)
+                    random.shuffle(data)
+                    event = ServerSentEvent(data=json.dumps(data), event='NODE_STATUS')
+                    yield event.encode()
+
+            return send_events()
+
+    .. invisible-code-block:: python
+
+        assert sse()[0]["Test Value"] == "CRITICAL"
+
+    """
     def __init__(
             self,
             data: str,
