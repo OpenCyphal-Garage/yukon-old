@@ -4,17 +4,20 @@ import asyncio
 import json
 from quart import Quart
 from quart_cors import cors
+from typing import Tuple
+from typing import AsyncGenerator
+from typing import Dict
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 
-def fileresponse(path) -> None:
+def fileresponse(path: str) -> Tuple[str, int]:
     f = os.path.join(dir_path, path)
     if os.path.isfile(f + '.json'):
         with open(f + '.json', 'r') as file:
             return (file.read(), 200)
-
-    return ('', 404)
+    else:
+        return ('', 404)
 
 
 class ServerSentEvent:
@@ -41,31 +44,31 @@ app = cors(app)
 
 
 @app.route(api_prefix + '/eventSource')
-async def sse() -> None:
-    async def send_events() -> None:
-        event_data = [
+async def sse() -> Tuple[AsyncGenerator[bytes, None], Dict[str, str]]:
+    async def send_events() -> AsyncGenerator[bytes, None]:
+        data = [
             {
                 "id": 0,
                 "health": "CRITICAL"
             },
             {
-                "id": 0,
+                "id": 1,
                 "health": 'WARNING'
             },
             {
-                "id": 0,
+                "id": 2,
                 "health": 'OPERATIONAL'
             },
             {
-                "id": 0,
+                "id": 3,
                 "health": 'ERROR'
             }
         ]
 
         while True:
             await asyncio.sleep(2)
-            random.shuffle(event_data)
-            event = ServerSentEvent(data=event_data[0], event='NODE_STATUS')
+            random.shuffle(data)
+            event = ServerSentEvent(data=json.dumps(data), event='NODE_STATUS')
             yield event.encode()
 
     return send_events(), {
@@ -77,9 +80,8 @@ async def sse() -> None:
 
 # Sink all undeclared routes so that vue can work with router properly
 @app.route('/<path:path>')
-def serve_mocks(path: str) -> str:
-    x = fileresponse(path)
-    return x
+def serve_mocks(path: str) -> Tuple[str, int]:
+    return fileresponse(path)
 
 
 if __name__ == "__main__":
