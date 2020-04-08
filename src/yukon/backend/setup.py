@@ -21,4 +21,5 @@ with open(os.path.dirname(os.path.realpath(__file__)) + '/src/api/version.py') a
     exec(fp.read(), version)
 
 setuptools.setup(version=version['__version__'],
+                 install_requires=['quart', 'quart_cors', 'typing'],
                  package_data={'': ['*.ini']})
