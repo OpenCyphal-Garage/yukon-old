@@ -5,6 +5,7 @@
 # This software is distributed under the terms of the MIT License.
 #
 
+import os
 import sys
 import setuptools
 
@@ -16,7 +17,7 @@ if int(setuptools.__version__.split('.')[0]) < 30:
     sys.exit(1)
 
 version = {}  # type: Dict
-with open('src/api/version.py') as fp:
+with open(os.path.dirname(os.path.realpath(__file__)) + '/src/api/version.py') as fp:
     exec(fp.read(), version)
 
 setuptools.setup(version=version['__version__'],
