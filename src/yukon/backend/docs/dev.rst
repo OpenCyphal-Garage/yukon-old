@@ -1,2 +1,3 @@
 
-.. include:: ../CONTRIBUTING.rst
+.. comment::
+  .. include:: ../CONTRIBUTING.rst
