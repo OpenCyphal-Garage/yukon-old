@@ -8,7 +8,7 @@ from quart_cors import cors
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 
-def fileresponse(path):
+def fileresponse(path) -> None:
     f = os.path.join(dir_path, path)
     if os.path.isfile(f + '.json'):
         with open(f + '.json', 'r') as file:
@@ -41,9 +41,9 @@ app = cors(app)
 
 
 @app.route(api_prefix + '/eventSource')
-async def sse():
-    async def send_events():
-        data = [
+async def sse() -> None:
+    async def send_events() -> None:
+        event_data = [
             {
                 "id": 0,
                 "health": "CRITICAL"
@@ -64,8 +64,8 @@ async def sse():
 
         while True:
             await asyncio.sleep(2)
-            random.shuffle(data)
-            event = ServerSentEvent(data=data[0], event='NODE_STATUS')
+            random.shuffle(event_data)
+            event = ServerSentEvent(data=event_data[0], event='NODE_STATUS')
             yield event.encode()
 
     return send_events(), {
