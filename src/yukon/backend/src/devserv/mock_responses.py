@@ -24,12 +24,13 @@ class ServerSentEvent:
     """
     Sends a REST response to the client side. Example:
 
-    .. invisible-code-block:: python
-
-        from src.devserv import ServerSentEvent
-        import typing
-
     .. code-block:: python
+
+        from src.devserv.mock_responses import ServerSentEvent
+
+        import asyncio
+        import json
+        import typing
 
         async def sse() -> typing.AsyncGenerator[bytes, None]:
             async def send_events() -> typing.AsyncGenerator[bytes, None]:
@@ -48,10 +49,8 @@ class ServerSentEvent:
 
             return send_events()
 
-    .. invisible-code-block:: python
-
-        assert sse()[0]["Test Value"] == "CRITICAL"
-
+        loop = asyncio.get_event_loop()
+        assert loop.run_until_complete(asyncio.gather(sse()))
     """
     def __init__(
             self,
