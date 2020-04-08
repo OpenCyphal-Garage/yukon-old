@@ -12,9 +12,7 @@ import setuptools
 from typing import Dict
 
 if int(setuptools.__version__.split('.')[0]) < 30:
-    print('A newer version of setuptools is required. The current version does not support declarative config.',
-          file=sys.stderr)
-    sys.exit(1)
+    raise Exception('A newer version of setuptools is required. The current version does not support declarative config.')
 
 version = {}  # type: Dict
 with open(os.path.dirname(os.path.realpath(__file__)) + '/src/api/version.py') as fp:
