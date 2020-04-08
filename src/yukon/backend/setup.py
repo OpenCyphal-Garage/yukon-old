@@ -6,7 +6,6 @@
 #
 
 import os
-import sys
 import setuptools
 
 from typing import Dict
@@ -14,7 +13,8 @@ from typing import Dict
 os.chdir(os.path.abspath(os.path.dirname(__file__)))
 
 if int(setuptools.__version__.split('.')[0]) < 30:
-    raise Exception('A newer version of setuptools is required. The current version does not support declarative config.')
+    raise Exception('A newer version of setuptools is required. '
+                    'The current version does not support declarative config.')
 
 version = {}  # type: Dict
 with open('src/api/version.py') as fp:

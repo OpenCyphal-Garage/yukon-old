@@ -115,7 +115,7 @@ async def node_details(nodeId) -> Any:
                                             990, '4.3.2.1', '0xTOOMUCHBEEF', '1.2.3.4', 'my-awesome-uid',
                                             'I am authentic')
 
-    return jsonify(mock_response.serialise())
+    return jsonify(mock_responses.serialise())
 
 
 @nodes_controller.route('/<int:nodeId>/shutdown', methods=['PUT'])

@@ -9,9 +9,8 @@
 # App, Static, Templates folder, CORS setup
 # Controller wiring
 
-from quart import Quart, jsonify, render_template
+from quart import Quart, render_template
 from quart_cors import cors
-from typing import Any, Dict
 # Controllers
 from controllers.nodes import nodes_controller
 

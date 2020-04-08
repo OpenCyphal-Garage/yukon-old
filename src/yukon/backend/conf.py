@@ -181,7 +181,9 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'Yukon', 'Yukon Backend Documentation',
-     author, 'UAVCAN Development Team', 'UAVCAN/Yukon python backend Uses new asynchronous pyuavcan to provide a REST interface over a libuavcan data bus.',
+     author, 'UAVCAN Development Team', 'UAVCAN/Yukon python '
+     'backend that uses new asynchronous pyuavcan to provide a '
+     'REST interface over a libuavcan data bus.',
      'Miscellaneous'),
 ]
 
