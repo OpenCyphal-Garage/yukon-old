@@ -12,7 +12,7 @@
 from quart import Quart, render_template
 from quart_cors import cors
 # Controllers
-from controllers.nodes import nodes_controller
+from .controllers.nodes import nodes_controller
 
 api_prefix = '/api/v1'
 
