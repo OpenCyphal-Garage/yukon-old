@@ -2,7 +2,7 @@ import os
 import random
 import asyncio
 import json
-from quart import Quart, jsonify, render_template
+from quart import Quart
 from quart_cors import cors
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -80,6 +80,7 @@ async def sse():
 def serve_mocks(path: str) -> str:
     x = fileresponse(path)
     return x
+
 
 if __name__ == "__main__":
     app.run(port=5000)
