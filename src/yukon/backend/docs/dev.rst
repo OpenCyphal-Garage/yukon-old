@@ -1,3 +1,0 @@
-
-.. comment::
-  .. include:: ../CONTRIBUTING.rst

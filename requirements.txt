@@ -1,0 +1,5 @@
+# Documentation dependencies
+sphinx >= 1.8.5
+sphinx-argparse
+sphinx-js
+sphinx_rtd_theme
