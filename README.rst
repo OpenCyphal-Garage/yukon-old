@@ -7,6 +7,15 @@ Yukon
 +--------------------------------+-----------------------------------+
 | static analysis                | |badge_analysis|_ |badge_issues|_ |
 +--------------------------------+-----------------------------------+
+| unit test code coverage        | |badge_coverage|_                 |
++--------------------------------+-----------------------------------+
+| documentation                  | |badge_docs|_                     |
++--------------------------------+-----------------------------------+
+| license                        | |badge_github_license|_           |
++--------------------------------+-----------------------------------+
+| community/support              | |badge_forum|_                    |
++--------------------------------+-----------------------------------+
+
 
 An open suite of tools for observing, debugging, and interacting with a `UAVCAN`_ v1 bus.
 
@@ -16,7 +25,7 @@ Installation & Development Instructions
 
 Install from Frontend::
 
-    cd frontend
+    cd src/yukon/frontend
     npm install
 
 Serve with hot reload at localhost::
@@ -29,21 +38,22 @@ Build for production with minification::
 
 Install backend::
 
-    cd ../backend
+    cd src/yukon/backend
 
 Install dependencies::
 
     pip3 install quart quart_cors typing
+
+Run server::
+
+    python app.py
+
 
 Install documentation and testing dependencies::
 
     npm install mocha
     npm install jsdoc
     pip3 install sphinx sphinx-argparse sphinx-js sphinx_rtd_theme
-
-Run server::
-
-    python app.py
 
 
 ************************************************
@@ -78,3 +88,19 @@ Most up to date swagger json is located at the `SWAGGERHUB` branch, under `/spec
 .. |badge_issues| image:: https://sonarcloud.io/api/project_badges/measure?project=UAVCAN_Yukon&metric=bugs
     :alt: Sonarcloud bugs
 .. _badge_issues: https://sonarcloud.io/dashboard?id=UAVCAN_Yukon
+
+.. |badge_coverage| image:: https://sonarcloud.io/api/project_badges/measure?project=UAVCAN_Yukon&metric=coverage
+    :alt: Sonarcloud coverage
+.. _badge_coverage: https://sonarcloud.io/dashboard?id=UAVCAN_Yukon
+
+.. |badge_docs| image:: https://readthedocs.org/projects/yukon/badge/?version=latest
+    :alt: Documentation Status
+.. _badge_docs: https://yukon.readthedocs.io/en/latest/?badge=latest
+
+.. |badge_github_license| image:: https://img.shields.io/badge/license-MIT-blue.svg
+    :alt: MIT license
+.. _badge_github_license: https://github.com/UAVCAN/Yukon/blob/master/LICENSE.md
+
+.. |badge_forum| image:: https://img.shields.io/discourse/https/forum.uavcan.org/users.svg
+    :alt: UAVCAN forum
+.. _badge_forum: https://forum.uavcan.org
