@@ -27,7 +27,7 @@ jest.mock('axios', () => {
 
 describe('PlugAndPlayTable.vue', () => {
   it('should render correct contents', async () => {
-    var wrapper = mount(PlugAndPlayTable)
+    var wrapper = mount(PlugAndPlayTable) // eslint-disable-line no-unused-vars
 
     await flushPromises()
 
@@ -36,7 +36,7 @@ describe('PlugAndPlayTable.vue', () => {
   })
 
   it('should render correct error', async () => {
-    var wrapper = mount(PlugAndPlayTable)
+    var wrapper = mount(PlugAndPlayTable) // eslint-disable-line no-unused-vars
 
     await flushPromises()
 
