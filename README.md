@@ -9,8 +9,7 @@
 
 ## Installation & Development Instructions
 
-``` bash
-
+```bash
 # install frontend
 cd frontend
 npm install

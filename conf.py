@@ -12,7 +12,19 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-from src.api.version import __version__  # noqa: E402
+import os
+import sys
+import importlib
+
+version_lib = importlib.util.spec_from_file_location("__version__", "../src/yukon/backend/src/api/version.py")
+__version__ = importlib.util.module_from_spec(version_lib) # noqa: E402
+
+# Add path to backend src code
+sys.path.append(os.path.join(os.path.dirname(__name__),'src/yukon/backend/src'))
+
+# Add path to frontend src code
+sys.path.append(os.path.join(os.path.dirname(__name__),'src/yukon/frontend/src'))
+js_source_path = os.path.dirname(__name__) + 'src/yukon/frontend/src'
 
 # -- Project information -----------------------------------------------------
 
@@ -20,14 +32,14 @@ project = 'yukon'
 copyright = '2020 dronesolutions.io. All rights reserved. 2019, UAVCAN Development Team'
 author = 'UAVCAN Development Team'
 
-_version_tuple = __version__.split('.')
+_version_tuple = str(__version__).split('.')
 # The short X.Y version
 version = "{}.{}".format(_version_tuple[0], _version_tuple[1])
 # The full version, including alpha/beta/rc tags
-release = __version__
+release = str(__version__)
 
 exclude_patterns = [
-    '**/test'
+    '**/test/**'
 ]
 
 with open('.gitignore', 'r') as gif:
@@ -53,7 +65,8 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
     'sphinxarg.ext',
-    'sphinx.ext.intersphinx'
+    'sphinx.ext.intersphinx',
+    'sphinx_js'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -211,8 +224,7 @@ epub_exclude_files = ['search.html']
 # -- Options for intersphinx extension ---------------------------------------
 
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/3', None),
-    'javascript': ('https://developer.mozilla.org/en-US/docs/Web/JavaScript', None)
+    'python': ('https://docs.python.org/3', None)
 }
 
 
