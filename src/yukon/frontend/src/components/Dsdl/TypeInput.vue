@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import parseDataTypeStringDescriptor, {isInt, isUint, isFloat} from '@/util/dsdl.js'
+import parseDataTypeStringDescriptor, { isInt, isUint, isFloat } from '@/util/dsdl.js'
 
 export default {
   name: 'TypeInput',
@@ -45,7 +45,7 @@ export default {
   },
   methods: {
     getValue () { // returns the value for this type-input component
-      let ret = {}
+      const ret = {}
       ret[this.name] = ''
 
       if (this.formMetaData.type === 'checkbox') {
