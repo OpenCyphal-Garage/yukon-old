@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import {FingerprintSpinner} from 'epic-spinners'
+import { FingerprintSpinner } from 'epic-spinners'
 export default {
   name: 'Spinner',
   components: {

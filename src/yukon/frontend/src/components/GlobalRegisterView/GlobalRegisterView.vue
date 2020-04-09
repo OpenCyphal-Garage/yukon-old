@@ -101,8 +101,8 @@ import { mapState, mapGetters } from 'vuex'
 export default {
   name: 'GlobalRegisterView',
   components: {
-    TypeValue,
-    TypeEditForm,
+    TypeValue, // eslint-disable-line vue/no-unused-components
+    TypeEditForm, // eslint-disable-line vue/no-unused-components
     RegisterWorkset
   },
   async mounted () {
@@ -128,7 +128,7 @@ export default {
     }),
     registerRows: function () {
       const self = this
-      let tree = {}
+      const tree = {}
       // filter based on node name and node id
       // construct registereter tree : leaf objects contain the full registereter name
       this.registers
@@ -155,7 +155,7 @@ export default {
 
       const numberOfNodes = Object.keys(this.nodeMapByName).length // used to avoid extra allocations on the 2d array
 
-      let rows = []
+      const rows = []
       let row = -1
 
       function appendData (t, indent, rowNamePrefix) {
