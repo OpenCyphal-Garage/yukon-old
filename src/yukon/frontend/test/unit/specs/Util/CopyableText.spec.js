@@ -18,7 +18,7 @@ describe('CopyableText.vue', () => {
       }
     })
     const copyToClipboard = jest.fn()
-    wrapper.setMethods({copyToClipboard})
+    wrapper.setMethods({ copyToClipboard })
 
     expect(wrapper.find('.copyable').is('p')).toBe(true)
     wrapper.find('.copyable').trigger('click')
