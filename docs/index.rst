@@ -1,6 +1,7 @@
 
 .. toctree::
    :hidden:
+
    dev
 
 .. toctree::
@@ -21,4 +22,4 @@
    frontend/store
    frontend/util
 
-.. include:: ../README.md
+.. include:: ../README.rst
