@@ -9,7 +9,7 @@ import Vue from 'vue'
 import store from '@/store'
 
 import App from '@/App'
-import {AppRouter} from '@/Router'
+import { AppRouter } from '@/Router'
 
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'

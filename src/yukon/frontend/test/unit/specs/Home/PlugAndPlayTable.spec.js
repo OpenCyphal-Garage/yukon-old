@@ -16,9 +16,9 @@ jest.mock('axios', () => {
     get: jest.fn()
       .mockImplementationOnce(() => ({
         data: {
-          '500': 9816439167,
-          '352': 9928488809103,
-          '101': 21309
+          500: 9816439167,
+          352: 9928488809103,
+          101: 21309
         }
       }))
       .mockImplementationOnce(() => Promise.reject(new Error('theerror')))
@@ -33,7 +33,6 @@ describe('PlugAndPlayTable.vue', () => {
 
     expect(axios.get).toHaveBeenCalledTimes(1)
     expect(axios.get).toHaveBeenCalledWith(ApiRoutes.Bus.PlugAndPlayTable)
-
   })
 
   it('should render correct error', async () => {
