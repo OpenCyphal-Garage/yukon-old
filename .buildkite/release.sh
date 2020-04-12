@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #
-# Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# Copyright (C) 2020  UAVCAN Development Team  <uavcan.org>
+#               2020  dronesolutions.io. All rights reserved.
 # This software is distributed under the terms of the MIT License.
 #
 
@@ -29,3 +30,4 @@ export YUKON_MAJOR_MINOR_VERSION=$(echo $YUKON_FULL_VERSION | sed -E "s/([0-9]+\
 tox
 tox -e sonar | grep -v "sonar.login"
 tox -e upload | grep -v "twine upload"
+tox -e upload | grep -v "npm publish"

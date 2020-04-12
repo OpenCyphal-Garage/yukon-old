@@ -1,9 +1,9 @@
 {
-  "name": "frontend",
-  "version": "1.0.0",
-  "description": "UAVCAN/Yukon vuejs frontend",
+  "name": "yukon_frontend",
+  "version": "0.1.0",
+  "description": "UAVCAN Yukon Vue.js frontend",
   "author": "",
-  "private": true,
+  "private": false,
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
     "start": "npm run dev",
