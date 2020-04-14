@@ -13,7 +13,7 @@
         <BusInfo />
       </div>
       <div class="col-sm-8">
-        <PlugAndPlayTable />
+        <!--<PlugAndPlayTable />-->
       </div>
     </div>
     <div class="row m-1 mb-3">
@@ -34,7 +34,7 @@ export default {
     ServerHealth,
     BusInfo,
     NodeList,
-    PlugAndPlayTable
+    PlugAndPlayTable // eslint-disable-line vue/no-unused-components
   }
 }
 </script>
