@@ -5,7 +5,7 @@ nodes_controller = Blueprint('nodes', __name__)
 
 
 @nodes_controller.route('/', methods=['GET'])
-async def list_of_nodes() -> Response:
+async def list_of_nodes() -> Tuple[Response, None]:
     class NodeGetAllEntryResponse(object):
         def __init__(self, name: str, id: int, health: str, mode: str, uptime: int, vendor_code: int) -> None:
             self.name = name
@@ -37,7 +37,7 @@ async def list_of_nodes() -> Response:
 
 
 @nodes_controller.route('/<int:nodeId>/parameters', methods=['GET'])
-async def node_parameter_list(nodeId) -> Response:
+async def node_parameter_list(nodeId) -> Tuple[Response, None]:
     class NodeParametersResponse(object):
         def __init__(self, name: str, type_: str, value: Any, default: Any, min: Any = None, max: Any = None) -> None:
             self.name = name
@@ -80,7 +80,7 @@ async def node_parameter_update(nodeId, param) -> Tuple[Response, int]:
 
 
 @nodes_controller.route('/<int:nodeId>', methods=['GET'])
-async def node_details(nodeId) -> Tuple[Response, int]:
+async def node_details(nodeId) -> Tuple[Response, None]:
     class NodeGetDetailsResponse(object):
         def __init__(self, name: str, id: int, health: str, mode: str, uptime: int, vendor_code: int,
                      software_version: str, crc: str, hardware_version: str, uid: str, authenticity: str) -> None:
