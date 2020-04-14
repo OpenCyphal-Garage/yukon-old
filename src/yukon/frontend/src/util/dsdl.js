@@ -21,7 +21,7 @@ export function isUint (n) {
 
 export default function parseDataTypeStringDescriptor (type) {
   const parts = type.split(' ')
-  const ret = {}
+  let ret = {}
 
   if (parts.length === 0 || parts.length > 2) {
     console.log(`Invalid type information: '${type}'`)

@@ -10,7 +10,7 @@ import Handlers from './handlers'
 
 export default function configureEventSources () {
   const eventSource = new EventSource(ApiRoutes.EventSource)
-  for (const handler of Handlers) { // eslint-disable-line no-unused-vars
+  for (const handler of Handlers) {
     eventSource.addEventListener(handler.eventType, event => {
       handler.handle(event)
     })

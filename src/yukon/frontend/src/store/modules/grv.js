@@ -16,7 +16,7 @@ const state = {
 
 const getters = {
   nodeMapByName: function () {
-    const nodes = {}
+    let nodes = {}
 
     state.globalRegisterView.forEach(element => {
       if (nodes[element.nodeName] === undefined) {
@@ -35,7 +35,7 @@ const getters = {
     return nodes
   },
   nodeMapById: function () {
-    const nodes = {}
+    let nodes = {}
 
     state.globalRegisterView.forEach(element => {
       if (nodes[element.nodeId] === undefined) {
@@ -64,10 +64,10 @@ const actions = {
   addNodeToWorkset ({ commit }, payload) {
     commit('addToWorkset', payload)
   },
-  removeNodeFromWorkset ({ commit }, payload) {
+  removeNodeFromWorkset ({commit}, payload) {
     commit('removeFromWorkset', payload)
   },
-  removeRegisterFromWorkset ({ commit }, register) {
+  removeRegisterFromWorkset ({commit}, register) {
     commit('removeWorkset', register)
   }
 }
@@ -79,7 +79,7 @@ const mutations = {
   removeWorkset (state, register) {
     Vue.delete(state.registerWorkset, register)
   },
-  addToWorkset (state, { id: nodeId, registerName }) {
+  addToWorkset (state, {id: nodeId, registerName}) {
     const member = state.registerWorkset[registerName]
     if (member === undefined) {
       Vue.set(state.registerWorkset, registerName, {
@@ -95,8 +95,8 @@ const mutations = {
 
     state.registerWorkset[registerName].nodeIds = member.nodeIds.push(nodeId)
   },
-  removeFromWorkset (state, { id: nodeId, registerName }) {
-    const member = state.registerWorkset[registerName]
+  removeFromWorkset (state, {id: nodeId, registerName}) {
+    let member = state.registerWorkset[registerName]
     if (member === undefined) {
       // should not happen / ignore
       return
