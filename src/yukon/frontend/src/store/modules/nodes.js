@@ -47,7 +47,7 @@ const mutations = {
       return
     }
 
-    for (const key in newNodeStatus) { // eslint-disable-line no-unused-vars
+    for (const key in newNodeStatus) {
       if (key === 'id') {
         continue
       }

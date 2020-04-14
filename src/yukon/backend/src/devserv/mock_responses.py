@@ -70,7 +70,9 @@ class ServerSentEvent:
 
 api_prefix = '/api/v1'
 
-app = Quart(__name__)
+app = Quart(__name__,
+            static_folder='../../../frontend/static/',
+            template_folder='../../../frontend/')
 app = cors(app)
 
 

@@ -45,7 +45,7 @@ export default {
   },
   methods: {
     getValue () { // returns the value for this type-input component
-      const ret = {}
+      let ret = {}
       ret[this.name] = ''
 
       if (this.formMetaData.type === 'checkbox') {

@@ -12,13 +12,13 @@
 from quart import Quart, render_template
 from quart_cors import cors
 # Controllers
-from .controllers.nodes import nodes_controller
+from controllers.nodes import nodes_controller
 
 api_prefix = '/api/v1'
 
 app = Quart(__name__,
-            static_folder='../../frontend/dist/static',
-            template_folder='../../frontend/dist')
+            static_folder='../../../frontend/static/',
+            template_folder='../../../frontend/')
 app = cors(app)
 
 # Register endpoint modules

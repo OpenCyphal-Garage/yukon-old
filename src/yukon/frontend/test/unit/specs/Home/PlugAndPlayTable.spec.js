@@ -16,9 +16,9 @@ jest.mock('axios', () => {
     get: jest.fn()
       .mockImplementationOnce(() => ({
         data: {
-          500: 9816439167,
-          352: 9928488809103,
-          101: 21309
+          '500': 9816439167,
+          '352': 9928488809103,
+          '101': 21309
         }
       }))
       .mockImplementationOnce(() => Promise.reject(new Error('theerror')))

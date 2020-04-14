@@ -128,7 +128,7 @@ export default {
     }),
     registerRows: function () {
       const self = this
-      const tree = {}
+      let tree = {}
       // filter based on node name and node id
       // construct registereter tree : leaf objects contain the full registereter name
       this.registers
@@ -155,7 +155,7 @@ export default {
 
       const numberOfNodes = Object.keys(this.nodeMapByName).length // used to avoid extra allocations on the 2d array
 
-      const rows = []
+      let rows = []
       let row = -1
 
       function appendData (t, indent, rowNamePrefix) {

@@ -18,7 +18,7 @@ module.exports = {
   plugins: [
     'vue'
   ],
-  "ignorePatterns": [
+  ignorePatterns: [
     "test/unit/reports/"
   ],
   rules: {

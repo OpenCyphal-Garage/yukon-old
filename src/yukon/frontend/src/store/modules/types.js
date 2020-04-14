@@ -17,7 +17,7 @@ const getters = {
 }
 
 const actions = {
-  async getTypeInfo ({ commit }, type) {
+  async getTypeInfo ({commit}, type) {
     if (state.typeInfo[type]) {
       return // already working on retrieving type info
     }
