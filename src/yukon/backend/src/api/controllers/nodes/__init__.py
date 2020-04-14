@@ -1,11 +1,11 @@
-from quart import Blueprint, jsonify, request
-from typing import Any, Dict
+from quart import Blueprint, jsonify, request, Response
+from typing import Any, Dict, Tuple
 
 nodes_controller = Blueprint('nodes', __name__)
 
 
 @nodes_controller.route('/', methods=['GET'])
-async def list_of_nodes() -> Any:
+async def list_of_nodes() -> Response:
     class NodeGetAllEntryResponse(object):
         def __init__(self, name: str, id: int, health: str, mode: str, uptime: int, vendor_code: int) -> None:
             self.name = name
@@ -37,7 +37,7 @@ async def list_of_nodes() -> Any:
 
 
 @nodes_controller.route('/<int:nodeId>/parameters', methods=['GET'])
-async def node_parameter_list(nodeId) -> Any:
+async def node_parameter_list(nodeId) -> Response:
     class NodeParametersResponse(object):
         def __init__(self, name: str, type_: str, value: Any, default: Any, min: Any = None, max: Any = None) -> None:
             self.name = name
@@ -74,13 +74,13 @@ async def node_parameter_list(nodeId) -> Any:
 
 
 @nodes_controller.route('/<int:nodeId>/parameters/<string:param>', methods=['PUT'])
-async def node_parameter_update(nodeId, param) -> Any:
+async def node_parameter_update(nodeId, param) -> Tuple[Response, int]:
     body = await request.get_json()
     return body['value'], 200
 
 
 @nodes_controller.route('/<int:nodeId>', methods=['GET'])
-async def node_details(nodeId) -> Any:
+async def node_details(nodeId) -> Tuple[Response, int]:
     class NodeGetDetailsResponse(object):
         def __init__(self, name: str, id: int, health: str, mode: str, uptime: int, vendor_code: int,
                      software_version: str, crc: str, hardware_version: str, uid: str, authenticity: str) -> None:
@@ -119,11 +119,11 @@ async def node_details(nodeId) -> Any:
 
 
 @nodes_controller.route('/<int:nodeId>/shutdown', methods=['PUT'])
-async def node_shutdown(nodeId) -> Any:
+async def node_shutdown(nodeId) -> Tuple[Response, int]:
     return "", 200
 
 
 @nodes_controller.route('/<int:nodeId>/firmwareupdate', methods=['PUT'])
-async def node_firmware_update(nodeId, param) -> Any:
+async def node_firmware_update(nodeId, param) -> Tuple[Response, int]:
     body = await request.get_json()
     return body['name'], 200
