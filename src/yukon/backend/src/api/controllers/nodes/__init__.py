@@ -3,6 +3,53 @@ from typing import Any, Dict, Tuple
 
 nodes_controller = Blueprint('nodes', __name__)
 
+import asyncio
+import pathlib
+import tempfile
+
+import os
+import sys
+import pyuavcan
+import pyuavcan.transport.udp
+
+dsdl_generated_dir = pathlib.Path(tempfile.gettempdir(), 'dsdl', f'pyuavcan-v{pyuavcan.__version__}')
+dsdl_generated_dir.mkdir(parents=True, exist_ok=True)
+sys.path.insert(0, str(dsdl_generated_dir))
+
+import pyuavcan.application
+import uavcan.node                      # noqa E402
+import uavcan.diagnostic                # noqa E402
+
+heartbeat = 0
+
+
+# Create the monitor node
+class MonitorNode:
+    def __init__(self):
+        transport = pyuavcan.transport.udp.UDPTransport('127.0.0.43/8')
+
+        assert transport.local_node_id == 43
+
+        node_info = uavcan.node.GetInfo_1_0.Response(
+            protocol_version=uavcan.node.Version_1_0(*pyuavcan.UAVCAN_SPECIFICATION_VERSION),
+            software_version=uavcan.node.Version_1_0(major=1, minor=0),
+            name='org.uavcan.yukon.backend.monitor',
+        )
+
+        presentation = pyuavcan.presentation.Presentation(transport)
+        self._node = pyuavcan.application.Node(presentation, node_info)
+        self._sub_heartbeat = self._node.presentation.make_subscriber(uavcan.node.Heartbeat_1_0, 42)
+        self._sub_heartbeat.receive_in_background(self._handle_heartbeat)
+
+        self._node.start()
+
+    async def _handle_heartbeat(self, msg: uavcan.node.Heartbeat_1_0, metadata: pyuavcan.transport.TransferFrom) -> None:
+        global heartbeat
+        heartbeat = metadata.source_node_id
+        print('Got heartbeat')
+
+monitor_node = MonitorNode()
+
 
 @nodes_controller.route('/', methods=['GET'])
 async def list_of_nodes() -> Tuple[Response, None]:
@@ -25,6 +72,8 @@ async def list_of_nodes() -> Tuple[Response, None]:
                 'vendorCode': self.vendor_code
             }
 
+    global heartbeat
+    print(heartbeat)
     mock_responses = [
         NodeGetAllEntryResponse('node_0', 1, 'OK', 'OPERATIONAL', 200, 990),
         NodeGetAllEntryResponse('node_1', 2, 'WARNING', 'INITIALIZATION', 444, 30),
