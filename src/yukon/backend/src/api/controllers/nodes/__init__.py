@@ -21,6 +21,9 @@ import uavcan.node                      # noqa E402
 
 
 class BusMonitorUtil():
+    """
+        Provides utillities for bus monitoring.
+    """
     def __init__(self, node_list=list(), nodeid_list=list()):
         # Array of online nodes and its IDs
         self._node_list = node_list
@@ -34,6 +37,7 @@ class BusMonitorUtil():
     def nodeid_list(self):
         return self._nodeid_list
 
+    @classmethod
     def health_to_text(self, health_code):
         if health_code == uavcan.node.Heartbeat_1_0.HEALTH_NOMINAL:
             return "NOMINAL"
@@ -44,6 +48,7 @@ class BusMonitorUtil():
         elif health_code == uavcan.node.Heartbeat_1_0.HEALTH_WARNING:
             return "WARNING"
 
+    @classmethod
     def mode_to_text(self, mode_code):
         if mode_code == uavcan.node.Heartbeat_1_0.MODE_OPERATIONAL:
             return "OPERATIONAL"
@@ -60,6 +65,9 @@ bus_monitor_util = BusMonitorUtil()
 
 
 class NodeInfo(object):
+    """
+        Class strucuture for UAVCAN node info.
+    """
     def __init__(self, name: str, id: int, health: str, mode: str, uptime: int, vendor_code: int) -> None:
         self.name = name
         self.id = id
@@ -81,6 +89,10 @@ class NodeInfo(object):
 
 # Create the monitor node
 class MonitorNode:
+    """
+        UAVCAN node created in a specific bus, which purpose is to gather data from other existing
+        nodes and retrieve data from the bus itself, the nodes and the packets being exchanged.
+    """
     def __init__(self, loop):
         # init event loop on the monitor
         self._loop = loop
@@ -117,6 +129,9 @@ class MonitorNode:
 
 @nodes_controller.route('/', methods=['GET'])
 async def list_of_nodes() -> Tuple[Response, None]:
+    """
+        Reponse to the home page, providing data for the existing nodes in a specific bus.
+    """
     # mock_responses = [
     #     NodeInfo('node_0', 1, 'OK', 'OPERATIONAL', 200, 990),
     #     NodeInfo('node_1', 2, 'WARNING', 'INITIALIZATION', 444, 30),
