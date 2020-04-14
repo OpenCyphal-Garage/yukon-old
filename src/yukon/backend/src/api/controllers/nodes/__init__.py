@@ -18,14 +18,74 @@ sys.path.insert(0, str(dsdl_generated_dir))
 
 import pyuavcan.application
 import uavcan.node                      # noqa E402
-import uavcan.diagnostic                # noqa E402
 
-heartbeat = 0
+
+class BusMonitorUtil():
+    def __init__(self, node_list=list(), nodeid_list=list()):
+        # Array of online nodes and its IDs
+        self._node_list = node_list
+        self._nodeid_list = nodeid_list
+
+    @property
+    def node_list(self):
+        return self._node_list
+
+    @property
+    def nodeid_list(self):
+        return self._nodeid_list
+
+    def health_to_text(self, health_code):
+        if health_code == uavcan.node.Heartbeat_1_0.HEALTH_NOMINAL:
+            return "NOMINAL"
+        elif health_code == uavcan.node.Heartbeat_1_0.HEALTH_ADVISORY:
+            return "ADVISORY"
+        elif health_code == uavcan.node.Heartbeat_1_0.HEALTH_CAUTION:
+            return "CAUTION"
+        elif health_code == uavcan.node.Heartbeat_1_0.HEALTH_WARNING:
+            return "WARNING"
+
+    def mode_to_text(self, mode_code):
+        if mode_code == uavcan.node.Heartbeat_1_0.MODE_OPERATIONAL:
+            return "OPERATIONAL"
+        elif mode_code == uavcan.node.Heartbeat_1_0.MODE_INITIALIZATION:
+            return "INITIALIZATION"
+        elif mode_code == uavcan.node.Heartbeat_1_0.MODE_MAINTENANCE:
+            return "MAINTENANCE"
+        elif mode_code == uavcan.node.Heartbeat_1_0.MODE_SOFTWARE_UPDATE:
+            return "SOFTWARE_UPDATE"
+        elif mode_code == uavcan.node.Heartbeat_1_0.MODE_OFFLINE:
+            return "OFFLINE"
+
+bus_monitor_util = BusMonitorUtil()
+
+
+class NodeInfo(object):
+    def __init__(self, name: str, id: int, health: str, mode: str, uptime: int, vendor_code: int) -> None:
+        self.name = name
+        self.id = id
+        self.health = health
+        self.mode = mode
+        self.uptime = uptime
+        self.vendor_code = vendor_code
+
+    def serialise(self) -> Dict[str, Any]:
+        return {
+            'name': self.name,
+            'id': self.id,
+            'health': self.health,
+            'mode': self.mode,
+            'uptime': self.uptime,
+            'vendorCode': self.vendor_code
+        }
 
 
 # Create the monitor node
 class MonitorNode:
-    def __init__(self):
+    def __init__(self, loop):
+        # init event loop on the monitor
+        self._loop = loop
+        app_tasks = asyncio.Task.all_tasks()
+
         transport = pyuavcan.transport.udp.UDPTransport('127.0.0.43/8')
 
         assert transport.local_node_id == 43
@@ -38,51 +98,35 @@ class MonitorNode:
 
         presentation = pyuavcan.presentation.Presentation(transport)
         self._node = pyuavcan.application.Node(presentation, node_info)
-        self._sub_heartbeat = self._node.presentation.make_subscriber(uavcan.node.Heartbeat_1_0, 42)
+        self._sub_heartbeat = self._node.presentation.make_subscriber(uavcan.node.Heartbeat_1_0, 32085)
         self._sub_heartbeat.receive_in_background(self._handle_heartbeat)
 
         self._node.start()
+        loop.run_until_complete(asyncio.gather(*app_tasks))
 
     async def _handle_heartbeat(self, msg: uavcan.node.Heartbeat_1_0, metadata: pyuavcan.transport.TransferFrom) -> None:
-        global heartbeat
-        heartbeat = metadata.source_node_id
-        print('Got heartbeat')
+        global bus_monitor_util
 
-monitor_node = MonitorNode()
+        if metadata.source_node_id not in bus_monitor_util.nodeid_list:
+            node_info = NodeInfo("node", metadata.source_node_id, bus_monitor_util.health_to_text(msg.health),
+                                 bus_monitor_util.mode_to_text(msg.mode), msg.uptime, msg.vendor_specific_status_code)
+
+            bus_monitor_util.nodeid_list.append(node_info.id)
+            bus_monitor_util.node_list.append(node_info)
 
 
 @nodes_controller.route('/', methods=['GET'])
 async def list_of_nodes() -> Tuple[Response, None]:
-    class NodeGetAllEntryResponse(object):
-        def __init__(self, name: str, id: int, health: str, mode: str, uptime: int, vendor_code: int) -> None:
-            self.name = name
-            self.id = id
-            self.health = health
-            self.mode = mode
-            self.uptime = uptime
-            self.vendor_code = vendor_code
+    # mock_responses = [
+    #     NodeInfo('node_0', 1, 'OK', 'OPERATIONAL', 200, 990),
+    #     NodeInfo('node_1', 2, 'WARNING', 'INITIALIZATION', 444, 30),
+    #     NodeInfo('xxx_5', 123, 'ERROR', 'MAINTAINANCE', 10000, 999),
+    #     NodeInfo('zzz_3', 6, 'CRITICAL', 'SOFTWARE_UPDATE', 5, 990),
+    #     NodeInfo('aa_4', 7, 'OK', 'OFFLINE', -1, 990)
+    # ]
 
-        def serialise(self) -> Dict[str, Any]:
-            return {
-                'name': self.name,
-                'id': self.id,
-                'health': self.health,
-                'mode': self.mode,
-                'uptime': self.uptime,
-                'vendorCode': self.vendor_code
-            }
-
-    global heartbeat
-    print(heartbeat)
-    mock_responses = [
-        NodeGetAllEntryResponse('node_0', 1, 'OK', 'OPERATIONAL', 200, 990),
-        NodeGetAllEntryResponse('node_1', 2, 'WARNING', 'INITIALIZATION', 444, 30),
-        NodeGetAllEntryResponse('xxx_5', 123, 'ERROR', 'MAINTAINANCE', 10000, 999),
-        NodeGetAllEntryResponse('zzz_3', 6, 'CRITICAL', 'SOFTWARE_UPDATE', 5, 990),
-        NodeGetAllEntryResponse('aa_4', 7, 'OK', 'OFFLINE', -1, 990)
-    ]
-
-    return jsonify([e.serialise() for e in mock_responses])
+    global bus_monitor_util
+    return jsonify([e.serialise() for e in bus_monitor_util.node_list])
 
 
 @nodes_controller.route('/<int:nodeId>/parameters', methods=['GET'])
