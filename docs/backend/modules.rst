@@ -6,3 +6,4 @@ library
 
    api
    devserv
+   uavcan_node_demo

@@ -12,10 +12,10 @@ Subpackages
 Submodules
 ----------
 
-api.app module
---------------
+api.main module
+---------------
 
-.. automodule:: api.app
+.. automodule:: api.main
    :members:
    :undoc-members:
    :show-inheritance:
