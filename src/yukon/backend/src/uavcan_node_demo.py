@@ -1,31 +1,49 @@
 #!/usr/bin/env python3
-import asyncio
-import pathlib
-import tempfile
+#
+# Copyright (C) 2020  UAVCAN Development Team  <uavcan.org>
+#               2020  dronesolutions.io. All rights reserved.
+# This software is distributed under the terms of the MIT License.
+#
+"""
+    Based on https://github.com/UAVCAN/pyuavcan/blob/master/tests/demo/basic_usage.py.
+    Launches a demo UAVCAN node which serves the purpose of testing the Yukon backend
+    functionaly.
+"""
+from asyncio import all_tasks, gather, get_event_loop, Task, sleep
 
+import pathlib
 import os
+import tempfile
 import sys
 import pyuavcan
 import pyuavcan.transport.udp
 
 dsdl_generated_dir = pathlib.Path(tempfile.gettempdir(), 'dsdl', f'pyuavcan-v{pyuavcan.__version__}')
 dsdl_generated_dir.mkdir(parents=True, exist_ok=True)
-print('Generated DSDL packages will be stored in:', dsdl_generated_dir, file=sys.stderr)
 
 sys.path.insert(0, str(dsdl_generated_dir))
 
 # Generate the standard namespace.
+print('\n\033[5mGenerating DSDL packages...\033[0m', file=sys.stderr)
+print('These are being stored in:', dsdl_generated_dir, file=sys.stderr)
 pyuavcan.dsdl.generate_package(
     root_namespace_directory=os.path.join(os.path.abspath(os.path.dirname(__file__)), 'public_regulated_data_types/uavcan'),
     output_directory=dsdl_generated_dir,
 )
 
-import pyuavcan.application
-import uavcan.node                      # noqa E402
-import uavcan.diagnostic                # noqa E402
-
+try:
+    import pyuavcan.application
+    import uavcan.node                      # noqa E402
+    import uavcan.diagnostic                # noqa E402
+except (ImportError, AttributeError):
+    sys.stderr.write('\n\n\033[91mFailed to import required DSDL packages. They might not have been generated correctly\n\033[0m')
+    sys.exit(1)
 
 class DemoApplication:
+    """
+        Starts a UAVCAN node which publishes data on a bus.
+        By 04/15/2020, it only functions over UDP and publishes heartbeats and diagnostic msgs.
+    """
     def __init__(self):
         transport = pyuavcan.transport.udp.UDPTransport('127.0.0.42/8')
 
@@ -52,25 +70,52 @@ class DemoApplication:
 
         self._node.start()
 
+    @property
+    def node_started(self):
+        return self._node._started
+
+
+async def main() -> int:
+    """
+        Main routine creates and starts the UAVCAN node and gathers and prints the
+        running tasks of the main event loop.
+    """
+    app = DemoApplication()
+
+    if app.node_started:
+        sys.stdout.write('\n\033[92mDemo UAVCAN node started!\n\033[0m')
+
+        app_tasks = all_tasks()
+
+        async def list_tasks_periodically() -> None:
+            """
+                Print active tasks periodically for demo purposes.
+            """
+            import re
+
+            def repr_task(t: Task) -> str:
+                try:
+                    out, = re.findall(r'^<([^<]+<[^>]+>)', str(t))
+                except ValueError:
+                    out = str(t)
+                return out
+
+            while True:
+                print('\nActive tasks:\n' + '\n'.join(map(repr_task, app_tasks)), file=sys.stderr)
+                await sleep(10)
+
+        get_event_loop().create_task(list_tasks_periodically())
+        await gather(*app_tasks)
+        return 0
+    else:
+        sys.stderr.write('\n\n\033[91mFailed to start demo UAVCAN node!\n\033[0m')
+        return 1
 
 if __name__ == '__main__':
-    app = DemoApplication()
-    app_tasks = asyncio.Task.all_tasks()
-
-    async def list_tasks_periodically() -> None:
-        """Print active tasks periodically for demo purposes."""
-        import re
-
-        def repr_task(t: asyncio.Task) -> str:
-            try:
-                out, = re.findall(r'^<([^<]+<[^>]+>)', str(t))
-            except ValueError:
-                out = str(t)
-            return out
-
-        while True:
-            print('\nActive tasks:\n' + '\n'.join(map(repr_task, asyncio.Task.all_tasks())), file=sys.stderr)
-            await asyncio.sleep(10)
-
-    asyncio.get_event_loop().create_task(list_tasks_periodically())
-    asyncio.get_event_loop().run_until_complete(asyncio.gather(*app_tasks))
+    try:
+        get_event_loop().run_until_complete(main())
+        get_event_loop().close()
+    except (KeyboardInterrupt, SystemExit):
+        sys.stdout.write('\n\n\033[94mDemo UAVCAN node terminated!\n\033[0m')
+        sys.exit(0)
+    
