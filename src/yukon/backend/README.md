@@ -10,5 +10,5 @@ Python 3.7 at least required
 
 ``` bash
 # run server
-python app.py
+python main.py
 ```

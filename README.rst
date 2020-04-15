@@ -48,7 +48,7 @@ Install dependencies::
 
 Run server::
 
-    python app.py
+    python main.py
 
 
 Install documentation and testing dependencies::
