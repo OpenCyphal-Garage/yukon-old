@@ -30,11 +30,11 @@ export YUKON_BACKEND_FULL_VERSION=$(grep __version__ src/yukon/backend/src/api/v
 export YUKON_FRONTEND_FULL_VERSION=$(node -e "console.log(require('./src/yukon/frontend/package.json').version);")
 export YUKON_BACKEND_MAJOR_MINOR_VERSION=$(echo $YUKON_BACKEND_FULL_VERSION | sed -E "s/([0-9]+\.[0-9]+)\.[0-9]+/\1/g")
 export YUKON_FRONTEND_MAJOR_MINOR_VERSION=$(echo $YUKON_FRONTEND_FULL_VERSION | sed -E "s/([0-9]+\.[0-9]+)\.[0-9]+/\1/g")
-tox
+tox -p auto
 tox -e sonar-release | grep -v "sonar.login"
 # Upload yukon_backend to PyPi
-tox -e pypi_upload | grep -v "twine upload"
+tox -e pypi-upload | grep -v "twine upload"
 # Only publish yukon_frontend to npm if the version is different from the one already published (otherwise it will fail)
 if [[ $YUKON_FRONTEND_FULL_VERSION != $(npm view yukon_frontend version) ]]; then
-  tox -e npm_publish | grep -v "//registry.npmjs.org/:_authToken="
+  tox -e npm-publish | grep -v "//registry.npmjs.org/:_authToken="
 fi
