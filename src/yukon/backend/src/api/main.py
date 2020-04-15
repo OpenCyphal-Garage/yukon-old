@@ -20,9 +20,8 @@ from asyncio import all_tasks, gather, get_event_loop, Task, sleep
 from quart import Quart, render_template
 from quart_cors import cors
 
-# Controllers
-from controllers.nodes import nodes_controller
-from controllers.nodes import MonitorNode
+# Controller
+from controllers.nodes import Controller, Monitor
 
 
 async def main() -> int:
@@ -36,8 +35,12 @@ async def main() -> int:
     # Apply CORS access control headers to all routes in the backend
     backend = cors(backend)
 
+    controller = Controller()
+    monitor = Monitor()
+
     # Register endpoint modules
-    backend.register_blueprint(nodes_controller, url_prefix='/api/v1/nodes')
+    backend.register_blueprint(
+        controller.nodes_controller, url_prefix='/api/v1/nodes')
 
     # Sink all undeclared routes so that vue can work with router properly
     @backend.route('/', defaults={'path': ''})
@@ -48,13 +51,10 @@ async def main() -> int:
     return await backend.run_task(port=5000)
 
 if __name__ == "__main__":
-    loop = get_event_loop()
-    monitor_node = MonitorNode(loop)
+    sys.stdout.write('\n\033[92mDemo Backend process started!\n\033[0m')
     try:
-        sys.stdout.write('\n\033[92mDemo Backend process started!\n\033[0m')
-        loop.run_until_complete(main())
-        loop.close()
+        get_event_loop().run_until_complete(main())
+        get_event_loop().close()
     except (KeyboardInterrupt, SystemExit):
         sys.stdout.write('\n\n\033[94mBackend process terminated!\n\033[0m')
         sys.exit(0)
-
