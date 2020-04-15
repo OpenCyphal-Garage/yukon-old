@@ -6,23 +6,25 @@
 #
 
 """
-.. module:: controllers.nodes
+.. automodule:: nodes
    :platform: Unix, Windows
    :synopsis: Runs the Yukon backend
+   :members:
 
 .. moduleauthor:: Theodoros Ntakouris <zarkopafilis@gmail.com>
 .. moduleauthor:: Nuno Marques <nuno.marques@dronesolutions.io>
 """
 
-import pyuavcan.transport.udp
-import pyuavcan
-import sys
-import os
-import tempfile
-import pathlib
 import asyncio
-from quart import Blueprint, jsonify, request, Response
-from typing import Any, Dict, Tuple
+import os
+import pathlib
+import sys
+import tempfile
+from typing import Any, Awaitable, Dict, Tuple
+
+import pyuavcan
+import pyuavcan.transport.udp
+from quart import Blueprint, Response, jsonify, request
 
 dsdl_generated_dir = pathlib.Path(
     tempfile.gettempdir(), 'dsdl', f'pyuavcan-v{pyuavcan.__version__}')
@@ -46,7 +48,7 @@ class Controller():
         to the endpoints.
     """
 
-    def __init__(self, node_list=list(), nodeid_list=list()):
+    def __init__(self, node_list=list(), nodeid_list=list()) -> None:
         # Blueprint backend application properties init
         self._nodes_controller = Blueprint('nodes', __name__)
 
@@ -54,159 +56,131 @@ class Controller():
         self._node_list = node_list
         self._nodeid_list = nodeid_list
 
+        # Map for node health
+        self._node_health_code = {uavcan.node.Heartbeat_1_0.HEALTH_NOMINAL: 'NOMINAL',
+                                  uavcan.node.Heartbeat_1_0.HEALTH_ADVISORY: 'ADVISORY',
+                                  uavcan.node.Heartbeat_1_0.HEALTH_CAUTION: 'CAUTION',
+                                  uavcan.node.Heartbeat_1_0.HEALTH_WARNING: 'WARNING'}
+
+        # Map for node mode
+        self._node_mode_code = {uavcan.node.Heartbeat_1_0.MODE_OPERATIONAL: 'OPERATIONAL',
+                                uavcan.node.Heartbeat_1_0.MODE_INITIALIZATION: 'INITIALIZATION',
+                                uavcan.node.Heartbeat_1_0.MODE_MAINTENANCE: 'MAINTENANCE',
+                                uavcan.node.Heartbeat_1_0.MODE_SOFTWARE_UPDATE: 'SOFTWARE_UPDATE',
+                                uavcan.node.Heartbeat_1_0.MODE_OFFLINE: 'OFFLINE'}
+
         ######################
         # ENDPOINT RESPONSES #
         ######################
         @self.nodes_controller.route('/', methods=['GET'])
-        async def list_of_nodes() -> Tuple[Response, None]:
+        async def list_of_nodes() -> Response:
             """
                 Reponse to the home page, providing data for the existing nodes in a specific bus.
             """
-            return jsonify([e.serialise() for e in self.node_list])
+            return jsonify([e.__dict__ for e in self.get_node_list_ref()])
 
         @self.nodes_controller.route('/<int:nodeId>/parameters', methods=['GET'])
-        async def node_parameter_list(nodeId) -> Tuple[Response, None]:
-            class NodeParametersResponse(object):
-                def __init__(self, name: str, type_: str, value: Any, default: Any, min: Any = None, max: Any = None) -> None:
-                    self.name = name
-                    self.type = type_
-                    self.value = value
-                    self.default = default
-                    self.min = min
-                    self.max = max
-
-                def serialise(self) -> Dict[str, Any]:
-                    ret = {
-                        'name': self.name,
-                        'type': self.type.lower(),
-                        'value': self.value,
-                        'default': self.default,
-                    }
-
-                    if (self.value is str):
-                        ret['value'] = self.value.lower()
-
-                    if (self.min is not None):
-                        ret['min'] = self.min
-
-                    if (self.max is not None):
-                        ret['max'] = self.max
-
-                    return ret
-
+        async def node_parameter_list(nodeId: int) -> Response:
             # For now, send a mock reponses as an example
             mock_responses = [
-                NodeParametersResponse('gnss.uart_on', 'boolean',
-                                       True, False, None, None),
-                NodeParametersResponse('gnss.somemetric', 'real', 0.445, 1.0, 0.0, 10.0)]
+                NodeParameters('gnss.uart_on', 'boolean',
+                               True, False, None, None),
+                NodeParameters('gnss.somemetric', 'real', 0.445, 1.0, 0.0, 10.0)]
 
-            return jsonify([e.serialise() for e in mock_responses])
+            return jsonify([e.__dict__ for e in mock_responses])
 
         @self.nodes_controller.route('/<int:nodeId>/parameters/<string:param>', methods=['PUT'])
-        async def node_parameter_update(nodeId, param) -> Tuple[Response, int]:
+        async def node_parameter_update(nodeId: int, param) -> Tuple[Response, int]:
             body = await request.get_json()
             return body['value'], 200
 
         @self.nodes_controller.route('/<int:nodeId>', methods=['GET'])
-        async def node_details(nodeId) -> Tuple[Response, None]:
-            class NodeGetDetailsResponse(object):
-                def __init__(self, name: str, id: int, health: str, mode: str,
-                             uptime: int, vendor_code: int, software_version: str,
-                             crc: str, hardware_version: str, uid: str, authenticity: str) -> None:
-                    self.name = name
-                    self.id = id
-                    self.health = health
-                    self.mode = mode
-                    self.uptime = uptime
-                    self.vendor_code = vendor_code
-                    self.software_version = software_version
-                    self.crc = crc
-                    self.hardware_version = hardware_version
-                    self.uid = uid
-                    self.authenticity = authenticity
-
-                def serialise(self) -> Dict[str, Any]:
-                    return {
-                        'name': self.name,
-                        'id': self.id,
-                        'health': self.health,
-                        'mode': self.mode,
-                        'uptime': self.uptime,
-                        'vendorCode': self.vendor_code,
-                        'softwareVersion': self.software_version,
-                        'crc': self.crc,
-                        'hardware_version': self.hardware_version,
-                        'uid': self.uid,
-                        'authenticity': self.authenticity
-                    }
-
+        async def node_details(nodeId: int) -> Response:
             # For now, send a mock reponses as an example
-            mock_responses = NodeGetDetailsResponse('node_0', nodeId, 'OK', 'OPERATIONAL', 200,
-                                                    990, '4.3.2.1', '0xTOOMUCHBEEF', '1.2.3.4', 'my-awesome-uid',
-                                                    'I am authentic')
+            mock_responses = [NodeDetails('node_0', nodeId, 'OK', 'OPERATIONAL', 200,
+                                          990, '4.3.2.1', '0xTOOMUCHBEEF', '1.2.3.4', 'my-awesome-uid',
+                                          'I am authentic')]
 
-            return jsonify(mock_responses.serialise())
+            return jsonify([e.__dict__ for e in mock_responses])
 
         @self.nodes_controller.route('/<int:nodeId>/shutdown', methods=['PUT'])
-        async def node_shutdown(nodeId) -> Tuple[Response, int]:
+        async def node_shutdown(nodeId: int) -> Tuple[Response, int]:
             return "", 200
 
         @self.nodes_controller.route('/<int:nodeId>/firmwareupdate', methods=['PUT'])
-        async def node_firmware_update(nodeId, param) -> Tuple[Response, int]:
+        async def node_firmware_update(nodeId: int, param) -> Tuple[Response, int]:
             body = await request.get_json()
             return body['name'], 200
 
     @property
-    def nodes_controller(self):
+    def nodes_controller(self) -> Blueprint:
         return self._nodes_controller
 
-    @property
-    def node_list(self):
+    def get_node_list_ref(self) -> list:
         return self._node_list
 
-    @property
-    def nodeid_list(self):
+    def get_nodeid_list_ref(self) -> list:
         return self._nodeid_list
 
-    @classmethod
-    def health_to_text(self, health_code):
-        node_health_code = {uavcan.node.Heartbeat_1_0.HEALTH_NOMINAL: 'NOMINAL',
-                            uavcan.node.Heartbeat_1_0.HEALTH_ADVISORY: 'ADVISORY',
-                            uavcan.node.Heartbeat_1_0.HEALTH_CAUTION: 'CAUTION',
-                            uavcan.node.Heartbeat_1_0.HEALTH_WARNING: 'WARNING'}
-        return node_health_code.get(health_code)
+    def health_to_text(self, health_code: int) -> str:
+        return self._node_health_code.get(health_code)
 
-    @classmethod
-    def mode_to_text(self, mode_code):
-        node_mode_code = {uavcan.node.Heartbeat_1_0.MODE_OPERATIONAL: 'OPERATIONAL',
-                          uavcan.node.Heartbeat_1_0.MODE_INITIALIZATION: 'INITIALIZATION',
-                          uavcan.node.Heartbeat_1_0.MODE_MAINTENANCE: 'MAINTENANCE',
-                          uavcan.node.Heartbeat_1_0.MODE_SOFTWARE_UPDATE: 'SOFTWARE_UPDATE',
-                          uavcan.node.Heartbeat_1_0.MODE_OFFLINE: 'OFFLINE'}
-        return node_mode_code.get(mode_code)
+    def mode_to_text(self, mode_code: int) -> str:
+        return self._node_mode_code.get(mode_code)
 
 
-class NodeInfo(object):
+class NodeInfo():
     """
         Class strucuture for UAVCAN node info.
     """
 
     def __init__(self, name: str, id: int, health: str, mode: str, uptime: int, vendor_code: int) -> None:
-        self.name = name
-        self.id = id
-        self.health = health
-        self.mode = mode
-        self.uptime = uptime
-        self.vendor_code = vendor_code
+        self.__dict__ = {
+            'name': name,
+            'id': id,
+            'health': health,
+            'mode': mode,
+            'uptime': uptime,
+            'vendorCode': vendor_code
+        }
 
-    def serialise(self) -> Dict[str, Any]:
-        return {
-            'name': self.name,
-            'id': self.id,
-            'health': self.health,
-            'mode': self.mode,
-            'uptime': self.uptime,
-            'vendorCode': self.vendor_code
+
+class NodeParameters():
+    """
+        Class structure for UAVCAN node params.
+    """
+
+    def __init__(self, name: str, type_: str, value: Any, default: Any, min: Any = None, max: Any = None) -> None:
+        self.__dict__ = {
+            'name': name,
+            'type': type_.lower(),
+            'value': value.lower() if value is str else value,
+            'default': default,
+            'min': min,
+            'max': max
+        }
+
+
+class NodeDetails(object):
+    """
+        Class structure for UAVCAN node overall details response to 430 GetInfo.1.0.uavcan
+    """
+
+    def __init__(self, name: str, id: int, health: str, mode: str,
+                 uptime: int, vendor_code: int, software_version: str,
+                 crc: str, hardware_version: str, uid: str, authenticity: str) -> None:
+        self.__dict_ = {
+            'name': name,
+            'id': id,
+            'health': health,
+            'mode': mode,
+            'uptime': uptime,
+            'vendorCode': vendor_code,
+            'softwareVersion': software_version,
+            'crc': crc,
+            'hardware_version': hardware_version,
+            'uid': uid,
+            'authenticity': authenticity
         }
 
 
@@ -216,11 +190,9 @@ class Monitor(Controller):
         nodes and retrieve data from the bus itself, the nodes and the packets being exchanged.
     """
 
-    def __init__(self):
-        Controller.__init__(self)
-        asyncio.get_event_loop().create_task(self._monitor_run())
+    def __init__(self) -> None:
+        super().__init__()
 
-    async def _monitor_run(self) -> int:
         # As by 15/04/2020, this only supports UDP and a static node ID on the loopback interface
         transport = pyuavcan.transport.udp.UDPTransport('127.0.0.43/8')
 
@@ -235,22 +207,26 @@ class Monitor(Controller):
 
         presentation = pyuavcan.presentation.Presentation(transport)
         self._node = pyuavcan.application.Node(presentation, node_info)
+
         # As by 15/04/2020, this only supports passive node info gathering through the Hearbeat msgs content
         self._sub_heartbeat = self._node.presentation.make_subscriber(
             uavcan.node.Heartbeat_1_0, 32085)
-        self._sub_heartbeat.receive_in_background(self._handle_heartbeat)
 
+        self._sub_heartbeat.receive_in_background(self._handle_heartbeat)
+        self._monitor_task = self._monitor_run()
+
+    async def _monitor_run(self) -> Awaitable:
         self._node.start()
-        await asyncio.gather(*asyncio.all_tasks())
+        return await asyncio.gather(*asyncio.all_tasks())
 
     async def _handle_heartbeat(self, msg: uavcan.node.Heartbeat_1_0, metadata: pyuavcan.transport.TransferFrom) -> None:
-        if metadata.source_node_id not in self.nodeid_list:
-            node_info = NodeInfo("node", metadata.source_node_id, self.health_to_text(msg.health),
-                                 self.mode_to_text(msg.mode), msg.uptime, msg.vendor_specific_status_code)
+        if metadata.source_node_id not in super().get_nodeid_list_ref():
+            node_info = NodeInfo("node", metadata.source_node_id, super().health_to_text(msg.health),
+                                 super().mode_to_text(msg.mode), msg.uptime, msg.vendor_specific_status_code)
 
-            self.nodeid_list.append(node_info.id)
-            self.node_list.append(node_info)
+            super().get_nodeid_list_ref().append(node_info.__dict__['id'])
+            super().get_node_list_ref().append(node_info)
 
     @property
-    def monitor_started(self):
+    def monitor_started(self) -> bool:
         return self._node._started
