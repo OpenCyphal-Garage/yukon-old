@@ -133,7 +133,8 @@ class NodeInfo:
         Class strucuture for UAVCAN node info.
     """
 
-    def __init__(self, name: str, id: int, health: Optional[str], mode: Optional[str], uptime: int, vendor_code: int) -> None:
+    def __init__(self, name: str, id: int, health: Optional[str], mode: Optional[str], uptime: int,
+                 vendor_code: int) -> None:
         self.__dict__ = {
             'name': name,
             'id': id,
@@ -220,12 +221,14 @@ class Monitor(Controller):
 
     async def _handle_heartbeat(self, msg: uavcan.node.Heartbeat_1_0,
                                 metadata: pyuavcan.transport.TransferFrom) -> None:
+        node_info = NodeInfo("node", metadata.source_node_id, super().health_to_text(msg.health),
+                             super().mode_to_text(msg.mode), msg.uptime, msg.vendor_specific_status_code)
         if metadata.source_node_id not in super().get_nodeid_list_ref():
-            node_info = NodeInfo("node", metadata.source_node_id, super().health_to_text(msg.health),
-                                 super().mode_to_text(msg.mode), msg.uptime, msg.vendor_specific_status_code)
-
             super().get_nodeid_list_ref().append(node_info.__dict__['id'])
             super().get_node_list_ref().append(node_info)
+        else:
+            super().get_node_list_ref()[super().get_nodeid_list_ref().index(
+                node_info.__dict__['id'])] = node_info
 
     @property
     def monitor_started(self) -> bool:
