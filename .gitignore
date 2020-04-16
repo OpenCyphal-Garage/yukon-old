@@ -1,3 +1,6 @@
 *.DS_*
 .vscode/
 .mypy_cache/
+.tox/
+.sonarlint/
+.coverage*
