@@ -16,8 +16,8 @@ your dev environment setup.
 
 .. warning::
 
-    When committing to master you **must** bump at least the patch number in ``src/yukon/version.py``
-    or the build will fail on the upload step.
+    When committing to master you **must** bump at least the patch number in ``src/yukon/backend/api/version.py``
+    and in ``src/yukon/frontend/package.json`` or the build will fail on the upload step.
 
 
 ************************************************
