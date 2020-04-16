@@ -12,6 +12,10 @@ Build Setup // Generated
 
 * Python 3.7 at least required
 
+Start the demo UAVCAN node::
+
+    python3 uavcan_node_demo.py
+
 Run server::
 
-    python api/main.py
+    python3 api/main.py
