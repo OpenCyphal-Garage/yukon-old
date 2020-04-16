@@ -34,7 +34,6 @@ tox -p auto
 tox -e sonar-release | grep -v "sonar.login"
 # Upload yukon_backend to PyPi
 tox -e pypi-upload | grep -v "twine upload"
-# Only publish yukon_frontend to npm if the version is different from the one already published (otherwise it will fail)
-if [[ $YUKON_FRONTEND_FULL_VERSION != $(npm view yukon_frontend version) ]]; then
-  tox -e npm-publish | grep -v "//registry.npmjs.org/:_authToken="
-fi
+# Publish yukon_frontend to npm
+tox -e npm-publish | grep -v "//registry.npmjs.org/:_authToken="
+
