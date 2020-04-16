@@ -2,7 +2,7 @@
   "name": "yukon_frontend",
   "version": "0.1.0",
   "description": "UAVCAN Yukon Vue.js frontend",
-  "author": "UAVCAN Development Team",
+  "author": "UAVCAN Development Team <uavcan-maintainers@googlegroups.com>",
   "keywords": [
     "uavcan",
     "yukon",
@@ -22,7 +22,7 @@
   },
   "homepage": "https://uavcan.org/",
   "private": false,
-  "main": "main.js",
+  "main": "config/index.js",
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
     "start": "npm run dev",
