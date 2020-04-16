@@ -17,10 +17,12 @@
 .. moduleauthor:: Nuno Marques <nuno.marques@dronesolutions.io>
 """
 
+import errno
 import os
 import pathlib
 import sys
 import tempfile
+from subprocess import call, STDOUT
 from asyncio import Task, all_tasks, gather, get_event_loop, sleep
 
 import pyuavcan
@@ -58,19 +60,40 @@ class DemoApplication:
     """
 
     def __init__(self) -> None:
-        transport = pyuavcan.transport.udp.UDPTransport('127.0.0.42/8')
+        try:
+            self._transport = pyuavcan.transport.udp.UDPTransport(
+                '127.0.0.42/8')
+        except OSError as ex:
+            if (hasattr(errno, 'EADDRNOTAVAIL') and
+                    ex.errno == errno.EADDRNOTAVAIL):
+                sys.stderr.write(
+                    '\n\n\033[91mAddress is not available in the loopback interface. Trying to create it...\n\033[0m')
 
-        assert transport.local_node_id == 42
+                # Add all 1-255 subnet IPs as identifiers to the loopback
+                call("ifconfig lo0 alias 127.0.0.* up",
+                     shell=True, stderr=STDOUT)
 
-        node_info = uavcan.node.GetInfo_1_0.Response(
+                try:
+                    self._transport = pyuavcan.transport.udp.UDPTransport(
+                        '127.0.0.42/8')
+                except OSError as ex:
+                    raise Exception(ex)
+            else:
+                raise
+
+        assert self._transport.local_node_id == 42
+
+        self._node_info = uavcan.node.GetInfo_1_0.Response(
             protocol_version=uavcan.node.Version_1_0(
                 *pyuavcan.UAVCAN_SPECIFICATION_VERSION),
             software_version=uavcan.node.Version_1_0(major=1, minor=0),
             name='org.uavcan.yukon.backend.monitor',
         )
 
-        presentation = pyuavcan.presentation.Presentation(transport)
-        self._node = pyuavcan.application.Node(presentation, node_info)
+        self._presentation = pyuavcan.presentation.Presentation(
+            self._transport)
+        self._node = pyuavcan.application.Node(
+            self._presentation, self._node_info)
         self._node.heartbeat_publisher.mode = uavcan.node.Heartbeat_1_0.MODE_OPERATIONAL
         self._node.heartbeat_publisher.health = uavcan.node.Heartbeat_1_0.HEALTH_NOMINAL
         self._node.heartbeat_publisher.vendor_specific_status_code = \
