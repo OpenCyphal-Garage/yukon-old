@@ -6,11 +6,14 @@ function createWindow () {
   // Create the browser window.
   const { width, height } = screen.getPrimaryDisplay().workAreaSize
   const win = new BrowserWindow({
+    title: 'Yukon',
     width: width,
     height: height,
     webPreferences: {
       nodeIntegration: true
-    }
+    },
+    icon: 'static/images/yukon_logo.jpg',
+    transparent: true
   })
 
   // and load the index.html of the app.
