@@ -17,7 +17,7 @@ An open suite of tools for observing, debugging, and interacting with a `UAVCAN`
 |                                              || license                        | |badge_github_license|_           ||
 |                                              |+--------------------------------+-----------------------------------+|
 |                                              || community/support              | |badge_forum|_                    ||
-|                                              |+--------------------------------+-----------------------------------+|        
+|                                              |+--------------------------------+-----------------------------------+|
 +----------------------------------------------+----------------------------------------------------------------------+
 
 
@@ -25,30 +25,38 @@ An open suite of tools for observing, debugging, and interacting with a `UAVCAN`
 Installation & Development Instructions
 ************************************************
 
-Install from Frontend::
+Requirements:
+
+- Python 3.7+ with pip and optional virtualenv
+- NodeJS 12.16+ with optional yarn 1.22+
+
+Install dependencies for Frontend::
 
     cd src/yukon/frontend
     npm install
 
-Serve with hot reload at localhost::
+Run server with hot code reload::
 
     npm run dev
 
-Build for production with minification::
+Build assets for production environment with optimizations::
 
     npm run build
 
-Install backend::
+In the second terminal window install backend dependencies::
 
     cd src/yukon/backend
+    git submodule update --init --recursive
+    pip3 install -r requirements.txt
 
-Install dependencies::
 
-    pip3 install quart quart_cors typing
+If you want to run Yukon demo node::
 
-Run server::
+    python src/uavcan_node_demo.py
 
-    python main.py
+Run backend::
+
+    python src/api/main.py
 
 
 Install documentation and testing dependencies::
