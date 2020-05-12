@@ -35,5 +35,4 @@ tox -e sonar-release | grep -v "sonar.login"
 # Upload yukon_backend to PyPi
 tox -e pypi-upload | grep -v "twine upload"
 # Publish yukon_frontend to npm
-tox -e npm-publish | grep -v "//registry.npmjs.org/:_authToken="
-
+# tox -e npm-publish | grep -v "//registry.npmjs.org/:_authToken="
