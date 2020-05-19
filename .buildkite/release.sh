@@ -33,6 +33,6 @@ export YUKON_FRONTEND_MAJOR_MINOR_VERSION=$(echo $YUKON_FRONTEND_FULL_VERSION | 
 tox -p auto
 tox -e sonar-release | grep -v "sonar.login"
 # Upload yukon_backend to PyPi
-tox -e pypi-upload | grep -v "twine upload"
+# tox -e pypi-upload | grep -v "twine upload"
 # Publish yukon_frontend to npm
 # tox -e npm-publish | grep -v "//registry.npmjs.org/:_authToken="
