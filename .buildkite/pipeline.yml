@@ -2,7 +2,7 @@ steps:
   - label: Upload pipelines
     command:
       - buildkite-agent pipeline upload --replace .buildkite/pipeline.yml
-      # - buildkite-agent pipeline upload --replace .buildkite/pipeline.release.yml
+      - buildkite-agent pipeline upload --replace .buildkite/pipeline.release.yml
 
   - wait
 
@@ -16,8 +16,8 @@ steps:
       - npm run test --prefix src/yukon/frontend
       - npm run lint --prefix src/yukon/frontend
 
-  - label: ':python: Run tests'
-    command: tox -p auto -e {py37,py38}-{test,doctest},pylint,mypy,report
+  - label: ':python: Run Pyhton checks'
+    command: tox -p auto -e "{py37,py38}-{test,doctest},pylint,mypy,report"
 
   - wait
 
