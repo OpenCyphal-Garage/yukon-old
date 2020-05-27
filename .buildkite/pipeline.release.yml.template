@@ -1,4 +1,9 @@
 steps:
+  - label: ':hammer: Sonarqube release'
+    branches: master
+    if: build.tag != null
+    command: tox -e sonar-release | grep -v 'sonar.login'
+
   - label: ':node::hammer: Release NPM package'
     branches: master
     if: build.tag != null
@@ -7,4 +12,4 @@ steps:
   - label: ':python::hammer: Release pypy package'
     branches: master
     if: build.tag != null
-    command: "tox -e pypi-upload | grep -v "twine upload""
+    command: tox -e pypi-upload | grep -v 'twine upload'
