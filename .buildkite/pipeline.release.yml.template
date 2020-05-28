@@ -2,14 +2,53 @@ steps:
   - label: ':hammer: Sonarqube release'
     branches: master
     if: build.tag != null
+    id: toxic-docker-release
     command: tox -e sonar-release | grep -v 'sonar.login'
+    agents:
+      queue: 'default'
+    timeout_in_minutes: 15
+    plugins:
+      - docker#v3.5.0:
+          workdir: /repo
+          image: "uavcan/nodethon:node13-py37-py38"
+          propagate-environment: true
+          environment:
+            - "SONARQUBE_TOKEN"
+            - "BUILDKITE"
+            - "BUILDKITE_BUILD_NUMBER"
 
   - label: ':node::hammer: Release NPM package'
     branches: master
     if: build.tag != null
+    id: toxic-docker-release
     command: tox -e npm-publish | grep -v "//registry.npmjs.org/:_authToken="
+    agents:
+      queue: 'default'
+    timeout_in_minutes: 15
+    plugins:
+      - docker#v3.5.0:
+          workdir: /repo
+          image: "uavcan/nodethon:node13-py37-py38"
+          propagate-environment: true
+          environment:
+            - "NPM_TOKEN"
+            - "BUILDKITE"
+            - "BUILDKITE_BUILD_NUMBER"
 
   - label: ':python::hammer: Release pypy package'
     branches: master
     if: build.tag != null
+    id: toxic-docker-release
     command: tox -e pypi-upload | grep -v 'twine upload'
+    agents:
+      queue: 'default'
+    timeout_in_minutes: 15
+    plugins:
+      - docker#v3.5.0:
+          workdir: /repo
+          image: "uavcan/nodethon:node13-py37-py38"
+          propagate-environment: true
+          environment:
+            - "PYPI_PASSWORD"
+            - "BUILDKITE"
+            - "BUILDKITE_BUILD_NUMBER"
