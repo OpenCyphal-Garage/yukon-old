@@ -21,7 +21,9 @@ steps:
     branches: master
     if: build.tag != null
     id: toxic-docker-release
-    command: tox -e npm-publish | grep -v "//registry.npmjs.org/:_authToken="
+    command:
+      - npm --prefix src/yukon/frontend version $BUILDKITE_TAG
+      - tox -e npm-publish | grep -v "//registry.npmjs.org/:_authToken="
     agents:
       queue: 'default'
     timeout_in_minutes: 15

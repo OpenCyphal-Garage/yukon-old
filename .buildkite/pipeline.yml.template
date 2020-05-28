@@ -11,6 +11,16 @@ steps:
     artifact_paths:
       - "src/yukon/frontend/test/unit/reports/**/*"
 
+  - label: ':nodejs: Run yarn audit'
+    plugins:
+        - docker#v3.5.0:
+            image: "node:12"
+            workdir: /app
+    command:
+      - yarn audit --cwd src/yukon/frontend
+    soft_fail:
+      - exit_status: 1
+
   - label: ':python: Run Pyhton checks'
     id: toxic-docker-pr
     command: tox -p auto -e "{py37,py38}-{test,doctest},pylint,mypy,report,sonar-pr"
