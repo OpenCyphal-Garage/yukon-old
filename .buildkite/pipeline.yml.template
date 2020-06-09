@@ -46,5 +46,4 @@ steps:
 
   - label: "🚀Release"
     trigger: "yukon-release"
-    branches: master
     if: build.tag != null
