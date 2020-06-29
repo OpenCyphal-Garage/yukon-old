@@ -10,7 +10,7 @@
   <div>
     <b-navbar>
       <b-navbar-brand href="#" @click="goHome">
-         <img src="./assets/yukon_logo.jpg" alt="Home" style="width: 120px;">
+         <img src="./assets/yukon_logo.png" alt="Home" style="width: 150px;">
       </b-navbar-brand>
 
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
@@ -32,13 +32,13 @@
             <b-dropdown-item href="https://app.swaggerhub.com/apis-docs/Zarkopafilis/Yukon/1.0.0">Swagger API Docs</b-dropdown-item>
           </b-nav-item-dropdown>
           <b-navbar-brand href="https://uavcan.org/">
-            <img src="./assets/uavcan_logo.png" alt="Home" style="width: 70px;">
+            <img src="./assets/uavcan_logo.png" alt="Home">
           </b-navbar-brand>
         </div>
     </b-navbar>
   </div>
 
-    <div id="app" class="container">
+    <div id="app" class="b-container">
     <router-view/>
     </div>
   </div>

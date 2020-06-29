@@ -136,7 +136,7 @@ html_static_path = ['docs/static']
 #
 # html_sidebars = {}
 
-html_logo = 'docs/static/images/yukon_logo.jpg'
+html_logo = 'docs/static/images/yukon_logo.png'
 
 html_favicon = 'docs/static/images/uavcan_logo_icon.svg'
 

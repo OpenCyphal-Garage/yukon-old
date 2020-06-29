@@ -17,7 +17,7 @@ import BootstrapVue from 'bootstrap-vue'
 
 import VueTruncate from 'vue-truncate-filter'
 import configureAxios from '@/api/AxiosConfig'
-// import configureEventSource from '@/api/eventsource'
+import configureEventSource from '@/api/eventsource'
 
 import underscore from 'vue-underscore'
 
@@ -26,7 +26,7 @@ Vue.use(VueTruncate)
 Vue.use(underscore)
 
 configureAxios()
-// configureEventSource()
+configureEventSource()
 
 Vue.config.productionTip = false
 
