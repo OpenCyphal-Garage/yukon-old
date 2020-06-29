@@ -1,0 +1,152 @@
+{
+        "bus": {
+                "resilience": 2,
+                "name": "socketcan0",
+                "protocol": "CANFD"
+        },
+        "health": {
+                "uptime": 1000,
+                "health": "All good",
+                "version": "1.2.3"
+        },
+        "nodes": {
+                "plugandplay": {
+                        "45678": "0",
+                        "98765": "1",
+                        "98766": "2",
+                        "98767": "3",
+                        "98768": "4",
+                        "45821": "5"
+                },
+                "detail": [{
+                                "id": 0,
+                                "name": "bms_772",
+                                "health": "OK",
+                                "mode": "OPERATIONAL",
+                                "uptime": 30,
+                                "vendorCode": 77777,
+                                "registers": [{
+                                        "name": "drone.pub.battery_status",
+                                        "type": "integer",
+                                        "value": 4096,
+                                        "default": 4096,
+                                        "min": 4096,
+                                        "max": 4111
+                                }]
+                        },
+                        {
+                                "id": 1,
+                                "name": "esc_front_left",
+                                "health": "OK",
+                                "mode": "OPERATIONAL",
+                                "uptime": 100,
+                                "vendorCode": 62342
+                        },
+                        {
+                                "id": 2,
+                                "name": "esc_front_right",
+                                "health": "CRITICAL",
+                                "mode": "INITIALIZATION",
+                                "uptime": 100,
+                                "vendorCode": 32893
+                        },
+                        {
+                                "id": 3,
+                                "name": "esc_back_left",
+                                "health": "ERROR",
+                                "mode": "MAINTAINANCE",
+                                "uptime": 100,
+                                "vendorCode": 32893
+                        },
+                        {
+                                "id": 4,
+                                "name": "esc_back_right",
+                                "health": "WARNING",
+                                "mode": "SOFTWARE_UPDATE",
+                                "uptime": 100,
+                                "vendorCode": 62342
+                        },
+                        {
+                                "id": 5,
+                                "name": "ms5525_airspeed",
+                                "health": "OK",
+                                "mode": "OFFLINE",
+                                "uptime": 456,
+                                "vendorCode": 8678
+                        },
+                        {
+                                "id": 6,
+                                "name": "servo_right_elevon",
+                                "health": "OK",
+                                "mode": "OPERATIONAL",
+                                "uptime": 45,
+                                "vendorCode": 13434
+                        },
+                        {
+                                "id": 7,
+                                "name": "servo_left_elevon",
+                                "health": "OK",
+                                "mode": "MAINTAINANCE",
+                                "uptime": 456,
+                                "vendorCode": 21431
+                        }
+                ],
+                "grv": [{
+                                "nodeId": 1,
+                                "nodeName": "esc_front_left",
+                                "registerName": "drone.param.naming",
+                                "value": {
+                                        "_type_": "uavcan.register.Access.Request.1.0",
+                                        "foo": {
+                                                "_type_": "uavcan.register.Value.1.0",
+                                                "first": "test1",
+                                                "last": "test2"
+                                        },
+                                        "bar": 123
+                                },
+                                "mutable": true,
+                                "persistent": true
+                        },
+                        {
+                                "nodeId": 2,
+                                "nodeName": "esc_front_right",
+                                "registerName": "drone.pub.esc_status",
+                                "value": "4161",
+                                "mutable": true,
+                                "persistent": true
+                        },
+                        {
+                                "nodeId": 3,
+                                "nodeName": "esc_back_right",
+                                "registerName": "drone.pub.esc_status",
+                                "value": "4162",
+                                "mutable": true,
+                                "persistent": true
+                        }
+                ],
+                "types": [{
+                        "uavcan.register.Access.Request.1.0": {
+                                "fields": {
+                                        "foo": {
+                                                "type": "uavcan.register.Value.1.0"
+                                        },
+                                        "bar": {
+                                                "type": "saturated int32[<=123]"
+                                        }
+                                }
+                        },
+                        "uavcan.register.Value.1.0": {
+                                "fields": {
+                                        "first": {
+                                                "type": "bool"
+                                        },
+                                        "second": {
+                                                "type": "float32"
+                                        }
+                                }
+                        }
+
+                }]
+        }
+
+}

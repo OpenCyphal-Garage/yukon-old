@@ -6,20 +6,26 @@
  -->
 
 <template>
-  <div class="m-3 mt-0">
-    <div class="row mb-2">
-      <div class="col-sm-4">
-        <ServerHealth class="mb-2"/>
-        <BusInfo />
-      </div>
-      <div class="col-sm-8">
-        <!--<PlugAndPlayTable />-->
-      </div>
+<div :style="{ backgroundImage: 'url(\'' + require('@/assets/wingcopter_model.jpg') + '\')' }">
+  <div class="row">
+    <div class="col-sm-6">
+      <ServerHealth />
+      <BusInfo />
     </div>
-    <div class="row m-1 mb-3">
-      <NodeList />
+    <div class="col-sm-6">
+      <PlugAndPlayTable />
     </div>
   </div>
+  <div class="row m-1 mb-2">
+    <div class="col-sm-12">
+      <NodeList />
+    </div>
+    <!-- <div class="col-sm-4">
+      <img src="../../assets/wingcopter_model.jpg" alt="Home" width="330%" text-align="center">
+    </div> -->
+  </div>
+</div>
+
 </template>
 
 <script>

@@ -12,7 +12,7 @@ function createWindow () {
     webPreferences: {
       nodeIntegration: true
     },
-    icon: 'static/images/yukon_logo.jpg',
+    icon: 'static/images/yukon_logo.png',
     transparent: true
   })
 

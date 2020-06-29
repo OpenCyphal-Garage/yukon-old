@@ -1,0 +1,61 @@
+{
+        "log_file": "",
+        "interactions": [{
+                "bus": {
+                        "id": ""
+                },
+                "nodes": {
+                        "0": {
+                                "subject": {
+                                        "publish": {
+                                                "timestamp_start": "",
+                                                "timestamp_end": "",
+                                                "port_id": "",
+                                                "timeout": ""
+                                        },
+                                        "subscribe": {
+                                                "timestamp_start": "",
+                                                "timestamp_end": "",
+                                                "port_id": "",
+                                                "timeout": ""
+                                        }
+                                },
+                                "service": {
+                                        "send": {
+                                                "timestamp": "",
+                                                "port_id": ""
+                                        }
+                                }
+
+                        },
+                        "1": {
+                                "subject": {
+                                        "publish": {
+                                                "timestamp_start": "",
+                                                "timestamp_end": "",
+                                                "port_id": "",
+                                                "timeout": ""
+                                        },
+                                        "subscribe": {
+                                                "timestamp_start": "",
+                                                "timestamp_end": "",
+                                                "port_id": "",
+                                                "timeout": ""
+                                        }
+                                }
+
+                        }
+                }
+        }],
+        "failure_injection": [{
+                        "number": "",
+                        "bus": "",
+                        "type_of_failure": ""
+                },
+                {
+                        "number": "",
+                        "bus": "",
+                        "type_of_failure": ""
+                }
+        ]
+}
