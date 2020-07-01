@@ -1,17 +1,19 @@
 <!--
- * Copyright (C) 2019 UAVCAN Development Team  <uavcan.org>
+ * Copyright (C) 2019-2020 UAVCAN Development Team <uavcan.org>
+ *               2020  dronesolutions.io. All rights reserved.
  * This software is distributed under the terms of the MIT License.
  *
- * Author: Theodoros Ntakouris <zarkopafilis@gmail.com>
+ * @author Theodoros Ntakouris <zarkopafilis@gmail.com>
+ * @author Nuno Marques <nuno.marques@dronesolutions.io>
  -->
 
 <template>
 <div :style="{ backgroundImage: 'url(\'' + require('@/assets/wingcopter_model.jpg') + '\')' }">
   <div class="row">
-    <div class="col-sm-6">
-      <ServerHealth />
-      <BusInfo />
-    </div>
+    <ServerHealth />
+    <BusInfo />
+  </div>
+  <div class="row">
     <div class="col-sm-6">
       <PlugAndPlayTable />
     </div>
@@ -20,19 +22,15 @@
     <div class="col-sm-12">
       <NodeList />
     </div>
-    <!-- <div class="col-sm-4">
-      <img src="../../assets/wingcopter_model.jpg" alt="Home" width="330%" text-align="center">
-    </div> -->
   </div>
 </div>
-
 </template>
 
 <script>
 import ServerHealth from './ServerHealth'
 import BusInfo from './BusInfo'
 import NodeList from './NodeList'
-import PlugAndPlayTable from './PlugAndPlayTable'
+// import PlugAndPlayTable from './PlugAndPlayTable'
 
 export default {
   name: 'Home',
@@ -40,7 +38,7 @@ export default {
     ServerHealth,
     BusInfo,
     NodeList,
-    PlugAndPlayTable // eslint-disable-line vue/no-unused-components
+    // PlugAndPlayTable // eslint-disable-line vue/no-unused-components
   }
 }
 </script>

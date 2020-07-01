@@ -1,8 +1,10 @@
 <!--
- * Copyright (C) 2019 UAVCAN Development Team  <uavcan.org>
+ * Copyright (C) 2019-2020 UAVCAN Development Team <uavcan.org>
+ *               2020  dronesolutions.io. All rights reserved.
  * This software is distributed under the terms of the MIT License.
  *
- * Author: Theodoros Ntakouris <zarkopafilis@gmail.com>
+ * @author Theodoros Ntakouris <zarkopafilis@gmail.com>
+ * @author Nuno Marques <nuno.marques@dronesolutions.io>
  -->
 
 <template>
@@ -70,6 +72,7 @@ export default {
 <style>
   @import './assets/styles/core.css';
   @import './assets/styles/nodeStatus.css';
+  @import './assets/styles/RussoOneFont/v8/russo_one.css'>
 
   #navBar {
     width: 100%;

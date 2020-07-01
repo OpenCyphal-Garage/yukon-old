@@ -1,8 +1,10 @@
-/*
- * Copyright (C) 2019 UAVCAN Development Team  <uavcan.org>
+/**
+ * Copyright (C) 2019-2020 UAVCAN Development Team <uavcan.org>
+ *               2020  dronesolutions.io. All rights reserved.
  * This software is distributed under the terms of the MIT License.
  *
- * Author: Theodoros Ntakouris <zarkopafilis@gmail.com>
+ * @author Theodoros Ntakouris <zarkopafilis@gmail.com>
+ * @author Nuno Marques <nuno.marques@dronesolutions.io>
  */
 
 import Vue from 'vue'
@@ -21,9 +23,12 @@ import configureEventSource from '@/api/eventsource'
 
 import underscore from 'vue-underscore'
 
+import VueKonva from 'vue-konva'
+
 Vue.use(BootstrapVue)
 Vue.use(VueTruncate)
 Vue.use(underscore)
+Vue.use(VueKonva)
 
 configureAxios()
 configureEventSource()
