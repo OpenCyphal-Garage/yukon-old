@@ -1,45 +1,47 @@
 <!--
- * Copyright (C) 2019 UAVCAN Development Team  <uavcan.org>
+ * Copyright (C) 2019-2020 UAVCAN Development Team <uavcan.org>
+ *               2020  dronesolutions.io. All rights reserved.
  * This software is distributed under the terms of the MIT License.
  *
- * Author: Theodoros Ntakouris <zarkopafilis@gmail.com>
+ * @author Theodoros Ntakouris <zarkopafilis@gmail.com>
+ * @author Nuno Marques <nuno.marques@dronesolutions.io>
  -->
 
 <template>
-  <div>
-    <!-- Controls -->
-    <div class="row align-items-baseline">
-      <div class="btn-group col-3 pl-0 mr-2 align-items-baseline">
-        <input v-model="filter" ref="textFilter" class="form-control" type="text" placeholder="Filter" aria-label="Search">
-      </div>
-
-      <div class="form-group mr-2">
-        <label for="sortAttribute">Sort on:</label>
-
-        <select v-model="sortAttribute" ref="sortAttribute">
-          <option v-for="s in sortAttributes" :key="s">{{ s }}</option>
-        </select>
-      </div>
-
-      <div class="form-group mr-4">
-        <label for="sortWay"> With order: </label>
-
-        <select v-model="sortWay" ref="sortWay">
-          <option v-for="s in sortWays" :key="s.name">{{ s.name }}</option>
-        </select>
-      </div>
-
-      <button type="button" class="btn btn-secondary" @click="clearControls()">Clear</button>
+<div>
+  <!-- Controls -->
+  <div class="row align-items-baseline" style="display: none;">
+    <div class="btn-group col-3 pl-0 mr-2 align-items-baseline">
+      <input v-model="filter" ref="textFilter" class="form-control" type="text" placeholder="Filter" aria-label="Search">
     </div>
 
-    <!-- Nodes List -->
-    <h2 class="row">Online Nodes</h2>
+    <div class="form-group mr-2">
+      <label for="sortAttribute">Sort on:</label>
 
-    <div class="row">
-      <p v-if="error == '' && !loading && processedNodes.length == 0">No nodes found</p>
+      <select v-model="sortAttribute" ref="sortAttribute">
+        <option v-for="s in sortAttributes" :key="s">{{ s }}</option>
+      </select>
+    </div>
 
-      <div v-if="!loading && processedNodes.length > 0" class="table-responsive">
-        <table class="table table-striped">
+    <div class="form-group mr-4">
+      <label for="sortWay"> With order: </label>
+
+      <select v-model="sortWay" ref="sortWay">
+        <option v-for="s in sortWays" :key="s.name">{{ s.name }}</option>
+      </select>
+    </div>
+
+    <button type="button" class="btn btn-secondary" @click="clearControls()">Clear</button>
+  </div>
+
+  <!-- Nodes List -->
+  <h2 style="text-align: center; font-family: 'Russo One';">Online Nodes</h2>
+
+  <div class="row" style="display: none;">
+    <p v-if="error == '' && !loading && processedNodes.length == 0">No nodes found</p>
+
+    <div v-if="!loading && processedNodes.length > 0" class="table-responsive">
+      <table class="table table-striped">
         <thead>
           <th>id</th>
           <th>name</th>
@@ -51,8 +53,12 @@
 
         <tbody ref="nodeListTableBody">
           <tr v-for="(node) in processedNodes" :key="node.id" @click="viewNodeDetails(node.id)">
-            <td><CopyableText v-bind:text="node.id"></CopyableText></td>
-            <td><CopyableText v-bind:text="node.name"></CopyableText></td>
+            <td>
+              <CopyableText v-bind:text="node.id"></CopyableText>
+            </td>
+            <td>
+              <CopyableText v-bind:text="node.name"></CopyableText>
+            </td>
 
             <td :class="node.mode.toLowerCase()">{{ node.mode.toUpperCase() }}</td>
             <td :class="node.health.toLowerCase()">{{ node.health.toUpperCase() }}</td>
@@ -62,24 +68,86 @@
           </tr>
         </tbody>
       </table>
-      </div>
-    </div>
-
-    <div v-if="loading && error.length != 0" class="row justify-content-center">
-      <Spinner></Spinner>
-    </div>
-
-    <div  class="row">
-      <p class="text-center" style="color: red;">{{ error }}</p>
     </div>
   </div>
+
+  <div class="row">
+    <p v-if="error == '' && !loading && processedNodes.length == 0">No nodes found</p>
+
+    <div v-if="!loading && processedNodes.length > 0">
+      <v-stage ref="stage" :config="configKonva">
+        <v-layer ref="layer">
+          <v-group v-for="(node) in this.nodes" :key="node.id" @click="viewNodeDetails(node.id)" :config="{
+                x: 100,
+                y: 100,
+                id: node.id,
+                draggable: true
+         }">
+            <v-rect :config="{
+                        width: 300,
+                        height: 100,
+                        opacity: 0.6,
+                        fill: 'white',
+                        stroke: 'black',
+                        shadowBlur: 10,
+                        shadowColor: 'black',
+                        shadowOpacity: 0.6,
+                }"></v-rect>
+            <v-text :config="{
+                        x: 10,
+                        y: 10,
+                        fontSize: 16,
+                        fontFamily: 'Russo One',
+                        text: 'Node ID ' + node.id,
+                }"></v-text>
+            <v-text :config="{
+                        x:140,
+                        y:10,
+                        fontSize: 16,
+                        fontFamily: 'Russo One',
+                        text: node.name,
+                }"></v-text>
+            <v-text :config="{
+                        x:10,
+                        y:40,
+                        fontSize: 16,
+                        fontFamily: 'Russo One',
+                        text: 'Mode: ' + node.mode,
+                }"></v-text>
+            <v-text :config="{
+                        x:10,
+                        y:70,
+                        fontSize: 16,
+                        fontFamily: 'Russo One',
+                        text: 'Health: ' + node.health,
+                }"></v-text>
+          </v-group>
+        </v-layer>
+      </v-stage>
+    </div>
+  </div>
+
+  <div v-if="loading && error.length != 0" class="row justify-content-center">
+    <Spinner></Spinner>
+  </div>
+
+  <div class="row">
+    <p class="text-center" style="color: red;">{{ error }}</p>
+  </div>
+</div>
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import {
+  mapState
+}
+from 'vuex'
 import AppRoutes from '@/Router'
 import Spinner from '@/components/Util/Spinner'
 import CopyableText from '@/components/Util/CopyableText'
+
+const width = window.innerWidth
+const height = window.innerHeight
 
 export default {
   name: 'NodeList',
@@ -87,7 +155,7 @@ export default {
     Spinner,
     CopyableText
   },
-  data () {
+  data() {
     return {
       loading: false,
       error: '',
@@ -118,6 +186,12 @@ export default {
         MAINTAINANCE: 2,
         SOFTWARE_UPDATE: 3,
         OFFLINE: 4
+      },
+      list: [],
+      dragItemId: null,
+      configKonva: {
+        width: width,
+        height: height
       }
     }
   },
@@ -125,7 +199,7 @@ export default {
     ...mapState({
       nodes: state => state.nodes.nodeList
     }),
-    processedNodes: function () {
+    processedNodes: function() {
       let filtered = this.nodes
       const lowerFilter = this.filter.toLowerCase()
 
@@ -141,9 +215,13 @@ export default {
           filtered.sort((a, b) => a[this.sortAttribute] - b[this.sortAttribute])
         } else {
           // eslint-disable-next-line
-          filtered.sort((a, b) => { 
-            if (b[this.sortAttribute] > a[this.sortAttribute]) { return -1 }
-            if (b[this.sortAttribute] < a[this.sortAttribute]) { return 1 }
+          filtered.sort((a, b) => {
+            if (b[this.sortAttribute] > a[this.sortAttribute]) {
+              return -1
+            }
+            if (b[this.sortAttribute] < a[this.sortAttribute]) {
+              return 1
+            }
             return 0
           })
         }
@@ -162,16 +240,23 @@ export default {
       return filtered
     }
   },
-  async mounted () {
+  async mounted() {
     await this.loadData()
+    // for (let n = 0; n < 6; n++) {
+    //   this.list.push({
+    //     id: Math.round(Math.random() * 10000).toString(),
+    //     x: Math.random() * width,
+    //     y: Math.random() * height
+    //   })
+    // }
   },
   methods: {
-    clearControls () {
+    clearControls() {
       this.sortAttribute = 'None'
       this.filter = ''
       this.sortWay = this.sortWays.none.name
     },
-    async loadData () {
+    async loadData() {
       this.error = ''
       this.loading = true
       try {
@@ -181,16 +266,14 @@ export default {
       }
       this.loading = false
     },
-    viewNodeDetails (nodeId) {
+    viewNodeDetails(nodeId) {
       this.$router.push({
         name: AppRoutes.NodeDetails.name,
-        params: { nodeId: nodeId }
+        params: {
+          nodeId: nodeId
+        }
       })
     }
   }
 }
 </script>
-
-<style>
-
-</style>

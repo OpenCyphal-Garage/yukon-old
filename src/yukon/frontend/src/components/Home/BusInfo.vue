@@ -1,40 +1,50 @@
 <!--
- * Copyright (C) 2019 UAVCAN Development Team  <uavcan.org>
+ * Copyright (C) 2019-2020 UAVCAN Development Team <uavcan.org>
+ *               2020  dronesolutions.io. All rights reserved.
  * This software is distributed under the terms of the MIT License.
  *
- * Author: Theodoros Ntakouris <zarkopafilis@gmail.com>
+ * @author Theodoros Ntakouris <zarkopafilis@gmail.com>
+ * @author Nuno Marques <nuno.marques@dronesolutions.io>
  -->
 
 <template>
-  <div>
-    <div v-if="error === ''">
-      <span class="badge float-left" :class="resilienceColor">Resilience: {{ info.resilience }}</span>
-      <p style="vertical-align: middle;">Bus: {{ info.name }} running on {{ info.protocol }}</p>
-    </div>
-    <div v-else>
-      <p style="color: red;"> {{ error }} </p>
+<div class="col-sm-3">
+  <div v-if="error === ''">
+    <div class="row">
+      <div class="col-sm-3">
+        <span class="badge" :class="resilienceColor">Resilience: {{ info.resilience }}</span>
+      </div>
+      <div class="col-sm-8">
+        <p style="vertical-align: right;">Bus: {{ info.name }} running on {{ info.protocol }}</p>
+      </div>
     </div>
   </div>
+  <div v-else>
+    <p style="color: red;"> {{ error }} </p>
+  </div>
+</div>
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import {
+  mapState
+} from 'vuex'
 
 export default {
   name: 'BusInfo',
-  data () {
+  data() {
     return {
       error: ''
     }
   },
-  async mounted () {
+  async mounted() {
     await this.loadData()
   },
   computed: {
     ...mapState({
       info: state => state.general.busInfo
     }),
-    resilienceColor: function () {
+    resilienceColor: function() {
       const res = this.info.resilience
 
       if (res >= 3) {
@@ -53,7 +63,7 @@ export default {
     }
   },
   methods: {
-    async loadData () {
+    async loadData() {
       this.error = ''
       try {
         await this.$store.dispatch('general/getBusInfo')
