@@ -1,0 +1,76 @@
+{
+        "log_file": {
+                "name": "",
+                "path": ""
+        },
+        "interactions": [{
+                "bus": {
+                        "id": ""
+                },
+                "nodes": {
+                        "0": {
+                                "publishers": [{
+                                                "type": "uavcan.node.Heartbeat.1.0",
+                                                "port_id": "32085",
+                                                "rate": 1.0,
+                                                "timestamp_start": "",
+                                                "timestamp_end": "",
+                                                "timeout": ""
+                                        },
+                                        {
+                                                "type": "drone.sensor.battery.Status.0.1",
+                                                "port_id": "4096",
+                                                "rate": 5.0,
+                                                "timestamp_start": "",
+                                                "timestamp_end": "",
+                                                "timeout": ""
+                                        }
+                                ],
+                                "subscribers": [{
+                                        "type": "uavcan.node.GetInfo.1.0",
+                                        "port_id": "430",
+                                        "timestamp_start": "",
+                                        "timestamp_end": "",
+                                        "timeout": ""
+                                }]
+                        },
+                        "8": {
+                                "publishers": [{
+                                        "type": "uavcan.node.Heartbeat.1.0",
+                                        "port_id": "32085",
+                                        "rate": 1.0,
+                                        "timestamp_start": "",
+                                        "timestamp_end": "",
+                                        "timeout": ""
+                                }],
+                                "subscribers": [{
+                                                "type": "uavcan.node.Heartbeat.1.0",
+                                                "port_id": "32085",
+                                                "timestamp_start": "",
+                                                "timestamp_end": "",
+                                                "timeout": ""
+                                        },
+                                        {
+                                                "type": "drone.sensor.battery.Status.0.1",
+                                                "port_id": "4096",
+                                                "timestamp_start": "",
+                                                "timestamp_end": "",
+                                                "timeout": ""
+                                        }
+                                ]
+
+                        }
+                }
+        }],
+        "failure_injection": [{
+                        "number": "",
+                        "bus": "",
+                        "type_of_failure": ""
+                },
+                {
+                        "number": "",
+                        "bus": "",
+                        "type_of_failure": ""
+                }
+        ]
+}

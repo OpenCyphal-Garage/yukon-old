@@ -19,6 +19,18 @@ const AppRoutes = {
     component: NodeInfoPage,
     props: true
   },
+  NodePublishers: {
+    path: '/nodes/:nodeId/publishers',
+    name: 'Node Publishers',
+    component: NodeInfoPage,
+    props: true
+  },
+  NodeSubscribers: {
+    path: '/nodes/:nodeId/subscribers',
+    name: 'Node Subscribers',
+    component: NodeInfoPage,
+    props: true
+  },
   GlobalRegisterView: {
     path: '/registers',
     name: 'Global Register View',

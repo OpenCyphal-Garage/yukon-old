@@ -89,6 +89,14 @@
                                 "mode": "MAINTAINANCE",
                                 "uptime": 456,
                                 "vendorCode": 21431
+                        },
+                        {
+                                "id": 8,
+                                "name": "px4_fcu",
+                                "health": "OK",
+                                "mode": "OPERATIONAL",
+                                "uptime": 1457,
+                                "vendorCode": 33547
                         }
                 ],
                 "grv": [{
