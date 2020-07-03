@@ -32,6 +32,30 @@
                                         "default": 4096,
                                         "min": 4096,
                                         "max": 4111
+                                }],
+                                "publishers": [{
+                                                "type": "uavcan.node.Heartbeat.1.0",
+                                                "port_id": 32085,
+                                                "rate": 1,
+                                                "timestamp_start": "",
+                                                "timestamp_end": "",
+                                                "timeout": ""
+                                        },
+                                        {
+                                                "type": "drone.sensor.battery.Status.0.1",
+                                                "port_id": 4096,
+                                                "rate": 5,
+                                                "timestamp_start": "",
+                                                "timestamp_end": "",
+                                                "timeout": ""
+                                        }
+                                ],
+                                "subscribers": [{
+                                        "type": "uavcan.node.GetInfo.1.0",
+                                        "port_id": 430,
+                                        "timestamp_start": "",
+                                        "timestamp_end": "",
+                                        "timeout": ""
                                 }]
                         },
                         {
@@ -40,7 +64,31 @@
                                 "health": "OK",
                                 "mode": "OPERATIONAL",
                                 "uptime": 100,
-                                "vendorCode": 62342
+                                "vendorCode": 62342,
+                                "publishers": [{
+                                                "type": "uavcan.node.Heartbeat.1.0",
+                                                "port_id": 32085,
+                                                "rate": 1,
+                                                "timestamp_start": "",
+                                                "timestamp_end": "",
+                                                "timeout": ""
+                                        },
+                                        {
+                                                "type": "drone.actuator.esc.Feedback.0.1",
+                                                "port_id": 4172,
+                                                "rate": 400,
+                                                "timestamp_start": "",
+                                                "timestamp_end": "",
+                                                "timeout": ""
+                                        }
+                                ],
+                                "subscribers": [{
+                                        "type": "drone.actuator.esc.PowerCommandGroup.1.0",
+                                        "port_id": 4160,
+                                        "timestamp_start": "",
+                                        "timestamp_end": "",
+                                        "timeout": ""
+                                }]
                         },
                         {
                                 "id": 2,
@@ -96,7 +144,46 @@
                                 "health": "OK",
                                 "mode": "OPERATIONAL",
                                 "uptime": 1457,
-                                "vendorCode": 33547
+                                "vendorCode": 33547,
+                                "publishers": [{
+                                                "type": "uavcan.node.Heartbeat.1.0",
+                                                "port_id": 32085,
+                                                "rate": 1.0,
+                                                "timestamp_start": "",
+                                                "timestamp_end": "",
+                                                "timeout": ""
+                                        },
+                                        {
+                                                "type": "drone.actuator.esc.PowerCommandGroup.1.0",
+                                                "port_id": 4160,
+                                                "rate": 400,
+                                                "timestamp_start": "",
+                                                "timestamp_end": "",
+                                                "timeout": ""
+                                        }
+                                ],
+                                "subscribers": [{
+                                                "type": "uavcan.node.Heartbeat.1.0",
+                                                "port_id": 32085,
+                                                "timestamp_start": "",
+                                                "timestamp_end": "",
+                                                "timeout": ""
+                                        },
+                                        {
+                                                "type": "drone.sensor.battery.Status.0.1",
+                                                "port_id": 4096,
+                                                "timestamp_start": "",
+                                                "timestamp_end": "",
+                                                "timeout": ""
+                                        },
+                                        {
+                                                "type": "drone.actuator.esc.Feedback.0.1",
+                                                "port_id": 4172,
+                                                "timestamp_start": "",
+                                                "timestamp_end": "",
+                                                "timeout": ""
+                                        }
+                                ]
                         }
                 ],
                 "grv": [{

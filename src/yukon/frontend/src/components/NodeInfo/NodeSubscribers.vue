@@ -20,7 +20,7 @@
         </thead>
 
         <tbody ref="nodeListParamsTableBody">
-          <tr v-for="(sub, index) in subscribers" :key="port_id">
+          <tr v-for="sub in subscribers" :key="sub.port_id">
             <td>{{ sub.port_id }}</td>
             <td>{{ sub.type }}</td>
           </tr>
