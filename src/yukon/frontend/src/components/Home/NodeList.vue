@@ -82,7 +82,7 @@
                       fill: 'blue',
                       points: [0, 0, 0, 0]
               }"></v-arrow>
-          <v-group v-for="node in this.nodes" :ref="node.name" :key="node.id" @click="viewNodeDetails(node.id)" @dragmove="updateSubjectLines()"  :config="{
+          <v-group v-for="node in this.nodes" :ref="node.name" :key="node.id" @click="viewNodeDetails(node.id)" @dragmove="updateSubjectLines()" :config="{
                 x: generateRandomXPos(),
                 y: generateRandomYPos(),
                 id: node.id,
@@ -318,9 +318,9 @@ export default {
     generateRandomYPos() {
       return Math.random() * height * 0.5;
     },
-    getRectangleBorderPoint(radians, size, sideOffset = 0) {
-      const width = size.width + sideOffset * 2;
-      const height = size.height + sideOffset * 2;
+    getRectangleBorderPoint(radians, size, xSideOffset, ySideOffset) {
+      const width = size.width + xSideOffset * 2;
+      const height = size.height + ySideOffset * 2;
 
       radians %= 2 * Math.PI;
       if (radians < 0) {
@@ -372,18 +372,76 @@ export default {
       const dy = c1.y - c2.y;
       const angle = Math.atan2(-dy, dx);
 
-      const startOffset = this.getRectangleBorderPoint(angle + Math.PI, r1.getChildren()[0].size());
-      const endOffset = this.getRectangleBorderPoint(angle, r2.getChildren()[0].size());
+      const startOffset = this.getRectangleBorderPoint(angle + Math.PI, r1.getChildren()[0].size(), offset, 0);
+      const endOffset = this.getRectangleBorderPoint(angle, r2.getChildren()[0].size(), offset, 0);
 
-      const start = {
-        x: c1.x - startOffset.x + offset,
-        y: c1.y - startOffset.y
+      const width = r1.getChildren()[0].size().width + offset * 2;
+      const height = r1.getChildren()[0].size().height + offset * 2;
+
+      let radians = angle + Math.PI;
+
+      radians %= 2 * Math.PI;
+      if (radians < 0) {
+        radians += Math.PI * 2;
+      }
+
+      const phi = Math.atan(height / width);
+
+      let start = {
+        x: 0,
+        y: 0
       };
 
-      const end = {
-        x: c2.x - endOffset.x + offset,
-        y: c2.y - endOffset.y
+      let end = {
+        x: 0,
+        y: 0
       };
+
+      let x, y;
+      if (
+        (radians >= 2 * Math.PI - phi && radians <= 2 * Math.PI) ||
+        (radians >= 0 && radians <= phi)
+      ) {
+        start = {
+          x: c1.x - startOffset.x - offset,
+          y: c1.y - startOffset.y
+        };
+
+        end = {
+          x: c2.x - endOffset.x + offset,
+          y: c2.y - endOffset.y
+        };
+      } else if (radians >= phi && radians <= Math.PI - phi) {
+        start = {
+          x: c1.x - startOffset.x + offset,
+          y: c1.y - startOffset.y
+        };
+
+        end = {
+          x: c2.x - endOffset.x + offset,
+          y: c2.y - endOffset.y
+        };
+      } else if (radians >= Math.PI - phi && radians <= Math.PI + phi) {
+        start = {
+          x: c1.x - startOffset.x + offset,
+          y: c1.y - startOffset.y
+        };
+
+        end = {
+          x: c2.x - endOffset.x - offset,
+          y: c2.y - endOffset.y
+        };
+      } else if (radians >= Math.PI + phi && radians <= 2 * Math.PI - phi) {
+        start = {
+          x: c1.x - startOffset.x + offset,
+          y: c1.y - startOffset.y
+        };
+
+        end = {
+          x: c2.x - endOffset.x + offset,
+          y: c2.y - endOffset.y
+        };
+      }
 
       return [start.x, start.y, end.x, end.y]
     },
