@@ -5,7 +5,7 @@ import argparse
 import asyncio
 import nest_asyncio
 import json
-from quart import Quart
+from quart import Quart, Response
 from quart_cors import cors
 from typing import Tuple
 from typing import AsyncGenerator
@@ -17,11 +17,12 @@ api_prefix = '/api/v1'
 
 class ServerSentEvent:
     """
-    Sends a REST response to the client side. Example:
+    Server Sent Events (SSE) response to the client side. Allows the server to
+    "push" information to the client. Example:
 
     .. code-block:: python
 
-        from src.devserv.mock_responses import ServerSentEvent
+        from devserv.mock_responses import ServerSentEvent
 
         import asyncio
         import json
@@ -74,15 +75,13 @@ class MockLoader:
                           template_folder='../../../frontend/')
         self._app = cors(self._app)
 
-        self.load_mock_system_description()
-
         @self.app.route(api_prefix + '/eventSource')
         async def sse() -> Tuple[AsyncGenerator[bytes, None], Dict[str, str]]:
             async def send_events() -> AsyncGenerator[bytes, None]:
                 data = [
                     {
                         "id": 0,
-                        "health": "CRITICAL"
+                        "health": "WARNING"
                     },
                     {
                         "id": 1,
@@ -90,26 +89,25 @@ class MockLoader:
                     },
                     {
                         "id": 2,
-                        "health": 'OPERATIONAL'
+                        "health": 'WARNING'
                     },
                     {
                         "id": 3,
-                        "health": 'ERROR'
+                        "health": 'WARNING'
                     }
                 ]
 
                 while True:
-                    await asyncio.sleep(2)
+                    await asyncio.sleep(1)
                     random.shuffle(data)
                     event = ServerSentEvent(
-                        data=json.dumps(data), event='NODE_STATUS')
+                        data=data[0], event='NODE_STATUS')
                     yield event.encode()
 
-            return send_events(), {
-                'Content-Type': 'text/event-stream',
-                'Cache-Control': 'no-cache',
-                'Transfer-Encoding': 'chunked',
-            }
+            return Response(send_events(), mimetype="text/event-stream")
+
+        self.load_mock_system_description()
+        self.load_mock_session_description()
 
     def load_mock_system_description(self) -> Tuple[str, int]:
         with open(os.path.join(dir_path, self.sys_descr + ".json")) as json_file:
@@ -154,8 +152,33 @@ class MockLoader:
                     return self.mock_response(self.sys_descr, data['types'])
 
     def load_mock_session_description(self) -> Tuple[str, int]:
-        # TODO requires a log loader
-        return ('', 404)
+        with open(os.path.join(dir_path, self.sess_descr + ".json")) as json_file:
+            data = json.load(json_file)
+
+            if 'interactions' in data:
+                for interaction in data['interactions']:
+                    if interaction['nodes']:
+                        for node in interaction['nodes']:
+                            # TODO: add way of dynamically loading a router per node
+                            if '0' in node:
+                                if 'publishers' in interaction['nodes']['0']:
+                                    @self.app.route(os.path.join(api_prefix, 'nodes/0/publishers'))
+                                    async def nodes_id0_pub_mock() -> Tuple[str, int]:
+                                        return self.mock_response(self.sys_descr, interaction['nodes']['0']['publishers'])
+                                if 'subscribers' in interaction['nodes']['8']:
+                                    @self.app.route(os.path.join(api_prefix, 'nodes/0/subscribers'))
+                                    async def nodes_id0_sub_mock() -> Tuple[str, int]:
+                                        return self.mock_response(self.sys_descr, interaction['nodes']['0']['subscribers'])
+                            if '8' in node:
+                                if 'publishers' in interaction['nodes']['8']:
+                                    @self.app.route(os.path.join(api_prefix, 'nodes/8/publishers'))
+                                    async def nodes_id8_pub_mock() -> Tuple[str, int]:
+                                        return self.mock_response(self.sys_descr, interaction['nodes']['8']['publishers'])
+                                if 'subscribers' in interaction['nodes']['8']:
+                                    print(interaction['nodes']['0']['subscribers'])
+                                    @self.app.route(os.path.join(api_prefix, 'nodes/8/subscribers'))
+                                    async def nodes_id8_sub_mock() -> Tuple[str, int]:
+                                        return self.mock_response(self.sys_descr, interaction['nodes']['8']['subscribers'])
 
     @property
     def app(self) -> Quart:

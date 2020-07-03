@@ -13,6 +13,16 @@
       <NodeConstants v-bind:nodeId="_nodeId"></NodeConstants>
 
       <div class="row">
+        <h2 class="pull-left ml-3">Publishers</h2>
+      </div>
+      <NodePublishers v-bind:nodeId="_nodeId"></NodePublishers>
+
+      <div class="row">
+        <h2 class="pull-left ml-3">Subscribers</h2>
+      </div>
+      <NodeSubscribers v-bind:nodeId="_nodeId"></NodeSubscribers>
+
+      <div class="row">
         <h2 class="pull-left ml-3">Controls</h2>
       </div>
       <NodeControls v-bind:nodeId="_nodeId"></NodeControls>
@@ -26,6 +36,8 @@
 
 <script>
 import NodeConstants from './NodeConstants'
+import NodePublishers from './NodePublishers'
+import NodeSubscribers from './NodeSubscribers'
 import NodeControls from './NodeControls'
 import NodeRegisters from './NodeRegisters'
 
@@ -33,8 +45,11 @@ export default {
   name: 'NodeInfoPage',
   components: {
     NodeConstants,
+    NodePublishers,
+    NodeSubscribers,
     NodeControls,
     NodeRegisters
+
   },
   props: ['nodeId'],
   data () {

@@ -6,44 +6,68 @@
                 },
                 "nodes": {
                         "0": {
-                                "subject": {
-                                        "publish": {
+                                "publishers": [{
+                                                "type": "",
+                                                "port_id": "",
                                                 "timestamp_start": "",
                                                 "timestamp_end": "",
-                                                "port_id": "",
                                                 "timeout": ""
                                         },
-                                        "subscribe": {
+                                        {
+                                                "type": "",
+                                                "port_id": "",
                                                 "timestamp_start": "",
                                                 "timestamp_end": "",
-                                                "port_id": "",
                                                 "timeout": ""
                                         }
-                                },
-                                "service": {
-                                        "send": {
-                                                "timestamp": "",
-                                                "port_id": ""
+                                ],
+                                "subscribers": [{
+                                                "type": "",
+                                                "port_id": "",
+                                                "timestamp_start": "",
+                                                "timestamp_end": "",
+                                                "timeout": ""
+                                        },
+                                        {
+                                                "type": "",
+                                                "port_id": "",
+                                                "timestamp_start": "",
+                                                "timestamp_end": "",
+                                                "timeout": ""
                                         }
-                                }
-
+                                ]
                         },
                         "1": {
-                                "subject": {
-                                        "publish": {
+                                "publishers": [{
+                                                "type": "",
+                                                "port_id": "",
                                                 "timestamp_start": "",
                                                 "timestamp_end": "",
-                                                "port_id": "",
                                                 "timeout": ""
                                         },
-                                        "subscribe": {
+                                        {
+                                                "type": "",
+                                                "port_id": "",
                                                 "timestamp_start": "",
                                                 "timestamp_end": "",
-                                                "port_id": "",
                                                 "timeout": ""
                                         }
-                                }
-
+                                ],
+                                "subscribers": [{
+                                                "type": "",
+                                                "port_id": "",
+                                                "timestamp_start": "",
+                                                "timestamp_end": "",
+                                                "timeout": ""
+                                        },
+                                        {
+                                                "type": "",
+                                                "port_id": "",
+                                                "timestamp_start": "",
+                                                "timestamp_end": "",
+                                                "timeout": ""
+                                        }
+                                ]
                         }
                 }
         }],

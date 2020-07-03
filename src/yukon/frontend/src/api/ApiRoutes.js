@@ -21,6 +21,8 @@ const ApiRoutes = {
     RestartById: nodeId => NodesBase + '/' + nodeId + '/restart',
     StartFirmwareUpdateById: nodeId => NodesBase + '/' + nodeId + '/firmwareupdate',
     GetRegistersById: nodeId => NodesBase + '/' + nodeId + '/registers',
+    GetPublishersById: nodeId => NodesBase + '/' + nodeId + '/publishers',
+    GetSubscribersById: nodeId => NodesBase + '/' + nodeId + '/subscribers',
     UpdateRegisterByIdAndName: (nodeId, param) => NodesBase + '/' + nodeId + '/registers/' + param,
     GetPlugAndPlayTable: NodesBase + '/plugandplay',
     GetGlobalRegisterView: NodesBase + '/grv'

@@ -187,8 +187,8 @@ export default {
         SOFTWARE_UPDATE: 3,
         OFFLINE: 4
       },
-      list: [],
-      dragItemId: null,
+      // list: [],
+      // dragItemId: null,
       configKonva: {
         width: width,
         height: height
@@ -273,7 +273,23 @@ export default {
           nodeId: nodeId
         }
       })
-    }
+    },
+    getNodePublishers(nodeID) {
+      this.$router.push({
+        name: AppRoutes.NodePublishers.name,
+        params: {
+          nodeId: nodeId
+        }
+      })
+    },
+    getNodeSubscribers(nodeID) {
+      this.$router.push({
+        name: AppRoutes.NodeSubscribers.name,
+        params: {
+          nodeId: nodeId
+        }
+      })
+    },
   }
 }
 </script>
