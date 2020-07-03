@@ -76,12 +76,19 @@
 
     <div v-if="!loading && processedNodes.length > 0">
       <v-stage ref="stage" :config="configKonva">
-        <v-layer ref="layer">
-          <v-group v-for="(node) in this.nodes" :key="node.id" @click="viewNodeDetails(node.id)" :config="{
-                x: 100,
-                y: 100,
+        <v-layer ref="layer" @mouseenter="updateSubjectLines()">
+          <v-arrow v-for="pub in this.pub_port_id_list" :ref="pub.port_id+pub.name" :config="{
+                      stroke: 'blue',
+                      fill: 'blue',
+                      points: [0, 0, 0, 0]
+              }"></v-arrow>
+          <v-group v-for="node in this.nodes" :ref="node.name" :key="node.id" @click="viewNodeDetails(node.id)" @dragmove="updateSubjectLines()"  :config="{
+                x: generateRandomXPos(),
+                y: generateRandomYPos(),
                 id: node.id,
-                draggable: true
+                name: node.name,
+                draggable: true,
+                cache: true
          }">
             <v-rect :config="{
                         width: 300,
@@ -187,7 +194,8 @@ export default {
         SOFTWARE_UPDATE: 3,
         OFFLINE: 4
       },
-      // list: [],
+      pub_port_id_list: [],
+      sub_port_id_list: [],
       // dragItemId: null,
       configKonva: {
         width: width,
@@ -242,6 +250,9 @@ export default {
   },
   async mounted() {
     await this.loadData()
+    await this.loadPubSub()
+    await this.updateSubjectLines()
+
     // for (let n = 0; n < 6; n++) {
     //   this.list.push({
     //     id: Math.round(Math.random() * 10000).toString(),
@@ -266,30 +277,138 @@ export default {
       }
       this.loading = false
     },
-    viewNodeDetails(nodeId) {
+    async loadPubSub() {
+      for (var key in this.nodes) {
+        if (this.nodes.hasOwnProperty(key)) {
+          var pubs = this.nodes[key].publishers
+          for (var key2 in pubs) {
+            this.pub_port_id_list.push({
+              id: key,
+              name: this.nodes[key].name,
+              port_id: pubs[key2].port_id
+            })
+          }
+        }
+      }
+
+      for (var key in this.nodes) {
+        if (this.nodes.hasOwnProperty(key)) {
+          var subs = this.nodes[key].subscribers
+          for (var key2 in subs) {
+            this.sub_port_id_list.push({
+              id: key,
+              name: this.nodes[key].name,
+              port_id: subs[key2].port_id
+            })
+          }
+        }
+      }
+    },
+    viewNodeDetails(node_id) {
       this.$router.push({
         name: AppRoutes.NodeDetails.name,
         params: {
-          nodeId: nodeId
+          nodeId: node_id
         }
       })
     },
-    getNodePublishers(nodeID) {
-      this.$router.push({
-        name: AppRoutes.NodePublishers.name,
-        params: {
-          nodeId: nodeId
-        }
-      })
+    generateRandomXPos() {
+      return Math.random() * width * 0.5;
     },
-    getNodeSubscribers(nodeID) {
-      this.$router.push({
-        name: AppRoutes.NodeSubscribers.name,
-        params: {
-          nodeId: nodeId
-        }
-      })
+    generateRandomYPos() {
+      return Math.random() * height * 0.5;
     },
+    getRectangleBorderPoint(radians, size, sideOffset = 0) {
+      const width = size.width + sideOffset * 2;
+      const height = size.height + sideOffset * 2;
+
+      radians %= 2 * Math.PI;
+      if (radians < 0) {
+        radians += Math.PI * 2;
+      }
+
+      const phi = Math.atan(height / width);
+
+      let x, y;
+      if (
+        (radians >= 2 * Math.PI - phi && radians <= 2 * Math.PI) ||
+        (radians >= 0 && radians <= phi)
+      ) {
+        x = width / 2;
+        y = Math.tan(radians) * x;
+      } else if (radians >= phi && radians <= Math.PI - phi) {
+        y = height / 2;
+        x = y / Math.tan(radians);
+      } else if (radians >= Math.PI - phi && radians <= Math.PI + phi) {
+        x = -width / 2;
+        y = Math.tan(radians) * x;
+      } else if (radians >= Math.PI + phi && radians <= 2 * Math.PI - phi) {
+        y = -height / 2;
+        x = y / Math.tan(radians);
+      }
+
+      return {
+        x: -Math.round(x),
+        y: Math.round(y)
+      };
+    },
+    getCenterLeft(node) {
+      return {
+        x: node.x() + node.getChildren()[0].width() / 2,
+        y: node.y() + node.getChildren()[0].height() / 2
+      }
+    },
+    getCenterRight(node) {
+      return {
+        x: node.x() + node.getChildren()[0].width() / 2,
+        y: node.y() + node.getChildren()[0].height() / 2
+      }
+    },
+    getPoints(r1, r2, offset) {
+      const c1 = this.getCenterRight(r1);
+      const c2 = this.getCenterLeft(r2);
+
+      const dx = c1.x - c2.x;
+      const dy = c1.y - c2.y;
+      const angle = Math.atan2(-dy, dx);
+
+      const startOffset = this.getRectangleBorderPoint(angle + Math.PI, r1.getChildren()[0].size());
+      const endOffset = this.getRectangleBorderPoint(angle, r2.getChildren()[0].size());
+
+      const start = {
+        x: c1.x - startOffset.x + offset,
+        y: c1.y - startOffset.y
+      };
+
+      const end = {
+        x: c2.x - endOffset.x + offset,
+        y: c2.y - endOffset.y
+      };
+
+      return [start.x, start.y, end.x, end.y]
+    },
+    async updateSubjectLines() {
+      var offset = 30
+
+      for (var key in this.pub_port_id_list) {
+        for (var key2 in this.sub_port_id_list) {
+          // Creates a line between matching port identifiers
+          if (this.pub_port_id_list[key].name !== this.sub_port_id_list[key2].name && this.pub_port_id_list[key].port_id === this.sub_port_id_list[key2].port_id) {
+            // console.log(this.pub_port_id_list[key].name, this.sub_port_id_list[key2].name, this.pub_port_id_list[key].port_id, this.sub_port_id_list[key2].port_id)
+
+            const pubNodeName = this.pub_port_id_list[key].name
+            const subNodeName = this.sub_port_id_list[key2].name
+
+            const points = this.getPoints(this.$refs[pubNodeName][0].getNode(), this.$refs[subNodeName][0].getNode(), offset);
+            offset += 10
+
+            const line = this.pub_port_id_list[key].port_id + pubNodeName
+
+            this.$refs[line][0].getNode().points(points);
+          }
+        }
+      }
+    }
   }
 }
 </script>

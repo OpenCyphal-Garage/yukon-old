@@ -14,6 +14,12 @@ from typing import Dict
 dir_path = os.path.dirname(os.path.realpath(__file__))
 api_prefix = '/api/v1'
 
+def rename(newname):
+    def decorator(f):
+        f.__name__ = newname
+        return f
+    return decorator
+
 
 class ServerSentEvent:
     """
@@ -104,10 +110,11 @@ class MockLoader:
                         data=data[0], event='NODE_STATUS')
                     yield event.encode()
 
-            return Response(send_events(), mimetype="text/event-stream")
+            # return Response(send_events(), mimetype="text/event-stream")
 
         self.load_mock_system_description()
         self.load_mock_session_description()
+
 
     def load_mock_system_description(self) -> Tuple[str, int]:
         with open(os.path.join(dir_path, self.sys_descr + ".json")) as json_file:
@@ -124,12 +131,29 @@ class MockLoader:
                     async def nodes_mock() -> Tuple[str, int]:
                         return self.mock_response(self.sys_descr, data['nodes']['detail'])
 
-                    # TODO: add way of dynamically loading a router per node
                     for nodes in data['nodes']['detail']:
-                        if nodes['id'] == 0:
-                            @self.app.route(os.path.join(api_prefix, 'nodes/0/registers'))
-                            async def nodes_id0_mock() -> Tuple[str, int]:
-                                return self.mock_response(self.sys_descr, data['nodes']['detail'][0]['registers'])
+                        @self.app.route(os.path.join(api_prefix, 'nodes/' + str(nodes['id'])))
+                        @rename('nodes_id' + str(nodes['id']) + '_mock()')
+                        async def f() -> Tuple[str, int]:
+                            return self.mock_response(self.sys_descr, data['nodes']['detail'][nodes['id']])
+
+                        if 'registers' in nodes:
+                            @self.app.route(os.path.join(api_prefix, 'nodes/' + str(nodes['id']) + '/registers'))
+                            @rename('nodes_id' + str(nodes['id']) + '_registers_mock()')
+                            async def f() -> Tuple[str, int]:
+                                return self.mock_response(self.sys_descr, data['nodes']['detail'][nodes['id']]['registers'])
+
+                        if 'publishers' in nodes:
+                            @self.app.route(os.path.join(api_prefix, 'nodes/' + str(nodes['id']) + '/publishers'))
+                            @rename('nodes_id' + str(nodes['id']) + '_pub_mock()')
+                            async def f() -> Tuple[str, int]:
+                                return self.mock_response(self.sys_descr, data['nodes']['detail'][nodes['id']]['publishers'])
+
+                        if 'subscribers' in nodes:
+                            @self.app.route(os.path.join(api_prefix, 'nodes/' + str(nodes['id']) + '/subscribers'))
+                            @rename('nodes_id' + str(nodes['id']) + '_sub_mock()')
+                            async def f() -> Tuple[str, int]:
+                                return self.mock_response(self.sys_descr, data['nodes']['detail'][nodes['id']]['subscribers'])
 
                 if data['nodes']['plugandplay']:
                     @self.app.route(os.path.join(api_prefix, 'nodes/plugandplay'))
@@ -159,26 +183,12 @@ class MockLoader:
                 for interaction in data['interactions']:
                     if interaction['nodes']:
                         for node in interaction['nodes']:
-                            # TODO: add way of dynamically loading a router per node
-                            if '0' in node:
-                                if 'publishers' in interaction['nodes']['0']:
-                                    @self.app.route(os.path.join(api_prefix, 'nodes/0/publishers'))
-                                    async def nodes_id0_pub_mock() -> Tuple[str, int]:
-                                        return self.mock_response(self.sys_descr, interaction['nodes']['0']['publishers'])
-                                if 'subscribers' in interaction['nodes']['8']:
-                                    @self.app.route(os.path.join(api_prefix, 'nodes/0/subscribers'))
-                                    async def nodes_id0_sub_mock() -> Tuple[str, int]:
-                                        return self.mock_response(self.sys_descr, interaction['nodes']['0']['subscribers'])
-                            if '8' in node:
-                                if 'publishers' in interaction['nodes']['8']:
-                                    @self.app.route(os.path.join(api_prefix, 'nodes/8/publishers'))
-                                    async def nodes_id8_pub_mock() -> Tuple[str, int]:
-                                        return self.mock_response(self.sys_descr, interaction['nodes']['8']['publishers'])
-                                if 'subscribers' in interaction['nodes']['8']:
-                                    print(interaction['nodes']['0']['subscribers'])
-                                    @self.app.route(os.path.join(api_prefix, 'nodes/8/subscribers'))
-                                    async def nodes_id8_sub_mock() -> Tuple[str, int]:
-                                        return self.mock_response(self.sys_descr, interaction['nodes']['8']['subscribers'])
+                            if 'publishers' in node:
+                                break
+                                # Adds temporary interaction change
+                            if 'subscribers' in node:
+                                break
+                                # Adds temporary interaction change
 
     @property
     def app(self) -> Quart:

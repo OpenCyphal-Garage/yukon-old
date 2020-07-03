@@ -72,7 +72,6 @@ export default {
 <style>
   @import './assets/styles/core.css';
   @import './assets/styles/nodeStatus.css';
-  @import './assets/styles/RussoOneFont/v8/russo_one.css'>
 
   #navBar {
     width: 100%;

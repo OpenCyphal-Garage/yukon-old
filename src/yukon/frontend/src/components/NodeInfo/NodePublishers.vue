@@ -17,11 +17,11 @@
         <thead>
           <th>Port ID</th>
           <th>Type</th>
-          <th>Current rate</th>
+          <th>Rate</th>
         </thead>
 
         <tbody ref="nodeListParamsTableBody">
-          <tr v-for="(pub, index) in publishers" :key="port_id">
+          <tr v-for="pub in publishers" :key="pub.port_id">
             <td>{{ pub.port_id }}</td>
             <td>{{ pub.type }}</td>
             <td>{{ pub.rate }} Hz</td>
