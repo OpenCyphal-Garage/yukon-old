@@ -76,15 +76,18 @@
 
     <div v-if="!loading && processedNodes.length > 0">
       <v-stage ref="stage" :config="configKonva">
-        <v-layer ref="layer" @mouseenter="updateSubjectLines()">
-          <v-arrow v-for="pub in this.pub_port_id_list" :ref="pub.port_id+pub.name" :config="{
-                      stroke: 'blue',
-                      fill: 'blue',
+        <v-layer ref="layer">
+          <v-arrow v-for="pub in this.pub_port_id_list" :ref="pub.port_id+pub.name" @click="showPortID" :config="{
+                      id: pub.port_id,
+                      name: pub.type,
+                      stroke: 'rgb(35,0,179)',
+                      fill: 'rgb(35,0,179)',
+                      strokeWidth: 3,
                       points: [0, 0, 0, 0]
               }"></v-arrow>
-          <v-group v-for="node in this.nodes" :ref="node.name" :key="node.id" @click="viewNodeDetails(node.id)" @dragmove="updateSubjectLines()" :config="{
-                x: generateRandomXPos(),
-                y: generateRandomYPos(),
+          <v-group v-for="node in this.nodes" :ref="node.name" :key="node.id" @click="viewNodeDetails(node.id)" @dragmove="updateSubjectLines" @dragend="defaultCursorStyle" @mouseover="highlightNodeBox" @mouseleave="deemphasizeNodeBox" :config="{
+                x: getNodePosition(node.id).x,
+                y: getNodePosition(node.id).y,
                 id: node.id,
                 name: node.name,
                 draggable: true,
@@ -98,10 +101,19 @@
                         stroke: 'black',
                         shadowBlur: 10,
                         shadowColor: 'black',
-                        shadowOpacity: 0.6,
+                        shadowOpacity: 0.6
                 }"></v-rect>
+            <v-circle :config="{
+                        x: 20,
+                        y: 15,
+                        radius: 10,
+                        opacity: 0.6,
+                        fill: setStatusLedColor(node.health),
+                        stroke: 'black',
+                        shadowOpacity: 0.6
+                }"></v-circle>
             <v-text :config="{
-                        x: 10,
+                        x: 40,
                         y: 10,
                         fontSize: 16,
                         fontFamily: 'Russo One',
@@ -114,21 +126,25 @@
                         fontFamily: 'Russo One',
                         text: node.name,
                 }"></v-text>
-            <v-text :config="{
+            <v-text :class="node.mode.toLowerCase()" :config="{
                         x:10,
                         y:40,
                         fontSize: 16,
                         fontFamily: 'Russo One',
                         text: 'Mode: ' + node.mode,
                 }"></v-text>
-            <v-text :config="{
-                        x:10,
-                        y:70,
-                        fontSize: 16,
-                        fontFamily: 'Russo One',
-                        text: 'Health: ' + node.health,
-                }"></v-text>
           </v-group>
+          <v-text ref="simpleText" :config="{
+                      x: 10,
+                      y: 10,
+                      fontSize: 20,
+                      text: '',
+                      fill: 'rgb(65,167,69)',
+                      fontFamily: 'Russo One',
+                      stroke: 'white',
+                      strokeWidth: 1,
+                      opacity: 0
+            }" />
         </v-layer>
       </v-stage>
     </div>
@@ -181,6 +197,7 @@ export default {
           name: 'descending'
         }
       },
+      nodesInitialPosition: [],
       health: {
         OK: 0,
         WARNING: 1,
@@ -196,7 +213,6 @@ export default {
       },
       pub_port_id_list: [],
       sub_port_id_list: [],
-      // dragItemId: null,
       configKonva: {
         width: width,
         height: height
@@ -251,7 +267,27 @@ export default {
   async mounted() {
     await this.loadData()
     await this.loadPubSub()
-    await this.updateSubjectLines()
+    await this.updateSubjectLines
+
+    for(var node in this.nodes) {
+      this.nodesInitialPosition.push({
+        id: this.nodes[node].id,
+        x: this.generateRandomXPos(),
+        y: this.generateRandomYPos(),
+        hasInitialPosition: true
+      });
+    }
+
+
+
+    // var shapes = this.$refs.stage.getStage().find('.group')
+    // console.log(shape)
+    // shapes.each(function (shape) {
+    //         console.log(shape)
+    //       });
+
+
+
 
     // for (let n = 0; n < 6; n++) {
     //   this.list.push({
@@ -285,7 +321,8 @@ export default {
             this.pub_port_id_list.push({
               id: key,
               name: this.nodes[key].name,
-              port_id: pubs[key2].port_id
+              port_id: pubs[key2].port_id,
+              type: pubs[key2].type
             })
           }
         }
@@ -298,7 +335,8 @@ export default {
             this.sub_port_id_list.push({
               id: key,
               name: this.nodes[key].name,
-              port_id: subs[key2].port_id
+              port_id: subs[key2].port_id,
+              type: subs[key2].type
             })
           }
         }
@@ -317,6 +355,14 @@ export default {
     },
     generateRandomYPos() {
       return Math.random() * height * 0.5;
+    },
+    getNodePosition(nodeID) {
+      for (var node in this.nodesInitialPosition) {
+        if (this.nodesInitialPosition[node].id === nodeID && this.nodesInitialPosition[node].hasInitialPosition) {
+          console.log(this.nodesInitialPosition[node].x, this.nodesInitialPosition[node].y)
+          return {x: this.nodesInitialPosition[node].x , y: this.nodesInitialPosition[node].y}
+        }
+      }
     },
     getRectangleBorderPoint(radians, size, xSideOffset, ySideOffset) {
       const width = size.width + xSideOffset * 2;
@@ -364,6 +410,54 @@ export default {
         y: node.y() + node.getChildren()[0].height() / 2
       }
     },
+    setStatusLedColor(health) {
+      if (health === 'OK') {
+        return 'rgb(105,228,113)'
+      } else if (health === 'WARNING') {
+        return 'yellow'
+      } else if (health === 'ERROR') {
+        return 'red'
+      } else if (health === 'CRITICAL') {
+        return 'red'
+      } else {
+        return 'grey'
+      }
+    },
+    blinkLED() {
+
+    },
+    async highlightNodeBox(e) {
+      e.target.getStage().container().style.cursor = 'pointer';
+
+      e.target.to({
+        shadowColor: 'blue',
+        duration: 0.1
+      });
+    },
+    async deemphasizeNodeBox(e) {
+      e.target.getStage().container().style.cursor = 'default';
+
+      e.target.to({
+        shadowColor: 'black',
+        duration: 0.1
+      });
+    },
+    async defaultCursorStyle(e) {
+      e.target.getStage().container().style.cursor = 'pointer';
+    },
+    showPortID(e) {
+      const mousePos = this.$refs.stage.getNode().getPointerPosition();
+      const simpleText = this.$refs.simpleText.getNode();
+
+      simpleText.setText(e.target.id() + "\n" + e.target.name());
+      simpleText.setX(mousePos.x);
+      simpleText.setY(mousePos.y);
+
+      simpleText.to({opacity: 1});
+      setTimeout(function (){
+        simpleText.to({opacity: 0});
+      }, 1000);
+    },
     getPoints(r1, r2, offset) {
       const c1 = this.getCenterRight(r1);
       const c2 = this.getCenterLeft(r2);
@@ -397,7 +491,6 @@ export default {
         y: 0
       };
 
-      let x, y;
       if (
         (radians >= 2 * Math.PI - phi && radians <= 2 * Math.PI) ||
         (radians >= 0 && radians <= phi)
@@ -433,20 +526,22 @@ export default {
         };
       } else if (radians >= Math.PI + phi && radians <= 2 * Math.PI - phi) {
         start = {
-          x: c1.x - startOffset.x + offset,
+          x: c1.x - startOffset.x - offset,
           y: c1.y - startOffset.y
         };
 
         end = {
-          x: c2.x - endOffset.x + offset,
+          x: c2.x - endOffset.x - offset,
           y: c2.y - endOffset.y
         };
       }
 
       return [start.x, start.y, end.x, end.y]
     },
-    async updateSubjectLines() {
-      var offset = 30
+    async updateSubjectLines(e) {
+      e.target.getStage().container().style.cursor = 'move';
+
+      var offset = 0;
 
       for (var key in this.pub_port_id_list) {
         for (var key2 in this.sub_port_id_list) {
@@ -458,7 +553,7 @@ export default {
             const subNodeName = this.sub_port_id_list[key2].name
 
             const points = this.getPoints(this.$refs[pubNodeName][0].getNode(), this.$refs[subNodeName][0].getNode(), offset);
-            offset += 10
+            offset += 15
 
             const line = this.pub_port_id_list[key].port_id + pubNodeName
 
