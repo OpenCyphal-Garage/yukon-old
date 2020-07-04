@@ -17,7 +17,7 @@
 
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
-        <b-navbar-nav>
+        <b-navbar-nav style="font-family: 'Russo One';">
           <b-nav-item @click="goBack" class="mr-4">Back</b-nav-item>
 
           <b-nav-item v-for="route in navigationRouteOptions"
@@ -26,12 +26,11 @@
         </b-navbar-nav>
 
         <div class="navbar-nav ml-auto">
-          <b-nav-item-dropdown text="Useful Links" right>
-            <b-dropdown-item href="https://new.uavcan.org/specification">Specification</b-dropdown-item>
-            <b-dropdown-item href="https://forum.uavcan.org/">Forums</b-dropdown-item>
-            <b-dropdown-item href="https://github.com/UAVCAN">Github</b-dropdown-item>            <b-dropdown-item href="\">Swagger API</b-dropdown-item>
-            <b-dropdown-item href="https://github.com/UAVCAN/Yukon/blob/master/README.md">Readme</b-dropdown-item>
-            <b-dropdown-item href="https://app.swaggerhub.com/apis-docs/Zarkopafilis/Yukon/1.0.0">Swagger API Docs</b-dropdown-item>
+          <b-nav-item-dropdown text="Useful Links" right style="font-family: 'Russo One';">
+            <b-dropdown-item style="font-family: 'Roboto';" href="https://new.uavcan.org/specification">Specification</b-dropdown-item>
+            <b-dropdown-item style="font-family: 'Roboto';" href="https://forum.uavcan.org/">Forums</b-dropdown-item>
+            <b-dropdown-item style="font-family: 'Roboto';" href="https://github.com/UAVCAN">Github</b-dropdown-item>
+            <b-dropdown-item style="font-family: 'Roboto';" href="https://github.com/UAVCAN/Yukon/blob/master/README.md">Readme</b-dropdown-item>
           </b-nav-item-dropdown>
           <b-navbar-brand href="https://uavcan.org/">
             <img src="./assets/uavcan_logo.png" alt="Home">

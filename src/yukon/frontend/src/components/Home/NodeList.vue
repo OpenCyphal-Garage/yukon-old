@@ -110,7 +110,6 @@
                         opacity: 0.6,
                         fill: setStatusLedColor(node.health),
                         stroke: 'black',
-                        shadowOpacity: 0.6,
                         name: node.name,
                         id: node.health
                 }"></v-circle>
@@ -118,33 +117,31 @@
                         x: 40,
                         y: 10,
                         fontSize: 16,
-                        fontFamily: 'Russo One',
+                        fontFamily: 'Roboto',
                         text: 'Node ID ' + node.id,
                 }"></v-text>
             <v-text :config="{
                         x:140,
                         y:10,
                         fontSize: 16,
-                        fontFamily: 'Russo One',
+                        fontFamily: 'Roboto',
                         text: node.name,
                 }"></v-text>
             <v-text :class="node.mode.toLowerCase()" :config="{
                         x:10,
                         y:40,
                         fontSize: 16,
-                        fontFamily: 'Russo One',
+                        fontFamily: 'Roboto',
                         text: 'Mode: ' + node.mode,
                 }"></v-text>
           </v-group>
-          <v-text ref="simpleText" :config="{
+          <v-text ref="topicText" :config="{
                       x: 10,
                       y: 10,
                       fontSize: 20,
                       text: '',
-                      fill: 'rgb(65,167,69)',
-                      fontFamily: 'Russo One',
-                      stroke: 'white',
-                      strokeWidth: 1,
+                      fill: 'rgb(37,102,46)',
+                      fontFamily: 'Roboto',
                       opacity: 0
             }" />
         </v-layer>
@@ -277,7 +274,7 @@ export default {
     await this.loadData()
     await this.loadPubSub()
     await this.updateSubjectLines
-    await this.blinkLED()
+    await this.blinkLED
 
     for(var node in this.nodes) {
       this.nodesInitialPosition.push({
@@ -487,15 +484,15 @@ export default {
     },
     showPortID(e) {
       const mousePos = this.$refs.stage.getNode().getPointerPosition();
-      const simpleText = this.$refs.simpleText.getNode();
+      const topicText = this.$refs.topicText.getNode();
 
-      simpleText.setText(e.target.id() + "\n" + e.target.name());
-      simpleText.setX(mousePos.x);
-      simpleText.setY(mousePos.y);
+      topicText.setText(e.target.id() + "\n" + e.target.name());
+      topicText.setX(mousePos.x);
+      topicText.setY(mousePos.y);
 
-      simpleText.to({opacity: 1});
+      topicText.to({opacity: 1});
       setTimeout(function (){
-        simpleText.to({opacity: 0});
+        topicText.to({opacity: 0});
       }, 1000);
     },
     getPoints(r1, r2, offset) {

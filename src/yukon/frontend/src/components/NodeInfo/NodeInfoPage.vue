@@ -6,7 +6,7 @@
  -->
 
 <template>
-  <div>
+  <div style="font-family: 'Roboto';">
       <div class="row">
         <h2 class="pull-left ml-3">Node Info</h2>
       </div>

@@ -8,7 +8,7 @@
  -->
 
 <template>
-  <div class="col-sm-2">
+  <div class="col-sm-2" style="font-family: 'Roboto';">
     <div v-if="error === ''">
       <span class="badge" :class="heuristicHealthBadgeColor">{{ serverHealth.health }}</span>
       <span class="badge badge-info">Uptime: {{ serverHealth.uptime }}s</span>

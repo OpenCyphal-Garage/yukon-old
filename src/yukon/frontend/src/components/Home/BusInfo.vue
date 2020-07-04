@@ -8,7 +8,7 @@
  -->
 
 <template>
-<div class="col-sm-3">
+<div class="col-sm-3" style="font-family: 'Roboto';">
   <div v-if="error === ''">
     <div class="row">
       <div class="col-sm-3">
