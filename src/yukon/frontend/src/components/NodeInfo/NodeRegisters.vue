@@ -6,7 +6,7 @@
  -->
 
 <template>
-  <div :class="{'subtle-border' : !loading}">
+  <div :class="{'subtle-border' : !loading}" style="font-family: 'Roboto';">
     <div v-if="!loading" class="row fit-border pt-2 ml-3 mb-0">
       <p>Server responded with {{ registers.length }} registers</p>
     </div>

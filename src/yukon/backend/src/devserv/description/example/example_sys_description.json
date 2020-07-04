@@ -20,7 +20,7 @@
                 },
                 "detail": [{
                                 "id": 0,
-                                "name": "bms_772",
+                                "name": "BMS 772",
                                 "health": "OK",
                                 "mode": "OPERATIONAL",
                                 "uptime": 30,
@@ -60,7 +60,7 @@
                         },
                         {
                                 "id": 1,
-                                "name": "esc_front_left",
+                                "name": "ESC Front Left",
                                 "health": "OK",
                                 "mode": "OPERATIONAL",
                                 "uptime": 100,
@@ -92,7 +92,7 @@
                         },
                         {
                                 "id": 2,
-                                "name": "esc_front_right",
+                                "name": "ESC Front Right",
                                 "health": "CRITICAL",
                                 "mode": "INITIALIZATION",
                                 "uptime": 100,
@@ -100,7 +100,7 @@
                         },
                         {
                                 "id": 3,
-                                "name": "esc_back_left",
+                                "name": "ESC Back Left",
                                 "health": "ERROR",
                                 "mode": "MAINTAINANCE",
                                 "uptime": 100,
@@ -108,7 +108,7 @@
                         },
                         {
                                 "id": 4,
-                                "name": "esc_back_right",
+                                "name": "ESC Back Right",
                                 "health": "WARNING",
                                 "mode": "SOFTWARE_UPDATE",
                                 "uptime": 100,
@@ -116,7 +116,7 @@
                         },
                         {
                                 "id": 5,
-                                "name": "ms5525_airspeed",
+                                "name": "MS5525 Airspeed",
                                 "health": "OK",
                                 "mode": "OFFLINE",
                                 "uptime": 456,
@@ -124,7 +124,7 @@
                         },
                         {
                                 "id": 6,
-                                "name": "servo_right_elevon",
+                                "name": "Servo Right Elevon",
                                 "health": "OK",
                                 "mode": "OPERATIONAL",
                                 "uptime": 45,
@@ -132,7 +132,7 @@
                         },
                         {
                                 "id": 7,
-                                "name": "servo_left_elevon",
+                                "name": "Servo Left Elevon",
                                 "health": "OK",
                                 "mode": "MAINTAINANCE",
                                 "uptime": 456,
@@ -140,7 +140,7 @@
                         },
                         {
                                 "id": 8,
-                                "name": "px4_fcu",
+                                "name": "Pixhawk 4",
                                 "health": "OK",
                                 "mode": "OPERATIONAL",
                                 "uptime": 1457,
