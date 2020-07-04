@@ -91,7 +91,7 @@ class MockLoader:
                     },
                     {
                         "id": 1,
-                        "health": 'WARNING'
+                        "health": 'CRITICAL'
                     },
                     {
                         "id": 2,
@@ -99,7 +99,7 @@ class MockLoader:
                     },
                     {
                         "id": 3,
-                        "health": 'WARNING'
+                        "health": 'CRITICAL'
                     }
                 ]
 

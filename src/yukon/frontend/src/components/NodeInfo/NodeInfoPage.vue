@@ -57,7 +57,6 @@ export default {
   },
   computed: {
     _nodeId () {
-      console.log(this.nodeId)
       if (this.nodeId === undefined || this.nodeId === '') {
         return this.$router.params.nodeId
       }
