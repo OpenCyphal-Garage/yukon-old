@@ -47,7 +47,6 @@ export default {
       const file = ev.target.files[0]
       const reader = new FileReader()
 
-      reader.onload = e => console.log(e.target.result)
       const contents = reader.readAsText(file)
 
       await this.startFirmwareUpdate(contents)

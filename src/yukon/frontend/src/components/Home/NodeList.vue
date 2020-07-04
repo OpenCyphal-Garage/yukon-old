@@ -75,7 +75,7 @@
     <p v-if="error == '' && !loading && processedNodes.length == 0">No nodes found</p>
 
     <div v-if="!loading && processedNodes.length > 0">
-      <v-stage ref="stage" :config="configKonva">
+      <v-stage ref="stage" @mouseenter="generalSync" @mouseleave="generalSync" :config="configKonva">
         <v-layer ref="layer">
           <v-arrow v-for="pub in this.pub_port_id_list" :ref="pub.port_id+pub.name" @click="showPortID" :config="{
                       id: pub.port_id,
@@ -86,8 +86,8 @@
                       points: [0, 0, 0, 0]
               }"></v-arrow>
           <v-group v-for="node in this.nodes" :ref="node.name" :key="node.id" @click="viewNodeDetails(node.id)" @dragmove="updateSubjectLines" @dragend="defaultCursorStyle" @mouseover="highlightNodeBox" @mouseleave="deemphasizeNodeBox" :config="{
-                x: getNodePosition(node.id).x,
-                y: getNodePosition(node.id).y,
+                x: getNodePosition(node.id) ? getNodePosition(node.id)[0] : 0,
+                y: getNodePosition(node.id) ? getNodePosition(node.id)[1] : 1,
                 id: node.id,
                 name: node.name,
                 draggable: true,
@@ -110,7 +110,9 @@
                         opacity: 0.6,
                         fill: setStatusLedColor(node.health),
                         stroke: 'black',
-                        shadowOpacity: 0.6
+                        shadowOpacity: 0.6,
+                        name: node.name,
+                        id: node.health
                 }"></v-circle>
             <v-text :config="{
                         x: 40,
@@ -181,6 +183,7 @@ export default {
   data() {
     return {
       loading: false,
+      health_val: '',
       error: '',
       filter: '',
       sortAttribute: 'None',
@@ -264,10 +267,17 @@ export default {
       return filtered
     }
   },
+  watch: {
+    health_val: async function () {
+      console.log(this.nodes);
+      await this.blinkLED()
+    }
+  },
   async mounted() {
     await this.loadData()
     await this.loadPubSub()
     await this.updateSubjectLines
+    await this.blinkLED()
 
     for(var node in this.nodes) {
       this.nodesInitialPosition.push({
@@ -278,16 +288,15 @@ export default {
       });
     }
 
-
-
-    // var shapes = this.$refs.stage.getStage().find('.group')
-    // console.log(shape)
-    // shapes.each(function (shape) {
-    //         console.log(shape)
-    //       });
-
-
-
+    // Applies to all nodes in stage
+    // const groupCollection = this.$refs.layer.getNode().find('Group');
+    //
+    // console.log(groupCollection);
+    //
+    // groupCollection.each(function(shape, n ) {
+    //   shape.on('load', function() {
+    //   });
+    // });
 
     // for (let n = 0; n < 6; n++) {
     //   this.list.push({
@@ -302,6 +311,9 @@ export default {
       this.sortAttribute = 'None'
       this.filter = ''
       this.sortWay = this.sortWays.none.name
+    },
+    generalSync: async function() {
+         await this.blinkLED()
     },
     async loadData() {
       this.error = ''
@@ -359,8 +371,7 @@ export default {
     getNodePosition(nodeID) {
       for (var node in this.nodesInitialPosition) {
         if (this.nodesInitialPosition[node].id === nodeID && this.nodesInitialPosition[node].hasInitialPosition) {
-          console.log(this.nodesInitialPosition[node].x, this.nodesInitialPosition[node].y)
-          return {x: this.nodesInitialPosition[node].x , y: this.nodesInitialPosition[node].y}
+          return [this.nodesInitialPosition[node].x, this.nodesInitialPosition[node].y]
         }
       }
     },
@@ -423,8 +434,34 @@ export default {
         return 'grey'
       }
     },
-    blinkLED() {
+    async blinkLED() {
+      // Applies to all nodes in stage
+      const circleCollection = this.$refs.layer.getNode().find('Circle');
 
+      const vm = this
+      circleCollection.each(function(shape, n ) {
+        if(shape.id() == 'WARNING' || shape.id() == 'CRITICAL') {
+
+          const amplitude = 1;
+          const period = 3000;
+
+          const anim = new Konva.Animation(function(frame) {
+             shape.setOpacity(
+               amplitude * Math.sin((frame.time * 2 * Math.PI) / period)
+             );
+             shape.setOpacity(
+               -amplitude * Math.sin((frame.time * 2 * Math.PI) / period)
+             );
+             shape.setOpacity(
+               amplitude * Math.sin((frame.time * 2 * Math.PI) / period)
+             );
+           }, shape.getLayer());
+
+           anim.start();
+        } else {
+           shape.fill(vm.setStatusLedColor(shape.id()))
+        }
+      });
     },
     async highlightNodeBox(e) {
       e.target.getStage().container().style.cursor = 'pointer';
@@ -435,11 +472,14 @@ export default {
       });
     },
     async deemphasizeNodeBox(e) {
+      // Applies to all nodes in stage
       e.target.getStage().container().style.cursor = 'default';
 
-      e.target.to({
-        shadowColor: 'black',
-        duration: 0.1
+      e.target.getLayer().find('Rect').each(function(shape, n ) {
+        shape.to({
+          shadowColor: 'black',
+          duration: 0.1
+        });
       });
     },
     async defaultCursorStyle(e) {
