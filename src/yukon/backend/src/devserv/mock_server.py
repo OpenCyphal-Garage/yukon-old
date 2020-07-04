@@ -110,7 +110,7 @@ class MockLoader:
                         data=data[0], event='NODE_STATUS')
                     yield event.encode()
 
-            # return Response(send_events(), mimetype="text/event-stream")
+            return Response(send_events(), mimetype="text/event-stream")
 
         self.load_mock_system_description()
         self.load_mock_session_description()
