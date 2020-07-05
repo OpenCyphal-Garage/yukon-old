@@ -8,7 +8,7 @@
  -->
 
 <template>
-<div>
+<div @mouseenter="generalSync">
   <!-- Controls -->
   <div class="row align-items-baseline" style="display: none;">
     <div class="btn-group col-3 pl-0 mr-2 align-items-baseline">
@@ -75,19 +75,11 @@
     <p v-if="error == '' && !loading && processedNodes.length == 0">No nodes found</p>
 
     <div v-if="!loading && processedNodes.length > 0">
-      <v-stage ref="stage" @mouseenter="generalSync" @mouseleave="generalSync" :config="configKonva">
+      <v-stage ref="stage" :config="configKonva" @mouseenter="blinkLED" @mouseleave="blinkLED">
         <v-layer ref="layer">
-          <v-arrow v-for="pub in this.pub_port_id_list" :ref="pub.port_id+pub.name" @click="showPortID" :config="{
-                      id: pub.port_id,
-                      name: pub.type,
-                      stroke: 'rgb(35,0,179)',
-                      fill: 'rgb(35,0,179)',
-                      strokeWidth: 3,
-                      points: [0, 0, 0, 0]
-              }"></v-arrow>
           <v-group v-for="node in this.nodes" :ref="node.name" :key="node.id" @click="viewNodeDetails(node.id)" @dragmove="updateSubjectLines" @dragend="defaultCursorStyle" @mouseover="highlightNodeBox" @mouseleave="deemphasizeNodeBox" :config="{
                 x: getNodePosition(node.id) ? getNodePosition(node.id)[0] : 0,
-                y: getNodePosition(node.id) ? getNodePosition(node.id)[1] : 1,
+                y: getNodePosition(node.id) ? getNodePosition(node.id)[1] : 0,
                 id: node.id,
                 name: node.name,
                 draggable: true,
@@ -107,7 +99,6 @@
                         x: 20,
                         y: 15,
                         radius: 10,
-                        opacity: 0.6,
                         fill: setStatusLedColor(node.health),
                         stroke: 'black',
                         name: node.name,
@@ -213,6 +204,7 @@ export default {
       },
       pub_port_id_list: [],
       sub_port_id_list: [],
+      nodePubOffset: [],
       configKonva: {
         width: width,
         height: height
@@ -265,25 +257,21 @@ export default {
     }
   },
   watch: {
-    health_val: async function () {
-      console.log(this.nodes);
+    nodes: async function () {
       await this.blinkLED()
+      await this.loadPubSub()
+      await this.drawSubjectLines()
+      await this.updateSubjectLines
     }
   },
   async mounted() {
     await this.loadData()
     await this.loadPubSub()
-    await this.updateSubjectLines
-    await this.blinkLED
+    await this.setNodesPositions()
+    await this.drawSubjectLines()
+    await this.blinkLED()
 
-    for(var node in this.nodes) {
-      this.nodesInitialPosition.push({
-        id: this.nodes[node].id,
-        x: this.generateRandomXPos(),
-        y: this.generateRandomYPos(),
-        hasInitialPosition: true
-      });
-    }
+    // console.log(this.nodes)
 
     // Applies to all nodes in stage
     // const groupCollection = this.$refs.layer.getNode().find('Group');
@@ -294,14 +282,6 @@ export default {
     //   shape.on('load', function() {
     //   });
     // });
-
-    // for (let n = 0; n < 6; n++) {
-    //   this.list.push({
-    //     id: Math.round(Math.random() * 10000).toString(),
-    //     x: Math.random() * width,
-    //     y: Math.random() * height
-    //   })
-    // }
   },
   methods: {
     clearControls() {
@@ -310,7 +290,10 @@ export default {
       this.sortWay = this.sortWays.none.name
     },
     generalSync: async function() {
-         await this.blinkLED()
+         await this.blinkLED();
+         await this.loadPubSub();
+         await this.drawSubjectLines();
+         await this.updateSubjectLines
     },
     async loadData() {
       this.error = ''
@@ -327,12 +310,22 @@ export default {
         if (this.nodes.hasOwnProperty(key)) {
           var pubs = this.nodes[key].publishers
           for (var key2 in pubs) {
-            this.pub_port_id_list.push({
+            var newPub = {
               id: key,
               name: this.nodes[key].name,
               port_id: pubs[key2].port_id,
               type: pubs[key2].type
-            })
+            }
+            if (this.pub_port_id_list.length == 0) {
+              this.pub_port_id_list.push(newPub)
+            } else if (!this.pub_port_id_list.some( function(elem) {
+                               const parsedElem = JSON.parse(JSON.stringify(elem));
+                               return parsedElem.id === newPub.id && parsedElem.name === newPub.name
+                                      && parsedElem.port_id === newPub.port_id
+                                      && parsedElem.type === newPub.type;
+                       })) {
+              this.pub_port_id_list.push(newPub)
+            }
           }
         }
       }
@@ -341,12 +334,22 @@ export default {
         if (this.nodes.hasOwnProperty(key)) {
           var subs = this.nodes[key].subscribers
           for (var key2 in subs) {
-            this.sub_port_id_list.push({
+            var newSub = {
               id: key,
               name: this.nodes[key].name,
               port_id: subs[key2].port_id,
               type: subs[key2].type
-            })
+            }
+            if (this.sub_port_id_list.length == 0) {
+              this.sub_port_id_list.push(newSub)
+            } else if (!this.sub_port_id_list.some( function(elem) {
+                               const parsedElem = JSON.parse(JSON.stringify(elem));
+                               return parsedElem.id === newSub.id && parsedElem.name === newSub.name
+                                      && parsedElem.port_id === newSub.port_id
+                                      && parsedElem.type === newSub.type;
+                       })) {
+              this.sub_port_id_list.push(newSub)
+            }
           }
         }
       }
@@ -370,6 +373,16 @@ export default {
         if (this.nodesInitialPosition[node].id === nodeID && this.nodesInitialPosition[node].hasInitialPosition) {
           return [this.nodesInitialPosition[node].x, this.nodesInitialPosition[node].y]
         }
+      }
+    },
+    async setNodesPositions() {
+      for(var node in this.nodes) {
+        this.nodesInitialPosition.push({
+          id: this.nodes[node].id,
+          x: this.generateRandomXPos(),
+          y: this.generateRandomYPos(),
+          hasInitialPosition: true
+        });
       }
     },
     getRectangleBorderPoint(radians, size, xSideOffset, ySideOffset) {
@@ -440,7 +453,7 @@ export default {
         if(shape.id() == 'WARNING' || shape.id() == 'CRITICAL') {
 
           const amplitude = 1;
-          const period = 3000;
+          const period = 5000;
 
           const anim = new Konva.Animation(function(frame) {
              shape.setOpacity(
@@ -575,26 +588,87 @@ export default {
 
       return [start.x, start.y, end.x, end.y]
     },
-    async updateSubjectLines(e) {
-      e.target.getStage().container().style.cursor = 'move';
-
+    async drawSubjectLines() {
       var offset = 0;
+
+      const vm = this
 
       for (var key in this.pub_port_id_list) {
         for (var key2 in this.sub_port_id_list) {
           // Creates a line between matching port identifiers
           if (this.pub_port_id_list[key].name !== this.sub_port_id_list[key2].name && this.pub_port_id_list[key].port_id === this.sub_port_id_list[key2].port_id) {
-            // console.log(this.pub_port_id_list[key].name, this.sub_port_id_list[key2].name, this.pub_port_id_list[key].port_id, this.sub_port_id_list[key2].port_id)
 
-            const pubNodeName = this.pub_port_id_list[key].name
-            const subNodeName = this.sub_port_id_list[key2].name
+            const pubNodeName = this.pub_port_id_list[key].name;
+            const subNodeName = this.sub_port_id_list[key2].name;
+            const lineID = pubNodeName + ': ' + this.pub_port_id_list[key].port_id;
 
-            const points = this.getPoints(this.$refs[pubNodeName][0].getNode(), this.$refs[subNodeName][0].getNode(), offset);
-            offset += 15
+            if (this.nodePubOffset.length == 0 || !this.nodePubOffset.some( function(elem) {
+                               const parsedElem = JSON.parse(JSON.stringify(elem));
+                               return parsedElem.id === lineID && parsedElem.name === vm.sub_port_id_list[key2].type;
+                       })) {
 
-            const line = this.pub_port_id_list[key].port_id + pubNodeName
+              this.nodePubOffset.push({
+                id: pubNodeName + ': ' + this.pub_port_id_list[key].port_id,
+                name: this.pub_port_id_list[key].type,
+                offset: offset
+              });
 
-            this.$refs[line][0].getNode().points(points);
+              console.log(this.pub_port_id_list)
+
+              var arrow = new Konva.Arrow({
+                      id: pubNodeName + ': ' + this.pub_port_id_list[key].port_id,
+                      name: this.pub_port_id_list[key].type,
+                      stroke: 'rgb(35,0,179)',
+                      fill: 'rgb(35,0,179)',
+                      strokeWidth: 3
+                });
+
+              arrow.on('click', this.showPortID);
+
+              const points = this.getPoints(this.$refs[pubNodeName][0].getNode(), this.$refs[subNodeName][0].getNode(), offset);
+              offset += 15
+
+              arrow.points(points);
+
+              // console.log(arrow)
+
+              this.$refs.layer.getNode().add(arrow);
+            }
+          }
+        }
+      }
+
+      this.$refs.layer.getNode().draw();
+    },
+    async updateSubjectLines(e) {
+      e.target.getStage().container().style.cursor = 'move';
+
+      var offset = 0;
+
+      const vm = this;
+
+      for (var key in this.pub_port_id_list) {
+        for (var key2 in this.sub_port_id_list) {
+          // Creates a line between matching port identifiers
+          if (this.pub_port_id_list[key].name !== this.sub_port_id_list[key2].name && this.pub_port_id_list[key].port_id === this.sub_port_id_list[key2].port_id) {
+            const pubNodeName = this.pub_port_id_list[key].name;
+            const subNodeName = this.sub_port_id_list[key2].name;
+
+            for (var key3 in this.nodePubOffset) {
+              if (this.nodePubOffset[key3].id === (pubNodeName + ': ' + vm.pub_port_id_list[key].port_id)) {
+                offset = this.nodePubOffset[key3].offset;
+                break;
+              }
+            }
+
+            const points = this.getPoints(vm.$refs[pubNodeName][0].getNode(), vm.$refs[subNodeName][0].getNode(), offset);
+
+            const arrowCollection = this.$refs.layer.getNode().find('Arrow');
+            arrowCollection.each(function(shape, n) {
+              if(shape.id() === (pubNodeName + ': ' + vm.pub_port_id_list[key].port_id)) {
+                shape.points(points);
+              }
+            });
           }
         }
       }

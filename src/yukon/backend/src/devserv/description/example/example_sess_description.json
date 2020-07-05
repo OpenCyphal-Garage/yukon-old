@@ -3,20 +3,32 @@
                 "name": "",
                 "path": ""
         },
-        "interactions": [{
+        "events": [{
                 "bus": {
                         "id": ""
                 },
                 "nodes": {
                         "0": {
+                                "status": {
+                                        "health": "WARNING",
+                                        "timestamp_start": "",
+                                        "timestamp_end": ""
+                                },
                                 "publishers": [{
                                                 "type": "uavcan.node.Heartbeat.1.0",
                                                 "port_id": 32085,
-                                                "rate": 1.0
+                                                "rate": 1,
+                                                "timestamp_start": "",
+                                                "timestamp_end": "",
+                                                "timeout": ""
                                         },
                                         {
                                                 "type": "drone.sensor.battery.Status.0.1",
-                                                "port_id": 4096
+                                                "port_id": 4096,
+                                                "rate": 10,
+                                                "timestamp_start": "",
+                                                "timestamp_end": "",
+                                                "timeout": ""
                                         }
                                 ],
                                 "subscribers": [{
@@ -25,13 +37,26 @@
                                 }]
                         },
                         "1": {
+                                "status": {
+                                        "health": "CRITICAL",
+                                        "timestamp_start": "",
+                                        "timestamp_end": ""
+                                },
                                 "publishers": [{
                                                 "type": "uavcan.node.Heartbeat.1.0",
-                                                "port_id": 32085
+                                                "port_id": 32085,
+                                                "rate": 1,
+                                                "timestamp_start": "",
+                                                "timestamp_end": "",
+                                                "timeout": ""
                                         },
                                         {
                                                 "type": "drone.actuator.esc.Feedback.0.1",
-                                                "port_id": 4172
+                                                "port_id": 4172,
+                                                "rate": 400,
+                                                "timestamp_start": "",
+                                                "timestamp_end": "",
+                                                "timeout": ""
                                         }
                                 ],
                                 "subscribers": [{
@@ -39,14 +64,77 @@
                                         "port_id": 4160
                                 }]
                         },
-                        "8": {
+                        "2": {
+                                "status": {
+                                        "health": "WARNING",
+                                        "timestamp_start": "",
+                                        "timestamp_end": ""
+                                },
                                 "publishers": [{
                                                 "type": "uavcan.node.Heartbeat.1.0",
-                                                "port_id": 32085
+                                                "port_id": 32085,
+                                                "rate": 1,
+                                                "timestamp_start": "",
+                                                "timestamp_end": "",
+                                                "timeout": ""
+                                        },
+                                        {
+                                                "type": "drone.actuator.esc.Feedback.0.1",
+                                                "port_id": 4172,
+                                                "rate": 400,
+                                                "timestamp_start": "",
+                                                "timestamp_end": "",
+                                                "timeout": ""
+                                        }
+                                ],
+                                "subscribers": [{
+                                        "type": "drone.actuator.esc.PowerCommandGroup.1.0",
+                                        "port_id": 4160
+                                }]
+                        },
+                        "3": {
+                                "status": {
+                                        "health": "CRITICAL",
+                                        "timestamp_start": "",
+                                        "timestamp_end": ""
+                                }
+                        },
+                        "4": {
+                                "status": {
+                                        "health": "ERROR",
+                                        "timestamp_start": "",
+                                        "timestamp_end": ""
+                                }
+                        },
+                        "8": {
+                                "status": {
+                                        "health": "CRITICAL",
+                                        "timestamp_start": "",
+                                        "timestamp_end": ""
+                                },
+                                "publishers": [{
+                                                "type": "uavcan.node.Heartbeat.1.0",
+                                                "port_id": 32085,
+                                                "rate": 1,
+                                                "timestamp_start": "",
+                                                "timestamp_end": "",
+                                                "timeout": ""
                                         },
                                         {
                                                 "type": "drone.actuator.esc.PowerCommandGroup.1.0",
-                                                "port_id": 4160
+                                                "port_id": 4160,
+                                                "rate": 400,
+                                                "timestamp_start": "",
+                                                "timestamp_end": "",
+                                                "timeout": ""
+                                        },
+                                        {
+                                                "type": "uavcan.node.Test.1.0",
+                                                "port_id": 11111
+                                        },
+                                        {
+                                                "type": "uavcan.node.Test2.1.0",
+                                                "port_id": 22222
                                         }
                                 ],
                                 "subscribers": [{
