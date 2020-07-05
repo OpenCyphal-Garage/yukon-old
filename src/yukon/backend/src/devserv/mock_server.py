@@ -3,7 +3,6 @@ import sys
 import random
 import argparse
 import asyncio
-import nest_asyncio
 import json
 from quart import Quart, Response
 from quart_cors import cors
@@ -13,6 +12,7 @@ from typing import Dict
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 api_prefix = '/api/v1'
+
 
 def rename(newname):
     def decorator(f):
@@ -81,40 +81,41 @@ class MockLoader:
                           template_folder='../../../frontend/')
         self._app = cors(self._app)
 
-        @self.app.route(api_prefix + '/eventSource')
-        async def sse() -> Tuple[AsyncGenerator[bytes, None], Dict[str, str]]:
-            async def send_events() -> AsyncGenerator[bytes, None]:
-                data = [
-                    {
-                        "id": 0,
-                        "health": "WARNING"
-                    },
-                    {
-                        "id": 1,
-                        "health": 'CRITICAL'
-                    },
-                    {
-                        "id": 2,
-                        "health": 'WARNING'
-                    },
-                    {
-                        "id": 3,
-                        "health": 'CRITICAL'
-                    }
-                ]
-
-                while True:
-                    await asyncio.sleep(1)
-                    random.shuffle(data)
-                    event = ServerSentEvent(
-                        data=data[0], event='NODE_STATUS')
-                    yield event.encode()
-
-            return Response(send_events(), mimetype="text/event-stream")
+        # @self.app.route(api_prefix + '/eventSource')
+        # async def sse() -> Tuple[AsyncGenerator[bytes, None], Dict[str, str]]:
+        #     async def send_events() -> AsyncGenerator[bytes, None]:
+        #         data = [
+        #             {
+        #                 "id": 0,
+        #                 "health": "WARNING"
+        #             },
+        #             {
+        #                 "id": 1,
+        #                 "health": 'CRITICAL'
+        #             },
+        #             {
+        #                 "id": 2,
+        #                 "health": 'WARNING'
+        #             },
+        #             {
+        #                 "id": 3,
+        #                 "health": 'CRITICAL'
+        #             }
+        #         ]
+        #
+        #         while True:
+        #             await asyncio.sleep(1)
+        #             random.shuffle(data)
+        #             event = ServerSentEvent(
+        #                 data=data[0], event='NODE_STATUS')
+        #             yield event.encode()
+        #
+        #     event = send_events()
+        #     print(event)
+        #     return Response(event, mimetype="text/event-stream")
 
         self.load_mock_system_description()
         self.load_mock_session_description()
-
 
     def load_mock_system_description(self) -> Tuple[str, int]:
         with open(os.path.join(dir_path, self.sys_descr + ".json")) as json_file:
@@ -179,16 +180,47 @@ class MockLoader:
         with open(os.path.join(dir_path, self.sess_descr + ".json")) as json_file:
             data = json.load(json_file)
 
-            if 'interactions' in data:
-                for interaction in data['interactions']:
-                    if interaction['nodes']:
-                        for node in interaction['nodes']:
-                            if 'publishers' in node:
-                                break
-                                # Adds temporary interaction change
+            if 'events' in data:
+                for event in data['events']:
+                    if event['nodes']:
+                        # Right now all events are asembled in a single response,
+                        # affected mode randomized by priority, published at 30 Hz
+                        # TODO: separate events per event source
+                        data = []
+
+                        for idx, node in enumerate(event['nodes']):
+                            data.append({
+                                "id": int(node)
+                            })
+
+                            if 'status' in event['nodes'][node]:
+                                data[idx].update({
+                                    "health": event['nodes'][node]['status']['health']
+                                })
+
+                            if 'publishers' in event['nodes'][node]:
+                                data[idx].update({
+                                    "publishers": event['nodes'][node]['publishers']
+                                })
+
                             if 'subscribers' in node:
-                                break
-                                # Adds temporary interaction change
+                                data[idx].update({
+                                    "subscribers": event['nodes'][node]['subscribers']
+                                })
+
+                        @self.app.route(api_prefix + '/eventSource')
+                        @rename('sse_node' + node + '_update()')
+                        async def f() -> Tuple[AsyncGenerator[bytes, None], Dict[str, str]]:
+                            async def send_event(data, event_type, rate) -> AsyncGenerator[bytes, None]:
+                                while True:
+                                    random.shuffle(data)
+                                    # print(data[0])
+                                    await asyncio.sleep(1 / rate)
+                                    event = ServerSentEvent(
+                                        data=data[0], event=event_type)
+                                    yield event.encode()
+
+                            return Response(send_event(data, 'NODE_STATUS', 30.0), mimetype="text/event-stream")
 
     @property
     def app(self) -> Quart:
@@ -208,6 +240,15 @@ class MockLoader:
             return (json.dumps(elem), 200)
         else:
             return ('', 404)
+
+    # async def send_event(self, data, event, rate) -> AsyncGenerator[bytes, None]:
+    #     while True:
+    #         print("heyy")
+    #         await asyncio.sleep(1 / rate)
+    #         random.shuffle(data)
+    #         event = ServerSentEvent(
+    #             data=data[0], event=event)
+    #         yield event.encode()
 
 
 if __name__ == "__main__":

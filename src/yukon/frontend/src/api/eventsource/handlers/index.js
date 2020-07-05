@@ -1,7 +1,9 @@
 import nodeStatus from './nodeStatus.js'
+import subjectPubStatus from './subjectPubStatus.js'
 
 const Handlers = [
-  nodeStatus
+  nodeStatus,
+  subjectPubStatus
 ]
 
 export default Handlers

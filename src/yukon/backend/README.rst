@@ -52,15 +52,21 @@ stored inside those fields. Further node info, like register access, can be foun
 inside the detail that corresponds to that specific node.
 
 2. `sess_description` has the correspondent log name to be created, followed by
-any runtime interactions that might happen which are not provided on the log and/or
+any runtime events that might happen which are not provided on the log and/or
 failure injections. Note that this description represents timed actions, which
 means that it requires any sort log generation and replay (NOT AVAILABLE YET).
 More info can be found in https://github.com/UAVCAN/pyuavcan/issues/74.
 
 To test a mock input:
-1. Inside the frontend folder, run `npm run dev`, to start the `webpack-dev-server`
-with development configurations and without being served;
-2. Inside the backend folder, run `python3 src/devserv/mock_server.py`;
+1. Inside the frontend folder, start the `webpack-dev-server` with development
+configurations and without being served, run::
+
+        npm run dev
+
+2. Inside the backend folder, run::
+
+        python3 src/devserv/mock_server.py
+
 3. Open a browser window in http://localhost:8080.
 
 ************************************************

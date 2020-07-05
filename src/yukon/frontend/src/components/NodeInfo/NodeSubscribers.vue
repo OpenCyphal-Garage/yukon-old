@@ -1,9 +1,9 @@
 <!--
- * Copyright (C) 2020 UAVCAN Development Team <uavcan.org>
- *               2020  dronesolutions.io. All rights reserved.
- * This software is distributed under the terms of the MIT License.
- *
- * @author Nuno Marques <nuno.marques@dronesolutions.io>
+  - Copyright (C) 2020 UAVCAN Development Team <uavcan.org>
+  -               2020  dronesolutions.io. All rights reserved.
+  - This software is distributed under the terms of the MIT License.
+  -
+  - @author Nuno Marques <nuno.marques@dronesolutions.io>
  -->
 
 <template>
