@@ -7,6 +7,7 @@
                 "bus": {
                         "id": ""
                 },
+                "starts_in": 10.0,
                 "nodes": {
                         "0": {
                                 "status": {
@@ -127,14 +128,6 @@
                                                 "timestamp_start": "",
                                                 "timestamp_end": "",
                                                 "timeout": ""
-                                        },
-                                        {
-                                                "type": "uavcan.node.Test.1.0",
-                                                "port_id": 11111
-                                        },
-                                        {
-                                                "type": "uavcan.node.Test2.1.0",
-                                                "port_id": 22222
                                         }
                                 ],
                                 "subscribers": [{

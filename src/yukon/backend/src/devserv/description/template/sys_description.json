@@ -35,6 +35,24 @@
                                                 "min": "",
                                                 "max": ""
                                         }
+                                ],
+                                "publishers": [{
+                                                "type": "",
+                                                "port_id": ""
+                                        },
+                                        {
+                                                "type": "",
+                                                "port_id": ""
+                                        }
+                                ],
+                                "subscribers": [{
+                                                "type": "",
+                                                "port_id": ""
+                                        },
+                                        {
+                                                "type": "",
+                                                "port_id": ""
+                                        }
                                 ]
                         },
                         {

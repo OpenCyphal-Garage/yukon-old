@@ -43,18 +43,9 @@
                                         }
                                 ],
                                 "subscribers": [{
-                                                "type": "uavcan.node.GetInfo.1.0",
-                                                "port_id": 430
-                                        },
-                                        {
-                                                "type": "uavcan.node.Test.1.0",
-                                                "port_id": 11111
-                                        },
-                                        {
-                                                "type": "uavcan.node.Test2.1.0",
-                                                "port_id": 22222
-                                        }
-                                ]
+                                        "type": "uavcan.node.GetInfo.1.0",
+                                        "port_id": 430
+                                }]
                         },
                         {
                                 "id": 1,
