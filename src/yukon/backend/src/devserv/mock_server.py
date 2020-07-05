@@ -4,6 +4,7 @@ import random
 import argparse
 import asyncio
 import json
+import time
 from quart import Quart, Response
 from quart_cors import cors
 from typing import Tuple
@@ -80,39 +81,7 @@ class MockLoader:
                           static_folder='../../../frontend/static/',
                           template_folder='../../../frontend/')
         self._app = cors(self._app)
-
-        # @self.app.route(api_prefix + '/eventSource')
-        # async def sse() -> Tuple[AsyncGenerator[bytes, None], Dict[str, str]]:
-        #     async def send_events() -> AsyncGenerator[bytes, None]:
-        #         data = [
-        #             {
-        #                 "id": 0,
-        #                 "health": "WARNING"
-        #             },
-        #             {
-        #                 "id": 1,
-        #                 "health": 'CRITICAL'
-        #             },
-        #             {
-        #                 "id": 2,
-        #                 "health": 'WARNING'
-        #             },
-        #             {
-        #                 "id": 3,
-        #                 "health": 'CRITICAL'
-        #             }
-        #         ]
-        #
-        #         while True:
-        #             await asyncio.sleep(1)
-        #             random.shuffle(data)
-        #             event = ServerSentEvent(
-        #                 data=data[0], event='NODE_STATUS')
-        #             yield event.encode()
-        #
-        #     event = send_events()
-        #     print(event)
-        #     return Response(event, mimetype="text/event-stream")
+        self._session_timer_start = time.time()
 
         self.load_mock_system_description()
         self.load_mock_session_description()
@@ -182,6 +151,12 @@ class MockLoader:
 
             if 'events' in data:
                 for event in data['events']:
+                    # Set the time when the event starts WRT to the start of the
+                    # Python mock server
+                    event_starts_in = 0.0
+                    if event['starts_in']:
+                        event_starts_in = event['starts_in']
+
                     if event['nodes']:
                         # Right now all events are asembled in a single response,
                         # affected mode randomized by priority, published at 30 Hz
@@ -209,16 +184,16 @@ class MockLoader:
                                 })
 
                         @self.app.route(api_prefix + '/eventSource')
-                        @rename('sse_node' + node + '_update()')
-                        async def f() -> Tuple[AsyncGenerator[bytes, None], Dict[str, str]]:
+                        async def sse_node_update() -> Tuple[AsyncGenerator[bytes, None], Dict[str, str]]:
                             async def send_event(data, event_type, rate) -> AsyncGenerator[bytes, None]:
                                 while True:
                                     random.shuffle(data)
                                     # print(data[0])
                                     await asyncio.sleep(1 / rate)
-                                    event = ServerSentEvent(
-                                        data=data[0], event=event_type)
-                                    yield event.encode()
+                                    if ((time.time() - self._session_timer_start) >= event_starts_in):
+                                        event = ServerSentEvent(
+                                            data=data[0], event=event_type)
+                                        yield event.encode()
 
                             return Response(send_event(data, 'NODE_STATUS', 30.0), mimetype="text/event-stream")
 
@@ -240,15 +215,6 @@ class MockLoader:
             return (json.dumps(elem), 200)
         else:
             return ('', 404)
-
-    # async def send_event(self, data, event, rate) -> AsyncGenerator[bytes, None]:
-    #     while True:
-    #         print("heyy")
-    #         await asyncio.sleep(1 / rate)
-    #         random.shuffle(data)
-    #         event = ServerSentEvent(
-    #             data=data[0], event=event)
-    #         yield event.encode()
 
 
 if __name__ == "__main__":

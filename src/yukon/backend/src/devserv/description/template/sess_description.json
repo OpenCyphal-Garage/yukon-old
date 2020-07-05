@@ -4,8 +4,14 @@
                 "bus": {
                         "id": ""
                 },
+                "starts_in": "",
                 "nodes": {
                         "0": {
+                                "status": {
+                                        "health": "",
+                                        "timestamp_start": "",
+                                        "timestamp_end": ""
+                                },
                                 "publishers": [{
                                                 "type": "",
                                                 "port_id": "",
