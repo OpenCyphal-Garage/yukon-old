@@ -20,7 +20,7 @@
                                                 "port_id": 32085,
                                                 "rate": 1,
                                                 "timestamp_start": "",
-                                                "timestamp_end": "",
+                                                "timestamp_end": 16,
                                                 "timeout": ""
                                         },
                                         {

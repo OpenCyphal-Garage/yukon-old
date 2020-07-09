@@ -25,6 +25,7 @@
                                 "mode": "OPERATIONAL",
                                 "uptime": 30,
                                 "vendorCode": 77777,
+                                "active": true,
                                 "registers": [{
                                         "name": "drone.pub.battery_status",
                                         "type": "integer",
@@ -35,16 +36,20 @@
                                 }],
                                 "publishers": [{
                                                 "type": "uavcan.node.Heartbeat.1.0",
-                                                "port_id": 32085
+                                                "port_id": 32085,
+                                                "active": true
                                         },
                                         {
                                                 "type": "drone.sensor.battery.Status.0.1",
-                                                "port_id": 4096
+                                                "port_id": 4096,
+                                                "active": true
                                         }
                                 ],
                                 "subscribers": [{
                                         "type": "uavcan.node.GetInfo.1.0",
-                                        "port_id": 430
+                                        "port_id": 430,
+                                        "active": true
+
                                 }]
                         },
                         {
@@ -54,18 +59,22 @@
                                 "mode": "OPERATIONAL",
                                 "uptime": 100,
                                 "vendorCode": 62342,
+                                "active": true,
                                 "publishers": [{
                                                 "type": "uavcan.node.Heartbeat.1.0",
-                                                "port_id": 32085
+                                                "port_id": 32085,
+                                                "active": true
                                         },
                                         {
                                                 "type": "drone.actuator.esc.Feedback.0.1",
-                                                "port_id": 4172
+                                                "port_id": 4172,
+                                                "active": true
                                         }
                                 ],
                                 "subscribers": [{
                                         "type": "drone.actuator.esc.PowerCommandGroup.1.0",
-                                        "port_id": 4160
+                                        "port_id": 4160,
+                                        "active": true
                                 }]
                         },
                         {
@@ -74,7 +83,8 @@
                                 "health": "CRITICAL",
                                 "mode": "INITIALIZATION",
                                 "uptime": 100,
-                                "vendorCode": 32893
+                                "vendorCode": 32893,
+                                "active": true
                         },
                         {
                                 "id": 3,
@@ -82,7 +92,8 @@
                                 "health": "ERROR",
                                 "mode": "MAINTAINANCE",
                                 "uptime": 100,
-                                "vendorCode": 32893
+                                "vendorCode": 32893,
+                                "active": true
                         },
                         {
                                 "id": 4,
@@ -90,7 +101,8 @@
                                 "health": "WARNING",
                                 "mode": "SOFTWARE_UPDATE",
                                 "uptime": 100,
-                                "vendorCode": 62342
+                                "vendorCode": 62342,
+                                "active": true
                         },
                         {
                                 "id": 5,
@@ -98,7 +110,8 @@
                                 "health": "OK",
                                 "mode": "OFFLINE",
                                 "uptime": 456,
-                                "vendorCode": 8678
+                                "vendorCode": 8678,
+                                "active": true
                         },
                         {
                                 "id": 6,
@@ -106,7 +119,8 @@
                                 "health": "OK",
                                 "mode": "OPERATIONAL",
                                 "uptime": 45,
-                                "vendorCode": 13434
+                                "vendorCode": 13434,
+                                "active": true
                         },
                         {
                                 "id": 7,
@@ -114,7 +128,8 @@
                                 "health": "OK",
                                 "mode": "MAINTAINANCE",
                                 "uptime": 456,
-                                "vendorCode": 21431
+                                "vendorCode": 21431,
+                                "active": true
                         },
                         {
                                 "id": 8,
@@ -123,26 +138,32 @@
                                 "mode": "OPERATIONAL",
                                 "uptime": 1457,
                                 "vendorCode": 33547,
+                                "active": true,
                                 "publishers": [{
                                                 "type": "uavcan.node.Heartbeat.1.0",
-                                                "port_id": 32085
+                                                "port_id": 32085,
+                                                "active": true
                                         },
                                         {
                                                 "type": "drone.actuator.esc.PowerCommandGroup.1.0",
-                                                "port_id": 4160
+                                                "port_id": 4160,
+                                                "active": true
                                         }
                                 ],
                                 "subscribers": [{
                                                 "type": "uavcan.node.Heartbeat.1.0",
-                                                "port_id": 32085
+                                                "port_id": 32085,
+                                                "active": true
                                         },
                                         {
                                                 "type": "drone.sensor.battery.Status.0.1",
-                                                "port_id": 4096
+                                                "port_id": 4096,
+                                                "active": true
                                         },
                                         {
                                                 "type": "drone.actuator.esc.Feedback.0.1",
-                                                "port_id": 4172
+                                                "port_id": 4172,
+                                                "active": true
                                         }
                                 ]
                         }
