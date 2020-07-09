@@ -4,9 +4,11 @@ import random
 import argparse
 import asyncio
 import json
-import time
+import threading
 from quart import Quart, Response
 from quart_cors import cors
+from sched import scheduler
+from time import sleep, time
 from typing import Tuple
 from typing import AsyncGenerator
 from typing import Dict
@@ -58,8 +60,8 @@ class ServerSentEvent:
 
     def __init__(
             self,
-            data: str,
-            event: str
+            data = None,
+            event = None
     ) -> None:
         self.data = data
         self.event = event
@@ -81,7 +83,9 @@ class MockLoader:
                           static_folder='../../../frontend/static/',
                           template_folder='../../../frontend/')
         self._app = cors(self._app)
-        self._session_timer_start = time.time()
+        self._session_timer_start = time()
+        self._session_scheduler = scheduler(time, sleep)
+        self._event = ServerSentEvent()
 
         self.load_mock_system_description()
         self.load_mock_session_description()
@@ -147,67 +151,49 @@ class MockLoader:
 
     def load_mock_session_description(self) -> Tuple[str, int]:
         with open(os.path.join(dir_path, self.sess_descr + ".json")) as json_file:
-            data = json.load(json_file)
+            description = json.load(json_file)
 
-            if 'events' in data:
-                for event in data['events']:
-                    # Set the time when the event starts WRT to the start of the
-                    # Python mock server
-                    event_starts_in = 0.0
-                    if event['starts_in']:
-                        event_starts_in = event['starts_in']
+            event_scheduler_th = threading.Thread(
+                target=self.event_scheduler, args=(description,))
+            event_scheduler_th.daemon = True
+            event_scheduler_th.start()
 
-                    if event['nodes']:
-                        # Right now all events are asembled in a single response,
-                        # affected mode randomized by priority, published at 30 Hz
-                        # TODO: separate events per event source
-                        data = []
+            @self.app.route(api_prefix + '/eventSource')
+            async def sse_node_update() -> Tuple[AsyncGenerator[bytes, None], Dict[str, str]]:
+                async def send_event(rate) -> AsyncGenerator[bytes, None]:
+                    while True:
+                        await asyncio.sleep(1 / rate)
+                        yield self.event.encode()
 
-                        for idx, node in enumerate(event['nodes']):
-                            data.append({
-                                "id": int(node)
-                            })
-
-                            if 'status' in event['nodes'][node]:
-                                data[idx].update({
-                                    "health": event['nodes'][node]['status']['health']
-                                })
-
-                            if 'publishers' in event['nodes'][node]:
-                                data[idx].update({
-                                    "publishers": event['nodes'][node]['publishers']
-                                })
-
-                            if 'subscribers' in node:
-                                data[idx].update({
-                                    "subscribers": event['nodes'][node]['subscribers']
-                                })
-
-                        @self.app.route(api_prefix + '/eventSource')
-                        async def sse_node_update() -> Tuple[AsyncGenerator[bytes, None], Dict[str, str]]:
-                            async def send_event(data, event_type, rate) -> AsyncGenerator[bytes, None]:
-                                while True:
-                                    random.shuffle(data)
-                                    # print(data[0])
-                                    await asyncio.sleep(1 / rate)
-                                    if ((time.time() - self._session_timer_start) >= event_starts_in):
-                                        event = ServerSentEvent(
-                                            data=data[0], event=event_type)
-                                        yield event.encode()
-
-                            return Response(send_event(data, 'NODE_STATUS', 30.0), mimetype="text/event-stream")
+                return Response(send_event(30.0), mimetype="text/event-stream")
 
     @property
     def app(self) -> Quart:
         return self._app
 
     @property
-    def sys_descr(self):
+    def sys_descr(self) -> str:
         return self._sys_descr
 
     @property
-    def sess_descr(self):
+    def sess_descr(self) -> str:
         return self._sess_descr
+
+    @property
+    def session_timer_start(self) -> time:
+        return self._session_timer_start
+
+    @property
+    def session_scheduler(self) -> scheduler:
+        return self._session_scheduler
+
+    @property
+    def event(self) -> ServerSentEvent:
+        return self._event
+
+    @event.setter
+    def event(self, event):
+        self._event = event
 
     def mock_response(self, path: str, elem) -> Tuple[str, int]:
         response = json.dumps(elem)
@@ -215,6 +201,66 @@ class MockLoader:
             return (json.dumps(elem), 200)
         else:
             return ('', 404)
+
+    def event_scheduler(self, description):
+        if 'events' in description:
+            for event in description['events']:
+                # Set the time when the session starts WRT to the start of the
+                # Python mock server
+                session_start = 0.0
+                if event['starts_in']:
+                    session_start = event['starts_in']
+
+                if event['nodes']:
+                    for idx, node in enumerate(event['nodes']):
+                        if 'status' in event['nodes'][node]:
+                            data = {
+                                "id": int(node),
+                                "health": event['nodes'][node]['status']['health']
+                            }
+
+                            event_start_time = event['nodes'][node]['status']['timestamp_start']
+
+                            if event_start_time:
+                                self.session_scheduler.enter(
+                                    event_start_time, 1, self.sse_builder, [data, 'NODE_STATUS'])
+
+                        if 'publishers' in event['nodes'][node]:
+                            data = {
+                                "id": int(node),
+                                "publishers": event['nodes'][node]['publishers']
+                            }
+
+                            for pub in event['nodes'][node]['publishers']:
+                                event_start_time = pub['timestamp_start']
+
+                                if event_start_time:
+                                    self.session_scheduler.enter(
+                                        event_start_time, 1, self.sse_builder, [data, 'NODE_STATUS'])
+
+                        if 'subscribers' in node:
+                            data = {
+                                "id": int(node),
+                                "subscribers": event['nodes'][node]['subscribers']
+                            }
+
+                            for sub in event['nodes'][node]['publishers']:
+                                event_start_time = sub['timestamp_start']
+
+                                if event_start_time:
+                                    self.session_scheduler.enter(
+                                        event_start_time, 1, self.sse_builder, [data, 'NODE_STATUS'])
+
+        while True:
+            if ((time() - self._session_timer_start) >= session_start):
+                sys.stdout.write('\033[34mMock session started...\n\033[0m')
+                self.session_scheduler.run()
+                break
+
+    def sse_builder(self, data, event_type) -> None:
+        print(data)
+        self.event = ServerSentEvent(
+            data=data, event=event_type)
 
 
 if __name__ == "__main__":
