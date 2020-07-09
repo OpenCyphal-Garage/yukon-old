@@ -60,8 +60,8 @@ class ServerSentEvent:
 
     def __init__(
             self,
-            data = None,
-            event = None
+            data=None,
+            event=None
     ) -> None:
         self.data = data
         self.event = event
@@ -198,7 +198,7 @@ class MockLoader:
     def mock_response(self, path: str, elem) -> Tuple[str, int]:
         response = json.dumps(elem)
         if response:
-            return (json.dumps(elem), 200)
+            return (response, 200)
         else:
             return ('', 404)
 
@@ -213,43 +213,73 @@ class MockLoader:
 
                 if event['nodes']:
                     for idx, node in enumerate(event['nodes']):
-                        if 'status' in event['nodes'][node]:
+                        node_event = event['nodes'][node]
+
+                        if 'status' in node_event:
+                            status_event = node_event['status']
+
                             data = {
                                 "id": int(node),
-                                "health": event['nodes'][node]['status']['health']
+                                "health": status_event['health'],
+                                "active": 1
                             }
 
-                            event_start_time = event['nodes'][node]['status']['timestamp_start']
-
-                            if event_start_time:
+                            # node appears
+                            if 'timestamp_start' in status_event and status_event['timestamp_start']:
                                 self.session_scheduler.enter(
-                                    event_start_time, 1, self.sse_builder, [data, 'NODE_STATUS'])
+                                    status_event['timestamp_start'], 1, self.sse_builder, [data, 'NODE_STATUS'])
 
-                        if 'publishers' in event['nodes'][node]:
+                            # node disappears
+                            if 'timestamp_end' in status_event and status_event['timestamp_end']:
+                                data[idx]['active'] = 0
+
+                                self.session_scheduler.enter(
+                                    status_event['timestamp_end'], 1, self.sse_builder, [data, 'NODE_STATUS'])
+
+                        if 'publishers' in node_event:
                             data = {
                                 "id": int(node),
-                                "publishers": event['nodes'][node]['publishers']
+                                "publishers": []
                             }
 
-                            for pub in event['nodes'][node]['publishers']:
-                                event_start_time = pub['timestamp_start']
+                            for idx2, pub in enumerate(node_event['publishers']):
+                                data['publishers'].append(pub)
+                                data['publishers'][idx2].update(
+                                    {"active": 1})
 
-                                if event_start_time:
+                                # subject line appears (assuming there's a corresponding subscriber)
+                                if 'timestamp_start' in pub and pub['timestamp_start']:
                                     self.session_scheduler.enter(
-                                        event_start_time, 1, self.sse_builder, [data, 'NODE_STATUS'])
+                                        pub['timestamp_start'], 1, self.sse_builder, [data, 'NODE_STATUS'])
 
-                        if 'subscribers' in node:
+                                # subject line disappears
+                                if 'timestamp_end' in pub and pub['timestamp_end']:
+                                    data['publishers'][idx2].update(
+                                        {"active": 0})
+
+                                    self.session_scheduler.enter(
+                                        pub['timestamp_end'], 1, self.sse_builder, [data, 'NODE_STATUS'])
+
+                        if 'subscribers' in node_event:
                             data = {
                                 "id": int(node),
-                                "subscribers": event['nodes'][node]['subscribers']
+                                "subscribers": []
                             }
 
-                            for sub in event['nodes'][node]['publishers']:
-                                event_start_time = sub['timestamp_start']
+                            for idx2, sub in enumerate(node_event['subscribers']):
+                                data['subscribers'].append(sub)
+                                data['subscribers'][idx2].update(
+                                    {"active": 1})
 
-                                if event_start_time:
+                                # subject line appears (assuming there's a corresponding publisher)
+                                if 'timestamp_start' in sub and sub['timestamp_start']:
                                     self.session_scheduler.enter(
-                                        event_start_time, 1, self.sse_builder, [data, 'NODE_STATUS'])
+                                        sub['timestamp_start'], 1, self.sse_builder, [data, 'NODE_STATUS'])
+
+                                # subject line disappears
+                                if 'timestamp_end' in sub and sub['timestamp_end']:
+                                    self.session_scheduler.enter(
+                                        sub['timestamp_end'], 1, self.sse_builder, [data, 'NODE_STATUS'])
 
         while True:
             if ((time() - self._session_timer_start) >= session_start):
@@ -258,7 +288,6 @@ class MockLoader:
                 break
 
     def sse_builder(self, data, event_type) -> None:
-        print(data)
         self.event = ServerSentEvent(
             data=data, event=event_type)
 

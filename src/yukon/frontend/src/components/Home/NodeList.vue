@@ -261,6 +261,7 @@ export default {
       await this.blinkLED()
       await this.loadPubSub()
       await this.drawSubjectLines()
+      await this.deleteSubjectLines()
       await this.updateSubjectLines
     }
   },
@@ -270,18 +271,6 @@ export default {
     await this.setNodesPositions()
     await this.drawSubjectLines()
     await this.blinkLED()
-
-    // console.log(this.nodes)
-
-    // Applies to all nodes in stage
-    // const groupCollection = this.$refs.layer.getNode().find('Group');
-    //
-    // console.log(groupCollection);
-    //
-    // groupCollection.each(function(shape, n ) {
-    //   shape.on('load', function() {
-    //   });
-    // });
   },
   methods: {
     clearControls() {
@@ -290,9 +279,10 @@ export default {
       this.sortWay = this.sortWays.none.name
     },
     generalSync: async function() {
-         await this.blinkLED();
-         await this.loadPubSub();
-         await this.drawSubjectLines();
+         await this.blinkLED()
+         await this.loadPubSub()
+         await this.drawSubjectLines()
+         await this.deleteSubjectLines()
          await this.updateSubjectLines
     },
     async loadData() {
@@ -314,17 +304,25 @@ export default {
               id: key,
               name: this.nodes[key].name,
               port_id: pubs[key2].port_id,
-              type: pubs[key2].type
+              type: pubs[key2].type,
+              active: pubs[key2].active
             }
-            if (this.pub_port_id_list.length == 0) {
-              this.pub_port_id_list.push(newPub)
-            } else if (!this.pub_port_id_list.some( function(elem) {
+
+            var idx_existing_pub;
+            const pub_exists = this.pub_port_id_list.some( function(elem, i) {
                                const parsedElem = JSON.parse(JSON.stringify(elem));
                                return parsedElem.id === newPub.id && parsedElem.name === newPub.name
                                       && parsedElem.port_id === newPub.port_id
-                                      && parsedElem.type === newPub.type;
-                       })) {
-              this.pub_port_id_list.push(newPub)
+                                      && parsedElem.type === newPub.type ? (idx_existing_pub = i, true) : false;
+                       });
+
+
+            if (this.pub_port_id_list.length == 0) {
+              this.pub_port_id_list.push(newPub);
+            } else if (!pub_exists && pubs[key2].active) {
+              this.pub_port_id_list.push(newPub);
+            } else if (pub_exists && !pubs[key2].active) {
+              this.pub_port_id_list[idx_existing_pub].active = false;
             }
           }
         }
@@ -338,7 +336,7 @@ export default {
               id: key,
               name: this.nodes[key].name,
               port_id: subs[key2].port_id,
-              type: subs[key2].type
+              active: subs[key2].active
             }
             if (this.sub_port_id_list.length == 0) {
               this.sub_port_id_list.push(newSub)
@@ -597,23 +595,22 @@ export default {
         for (var key2 in this.sub_port_id_list) {
           // Creates a line between matching port identifiers
           if (this.pub_port_id_list[key].name !== this.sub_port_id_list[key2].name && this.pub_port_id_list[key].port_id === this.sub_port_id_list[key2].port_id) {
-
             const pubNodeName = this.pub_port_id_list[key].name;
             const subNodeName = this.sub_port_id_list[key2].name;
             const lineID = pubNodeName + ': ' + this.pub_port_id_list[key].port_id;
 
-            if (this.nodePubOffset.length == 0 || !this.nodePubOffset.some( function(elem) {
+            if (this.nodePubOffset.length == 0 || !this.nodePubOffset.some(
+                       function(elem) {
                                const parsedElem = JSON.parse(JSON.stringify(elem));
                                return parsedElem.id === lineID && parsedElem.name === vm.sub_port_id_list[key2].type;
-                       })) {
+                       }))
+            {
 
               this.nodePubOffset.push({
                 id: pubNodeName + ': ' + this.pub_port_id_list[key].port_id,
                 name: this.pub_port_id_list[key].type,
                 offset: offset
               });
-
-              console.log(this.pub_port_id_list)
 
               var arrow = new Konva.Arrow({
                       id: pubNodeName + ': ' + this.pub_port_id_list[key].port_id,
@@ -629,9 +626,6 @@ export default {
               offset += 15
 
               arrow.points(points);
-
-              // console.log(arrow)
-
               this.$refs.layer.getNode().add(arrow);
             }
           }
@@ -639,6 +633,30 @@ export default {
       }
 
       this.$refs.layer.getNode().draw();
+    },
+    async deleteSubjectLines() {
+      const vm = this;
+      const arrowCollection = vm.$refs.layer.getNode().find('Arrow');
+
+      const subjectsToDelete = this.pub_port_id_list.filter(function (e) {
+                                          return e.active === false;
+                                        });
+
+      console.log(this.pub_port_id_list)
+
+      arrowCollection.each(function(shape) {
+        for (var idx in subjectsToDelete) {
+          if(shape.id() === subjectsToDelete[idx].name + ': ' + subjectsToDelete[idx].port_id) {
+            shape.to({opacity: 0, duration: 10});
+
+            if(shape.getAbsoluteOpacity() < 0.02){
+              // vm.pub_port_id_list = vm.pub_port_id_list.filter(subj => JSON.parse(JSON.stringify(subj)) === subjectsToDelete[idx]);
+              shape.destroy();
+            }
+          }
+        }
+      });
+
     },
     async updateSubjectLines(e) {
       e.target.getStage().container().style.cursor = 'move';
@@ -664,6 +682,7 @@ export default {
             const points = this.getPoints(vm.$refs[pubNodeName][0].getNode(), vm.$refs[subNodeName][0].getNode(), offset);
 
             const arrowCollection = this.$refs.layer.getNode().find('Arrow');
+
             arrowCollection.each(function(shape, n) {
               if(shape.id() === (pubNodeName + ': ' + vm.pub_port_id_list[key].port_id)) {
                 shape.points(points);

@@ -46,8 +46,6 @@ const mutations = {
   updateNodeStatus(state, newNodeStatus) {
     const target = state.nodeList.find(node => node.id === newNodeStatus.id)
 
-    // console.log(state.nodeList)
-
     if (!target) {
       state.nodeList.push(newNodeStatus)
       return
@@ -57,6 +55,8 @@ const mutations = {
       if (key === 'id') {
         continue
       }
+
+      // console.log(newNodeStatus)
 
       target[key] = newNodeStatus[key]
     }
@@ -73,7 +73,6 @@ const mutations = {
       if (key === 'id') {
         continue
       }
-      console.log(state)
 
       target[key] = newNodePublishers[key]
     }
