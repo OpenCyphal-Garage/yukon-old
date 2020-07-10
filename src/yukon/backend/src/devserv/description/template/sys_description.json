@@ -38,20 +38,24 @@
                                 ],
                                 "publishers": [{
                                                 "type": "",
-                                                "port_id": ""
+                                                "port_id": "",
+                                                "active": ""
                                         },
                                         {
                                                 "type": "",
-                                                "port_id": ""
+                                                "port_id": "",
+                                                "active": ""
                                         }
                                 ],
                                 "subscribers": [{
                                                 "type": "",
-                                                "port_id": ""
+                                                "port_id": "",
+                                                "active": ""
                                         },
                                         {
                                                 "type": "",
-                                                "port_id": ""
+                                                "port_id": "",
+                                                "active": ""
                                         }
                                 ]
                         },

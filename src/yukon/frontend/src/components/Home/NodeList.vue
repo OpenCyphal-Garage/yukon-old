@@ -8,7 +8,7 @@
  -->
 
 <template>
-<div @mouseenter="generalSync">
+<div>
   <!-- Controls -->
   <div class="row align-items-baseline" style="display: none;">
     <div class="btn-group col-3 pl-0 mr-2 align-items-baseline">
@@ -75,7 +75,7 @@
     <p v-if="error == '' && !loading && processedNodes.length == 0">No nodes found</p>
 
     <div v-if="!loading && processedNodes.length > 0">
-      <v-stage ref="stage" :config="configKonva" @mouseenter="blinkLED" @mouseleave="blinkLED">
+      <v-stage ref="stage" :config="configKonva">
         <v-layer ref="layer">
           <v-group v-for="node in this.nodes" :ref="node.name" :key="node.id" @click="viewNodeDetails(node.id)" @dragmove="updateSubjectLines" @dragend="defaultCursorStyle" @mouseover="highlightNodeBox" @mouseleave="deemphasizeNodeBox" :config="{
                 x: getNodePosition(node.id) ? getNodePosition(node.id)[0] : 0,
@@ -171,7 +171,6 @@ export default {
   data() {
     return {
       loading: false,
-      health_val: '',
       error: '',
       filter: '',
       sortAttribute: 'None',
@@ -202,9 +201,10 @@ export default {
         SOFTWARE_UPDATE: 3,
         OFFLINE: 4
       },
-      pub_port_id_list: [],
-      sub_port_id_list: [],
+      pubPortIDList: [],
+      subPortIDList: [],
       nodePubOffset: [],
+      healthBlinkLedAnime: [],
       configKonva: {
         width: width,
         height: height
@@ -270,7 +270,20 @@ export default {
     await this.loadPubSub()
     await this.setNodesPositions()
     await this.drawSubjectLines()
+    await this.deleteSubjectLines()
     await this.blinkLED()
+
+    const vm = this
+    // Run every second
+    this.interval = setInterval( async function() {
+       await vm.loadPubSub()
+       await vm.setNodesPositions()
+       await vm.deleteSubjectLines()
+       await vm.blinkLED()
+       await vm.drawSubjectLines()
+       this.updateSubjectLines
+    }, 1000);
+
   },
   methods: {
     clearControls() {
@@ -309,24 +322,25 @@ export default {
             }
 
             var idx_existing_pub;
-            const pub_exists = this.pub_port_id_list.some( function(elem, i) {
+            const pub_exists = this.pubPortIDList.some( function(elem, i) {
                                const parsedElem = JSON.parse(JSON.stringify(elem));
                                return parsedElem.id === newPub.id && parsedElem.name === newPub.name
                                       && parsedElem.port_id === newPub.port_id
                                       && parsedElem.type === newPub.type ? (idx_existing_pub = i, true) : false;
                        });
 
-
-            if (this.pub_port_id_list.length == 0) {
-              this.pub_port_id_list.push(newPub);
-            } else if (!pub_exists && pubs[key2].active) {
-              this.pub_port_id_list.push(newPub);
-            } else if (pub_exists && !pubs[key2].active) {
-              this.pub_port_id_list[idx_existing_pub].active = false;
+            if (this.pubPortIDList.length == 0) {
+              this.pubPortIDList.push(newPub);
+            } else if (!pub_exists) {
+              this.pubPortIDList.push(newPub);
+            } else if (pub_exists && (!pubs[key2].active || pubs[key2].active == 0 || pubs[key2].active == '0')) {
+              this.pubPortIDList[idx_existing_pub].active = false;
             }
           }
         }
       }
+
+
 
       for (var key in this.nodes) {
         if (this.nodes.hasOwnProperty(key)) {
@@ -338,15 +352,21 @@ export default {
               port_id: subs[key2].port_id,
               active: subs[key2].active
             }
-            if (this.sub_port_id_list.length == 0) {
-              this.sub_port_id_list.push(newSub)
-            } else if (!this.sub_port_id_list.some( function(elem) {
+
+            var idx_existing_sub;
+            const sub_exists = this.subPortIDList.some( function(elem, i) {
                                const parsedElem = JSON.parse(JSON.stringify(elem));
                                return parsedElem.id === newSub.id && parsedElem.name === newSub.name
                                       && parsedElem.port_id === newSub.port_id
-                                      && parsedElem.type === newSub.type;
-                       })) {
-              this.sub_port_id_list.push(newSub)
+                                      && parsedElem.type === newSub.type ? (idx_existing_sub = i, true) : false;
+                       });
+
+            if (this.subPortIDList.length == 0) {
+              this.subPortIDList.push(newSub);
+            } else if (!sub_exists) {
+              this.subPortIDList.push(newSub);
+            } else if (sub_exists && (!subs[key2].active || subs[key2].active == 0 || subs[key2].active == '0')) {
+              this.subPortIDList[idx_existing_sub].active = false;
             }
           }
         }
@@ -361,10 +381,10 @@ export default {
       })
     },
     generateRandomXPos() {
-      return Math.random() * width * 0.5;
+      return Math.random() * width * 0.75;
     },
     generateRandomYPos() {
-      return Math.random() * height * 0.5;
+      return Math.random() * height * 0.75;
     },
     getNodePosition(nodeID) {
       for (var node in this.nodesInitialPosition) {
@@ -443,31 +463,46 @@ export default {
       }
     },
     async blinkLED() {
+      const vm = this;
+
       // Applies to all nodes in stage
       const circleCollection = this.$refs.layer.getNode().find('Circle');
 
-      const vm = this
-      circleCollection.each(function(shape, n ) {
-        if(shape.id() == 'WARNING' || shape.id() == 'CRITICAL') {
+      const amplitude = 1;
+      const period = 5000;
 
-          const amplitude = 1;
-          const period = 5000;
+      circleCollection.each(function(shape) {
+        const anim = new Konva.Animation(function(frame) {
+          shape.setOpacity(
+            amplitude * Math.sin((frame.time * 2 * Math.PI) / period)
+          );
+        }, shape.getLayer());
 
-          const anim = new Konva.Animation(function(frame) {
-             shape.setOpacity(
-               amplitude * Math.sin((frame.time * 2 * Math.PI) / period)
-             );
-             shape.setOpacity(
-               -amplitude * Math.sin((frame.time * 2 * Math.PI) / period)
-             );
-             shape.setOpacity(
-               amplitude * Math.sin((frame.time * 2 * Math.PI) / period)
-             );
-           }, shape.getLayer());
+        if (shape.id() == 'WARNING' || shape.id() == 'CRITICAL') {
+           shape.fill(vm.setStatusLedColor(shape.id()));
 
-           anim.start();
+           if (vm.healthBlinkLedAnime.length == 0 || !vm.healthBlinkLedAnime.some(
+             function(elem) { return elem.id === shape.id() && elem.name === shape.name(); }))
+           {
+             vm.healthBlinkLedAnime.push({
+               id: shape.id(),
+               name: shape.name(),
+               anim: anim
+             });
+
+             vm.healthBlinkLedAnime[vm.healthBlinkLedAnime.length - 1].anim.start();
+           }
         } else {
-           shape.fill(vm.setStatusLedColor(shape.id()))
+           vm.healthBlinkLedAnime.forEach(
+             function(elem) {
+               if (elem.name == shape.name()) {
+                 elem.anim.stop();
+               }
+             }
+           );
+
+           vm.healthBlinkLedAnime = vm.healthBlinkLedAnime.filter(elem => elem.name != shape.name());
+           shape.fill(vm.setStatusLedColor(shape.id()));
         }
       });
     },
@@ -490,7 +525,7 @@ export default {
         });
       });
     },
-    async defaultCursorStyle(e) {
+    defaultCursorStyle(e) {
       e.target.getStage().container().style.cursor = 'pointer';
     },
     showPortID(e) {
@@ -589,32 +624,32 @@ export default {
     async drawSubjectLines() {
       var offset = 0;
 
-      const vm = this
+      const vm = this;
 
-      for (var key in this.pub_port_id_list) {
-        for (var key2 in this.sub_port_id_list) {
+      for (var key in this.pubPortIDList) {
+        for (var key2 in this.subPortIDList) {
           // Creates a line between matching port identifiers
-          if (this.pub_port_id_list[key].name !== this.sub_port_id_list[key2].name && this.pub_port_id_list[key].port_id === this.sub_port_id_list[key2].port_id) {
-            const pubNodeName = this.pub_port_id_list[key].name;
-            const subNodeName = this.sub_port_id_list[key2].name;
-            const lineID = pubNodeName + ': ' + this.pub_port_id_list[key].port_id;
+          if (this.pubPortIDList[key].name !== this.subPortIDList[key2].name && this.pubPortIDList[key].port_id === this.subPortIDList[key2].port_id) {
+            const pubNodeName = this.pubPortIDList[key].name;
+            const subNodeName = this.subPortIDList[key2].name;
+            const lineID = pubNodeName + ': ' + this.pubPortIDList[key].port_id;
 
             if (this.nodePubOffset.length == 0 || !this.nodePubOffset.some(
                        function(elem) {
                                const parsedElem = JSON.parse(JSON.stringify(elem));
-                               return parsedElem.id === lineID && parsedElem.name === vm.sub_port_id_list[key2].type;
+                               return parsedElem.id === lineID && parsedElem.name === vm.pubPortIDList[key].type;
                        }))
             {
 
               this.nodePubOffset.push({
-                id: pubNodeName + ': ' + this.pub_port_id_list[key].port_id,
-                name: this.pub_port_id_list[key].type,
+                id: pubNodeName + ': ' + this.pubPortIDList[key].port_id,
+                name: this.pubPortIDList[key].type,
                 offset: offset
               });
 
               var arrow = new Konva.Arrow({
-                      id: pubNodeName + ': ' + this.pub_port_id_list[key].port_id,
-                      name: this.pub_port_id_list[key].type,
+                      id: lineID,
+                      name: this.pubPortIDList[key].type,
                       stroke: 'rgb(35,0,179)',
                       fill: 'rgb(35,0,179)',
                       strokeWidth: 3
@@ -622,11 +657,11 @@ export default {
 
               arrow.on('click', this.showPortID);
 
-              const points = this.getPoints(this.$refs[pubNodeName][0].getNode(), this.$refs[subNodeName][0].getNode(), offset);
+              const points = this.getPoints(vm.$refs[pubNodeName][0].getNode(), vm.$refs[subNodeName][0].getNode(), offset);
               offset += 15
 
               arrow.points(points);
-              this.$refs.layer.getNode().add(arrow);
+              vm.$refs.layer.getNode().add(arrow);
             }
           }
         }
@@ -636,27 +671,32 @@ export default {
     },
     async deleteSubjectLines() {
       const vm = this;
-      const arrowCollection = vm.$refs.layer.getNode().find('Arrow');
+      const layer = vm.$refs.layer.getNode();
 
-      const subjectsToDelete = this.pub_port_id_list.filter(function (e) {
-                                          return e.active === false;
-                                        });
+      let arrowCollection;
 
-      console.log(this.pub_port_id_list)
+      if (typeof layer !== 'undefined') {
+         arrowCollection = layer.find('Arrow');
 
-      arrowCollection.each(function(shape) {
-        for (var idx in subjectsToDelete) {
-          if(shape.id() === subjectsToDelete[idx].name + ': ' + subjectsToDelete[idx].port_id) {
-            shape.to({opacity: 0, duration: 10});
+         const subjectsToDelete = this.pubPortIDList.filter(function (e) {
+                                             return e.active === false;
+                                           });
 
-            if(shape.getAbsoluteOpacity() < 0.02){
-              // vm.pub_port_id_list = vm.pub_port_id_list.filter(subj => JSON.parse(JSON.stringify(subj)) === subjectsToDelete[idx]);
-              shape.destroy();
-            }
-          }
-        }
-      });
+         arrowCollection.each(function(shape) {
+           for (var idx in subjectsToDelete) {
+             if(shape.id() === subjectsToDelete[idx].name + ': ' + subjectsToDelete[idx].port_id) {
+               shape.to({opacity: 0, duration: 10});
 
+               if(shape.getAbsoluteOpacity() < 0.02){
+                 vm.pubPortIDList = vm.pubPortIDList.filter(function(subj) {
+                        return (JSON.stringify(subj) !== JSON.stringify(subjectsToDelete[idx]));
+                 });
+                 shape.destroy();
+               }
+             }
+           }
+         });
+      }
     },
     async updateSubjectLines(e) {
       e.target.getStage().container().style.cursor = 'move';
@@ -665,15 +705,15 @@ export default {
 
       const vm = this;
 
-      for (var key in this.pub_port_id_list) {
-        for (var key2 in this.sub_port_id_list) {
+      for (var key in this.pubPortIDList) {
+        for (var key2 in this.subPortIDList) {
           // Creates a line between matching port identifiers
-          if (this.pub_port_id_list[key].name !== this.sub_port_id_list[key2].name && this.pub_port_id_list[key].port_id === this.sub_port_id_list[key2].port_id) {
-            const pubNodeName = this.pub_port_id_list[key].name;
-            const subNodeName = this.sub_port_id_list[key2].name;
+          if (this.pubPortIDList[key].name !== this.subPortIDList[key2].name && this.pubPortIDList[key].port_id === this.subPortIDList[key2].port_id) {
+            const pubNodeName = this.pubPortIDList[key].name;
+            const subNodeName = this.subPortIDList[key2].name;
 
             for (var key3 in this.nodePubOffset) {
-              if (this.nodePubOffset[key3].id === (pubNodeName + ': ' + vm.pub_port_id_list[key].port_id)) {
+              if (this.nodePubOffset[key3].id === (pubNodeName + ': ' + vm.pubPortIDList[key].port_id)) {
                 offset = this.nodePubOffset[key3].offset;
                 break;
               }
@@ -684,7 +724,7 @@ export default {
             const arrowCollection = this.$refs.layer.getNode().find('Arrow');
 
             arrowCollection.each(function(shape, n) {
-              if(shape.id() === (pubNodeName + ': ' + vm.pub_port_id_list[key].port_id)) {
+              if(shape.id() === (pubNodeName + ': ' + vm.pubPortIDList[key].port_id)) {
                 shape.points(points);
               }
             });
