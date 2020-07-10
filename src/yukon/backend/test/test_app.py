@@ -5,7 +5,7 @@
 # This software is distributed under the terms of the MIT License.
 #
 
-from src.devserv.mock_responses import ServerSentEvent
+from src.devserv.mock_server import ServerSentEvent
 import pytest
 
 
