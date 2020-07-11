@@ -88,6 +88,7 @@
         </tbody>
       </table>
     </div>
+    <img :src="require('@/assets/under_construction.gif')"/>
   </div>
 </template>
 
