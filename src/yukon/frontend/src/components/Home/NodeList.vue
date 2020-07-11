@@ -312,11 +312,11 @@ export default {
               active: pubs[key2].active
             }
 
-            var idxExistingPub
+            var idxExistingPub;
             const pubExists = this.pubPortIDList.some(function (elem, i) {
               const parsedElem = JSON.parse(JSON.stringify(elem))
               idxExistingPub = i
-              return !!(parsedElem.id === newPub.id && parsedElem.name === newPub.name &&
+              return (parsedElem.id === newPub.id && parsedElem.name === newPub.name &&
                                       parsedElem.port_id === newPub.port_id &&
                                       parsedElem.type === newPub.type)
             })
@@ -343,11 +343,11 @@ export default {
               active: subs[key4].active
             }
 
-            var idxExistingSub
+            var idxExistingSub;
             const subExists = this.subPortIDList.some(function (elem, i) {
               const parsedElem = JSON.parse(JSON.stringify(elem))
               idxExistingSub = i
-              return !!(parsedElem.id === newSub.id && parsedElem.name === newSub.name &&
+              return (parsedElem.id === newSub.id && parsedElem.name === newSub.name &&
                                       parsedElem.port_id === newSub.port_id &&
                                       parsedElem.type === newSub.type)
             })

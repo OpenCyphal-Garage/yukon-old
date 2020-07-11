@@ -41,7 +41,7 @@
                                                 "active": true
                                         },
                                         {
-                                                "type": "uavcan.sensor.battery.Status.0.1",
+                                                "type": "drone.sensor.battery.Status.0.1",
                                                 "port_id": 4096,
                                                 "active": true
                                         }
@@ -68,13 +68,13 @@
                                                 "active": true
                                         },
                                         {
-                                                "type": "uavcan.actuator.esc.Feedback.0.1",
+                                                "type": "drone.actuator.esc.Feedback.0.1",
                                                 "port_id": 4172,
                                                 "active": true
                                         }
                                 ],
                                 "subscribers": [{
-                                        "type": "uavcan.actuator.esc.PowerCommandGroup.1.0",
+                                        "type": "drone.actuator.esc.PowerCommandGroup.0.1",
                                         "port_id": 4160,
                                         "active": true
                                 }]
@@ -92,6 +92,7 @@
                         {
                                 "id": 3,
                                 "name": "com.zubax.myxab_bl",
+                                "description": "ESC Back Left",
                                 "health": "ERROR",
                                 "mode": "MAINTAINANCE",
                                 "uptime": 100,
@@ -153,7 +154,7 @@
                                                 "active": true
                                         },
                                         {
-                                                "type": "uavcan.actuator.esc.PowerCommandGroup.1.0",
+                                                "type": "drone.actuator.esc.PowerCommandGroup.0.1",
                                                 "port_id": 4160,
                                                 "active": true
                                         }
@@ -164,12 +165,12 @@
                                                 "active": true
                                         },
                                         {
-                                                "type": "uavcan.sensor.battery.Status.0.1",
+                                                "type": "drone.sensor.battery.Status.0.1",
                                                 "port_id": 4096,
                                                 "active": true
                                         },
                                         {
-                                                "type": "uavcan.actuator.esc.Feedback.0.1",
+                                                "type": "drone.actuator.esc.Feedback.0.1",
                                                 "port_id": 4172,
                                                 "active": true
                                         }
