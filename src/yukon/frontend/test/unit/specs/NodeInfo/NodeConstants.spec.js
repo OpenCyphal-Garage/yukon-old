@@ -6,12 +6,12 @@
  */
 
 import NodeConstants from '@/components/NodeInfo/NodeConstants'
-import {
-  mount
-} from '@vue/test-utils'
+import { mount, createLocalVue } from '@vue/test-utils'
 import axios from 'axios'
-import flushPromises from 'flush-promises'
 import ApiRoutes from '@/api/ApiRoutes'
+import flushPromises from 'flush-promises'
+import vuexstore from '@/store/index'
+import Vuex from 'vuex'
 
 jest.mock('axios', () => {
   return {
@@ -34,8 +34,21 @@ jest.mock('axios', () => {
 })
 
 describe('NodeConstants.vue', () => {
+  let wrapper;
+  let store;
+
+  const localVue = createLocalVue();
+
+  localVue.use(Vuex);
+
+  beforeEach(() => {
+    store = vuexstore;
+  });
+
   it('should render correct contents', async () => {
     var wrapper = mount(NodeConstants, {
+      store,
+      localVue,
       propsData: {
         nodeId: 1234
       }

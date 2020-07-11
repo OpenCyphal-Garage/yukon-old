@@ -6,10 +6,12 @@
  */
 
 import BusInfo from '@/components/Home/BusInfo'
-import { mount } from '@vue/test-utils'
+import { mount, createLocalVue } from '@vue/test-utils'
 import axios from 'axios'
-import flushPromises from 'flush-promises'
 import ApiRoutes from '@/api/ApiRoutes'
+import flushPromises from 'flush-promises'
+import vuexstore from '@/store/index'
+import Vuex from 'vuex'
 
 jest.mock('axios', () => {
   return {
@@ -26,9 +28,19 @@ jest.mock('axios', () => {
 })
 
 describe('BusInfo.vue', () => {
-  it('should render correct contents', async () => {
-    var wrapper = mount(BusInfo)
+  let wrapper;
+  let store;
 
+  const localVue = createLocalVue();
+
+  localVue.use(Vuex);
+
+  beforeEach(() => {
+    store = vuexstore;
+    wrapper = mount(BusInfo, { store, localVue });
+  });
+
+  it('should render correct contents', async () => {
     await flushPromises()
 
     expect(axios.get).toHaveBeenCalledTimes(1)
@@ -41,8 +53,6 @@ describe('BusInfo.vue', () => {
   })
 
   it('should render correct error', async () => {
-    var wrapper = mount(BusInfo)
-
     await flushPromises()
 
     expect(axios.get).toHaveBeenCalledTimes(1)

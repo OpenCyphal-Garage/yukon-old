@@ -6,10 +6,12 @@
  */
 
 import ServerHealth from '@/components/Home/ServerHealth'
-import { mount } from '@vue/test-utils'
+import { mount, createLocalVue } from '@vue/test-utils'
 import axios from 'axios'
-import flushPromises from 'flush-promises'
 import ApiRoutes from '@/api/ApiRoutes'
+import flushPromises from 'flush-promises'
+import vuexstore from '@/store/index'
+import Vuex from 'vuex'
 
 jest.mock('axios', () => {
   return {
@@ -26,9 +28,19 @@ jest.mock('axios', () => {
 })
 
 describe('ServerHealth.vue', () => {
-  it('should render correct contents', async () => {
-    var wrapper = mount(ServerHealth)
+  let wrapper;
+  let store;
 
+  const localVue = createLocalVue();
+
+  localVue.use(Vuex);
+
+  beforeEach(() => {
+    store = vuexstore;
+    wrapper = mount(ServerHealth, { store, localVue });
+  });
+
+  it('should render correct contents', async () => {
     await flushPromises()
 
     expect(axios.get).toHaveBeenCalledTimes(1)

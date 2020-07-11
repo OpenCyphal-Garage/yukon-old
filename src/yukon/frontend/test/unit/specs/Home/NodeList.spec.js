@@ -6,10 +6,12 @@
  */
 
 import NodeList from '@/components/Home/NodeList'
-import { mount } from '@vue/test-utils'
+import { mount, createLocalVue } from '@vue/test-utils'
 import axios from 'axios'
-import flushPromises from 'flush-promises'
 import ApiRoutes from '@/api/ApiRoutes'
+import flushPromises from 'flush-promises'
+import vuexstore from '@/store/index'
+import Vuex from 'vuex'
 
 jest.mock('axios', () => {
   return {
@@ -60,8 +62,19 @@ jest.mock('axios', () => {
 })
 
 describe('NodeList.vue', () => {
+  let wrapper;
+  let store;
+
+  const localVue = createLocalVue();
+
+  localVue.use(Vuex);
+
+  beforeEach(() => {
+    store = vuexstore;
+    wrapper = mount(NodeList, { store, localVue });
+  });
+
   it('should render correct contents with filtering', async () => {
-    var wrapper = mount(NodeList)
     const viewNodeDetails = jest.fn()
     wrapper.setMethods({ viewNodeDetails })
 
