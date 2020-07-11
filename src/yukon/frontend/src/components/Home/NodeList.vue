@@ -41,14 +41,14 @@
     <p v-if="error === '' && !loading && processedNodes.length === 0">No nodes found</p>
 
     <div v-if="!loading && processedNodes.length > 0" class="table-responsive">
-      <table class="table table-striped">
+      <table class="table table-striped" summary="Node List">
         <thead>
-          <th>id</th>
-          <th>name</th>
-          <th>mode</th>
-          <th>health</th>
-          <th>uptime</th>
-          <th>vendor</th>
+          <th scope="id">id</th>
+          <th scope="name">name</th>
+          <th scope="mode">mode</th>
+          <th scope="health">health</th>
+          <th scope="uptime">uptime</th>
+          <th scope="vendor">vendor</th>
         </thead>
 
         <tbody ref="nodeListTableBody">

@@ -12,11 +12,11 @@
        placeholder="Search PnP Table" aria-label="Search">
 
       <table id="plugAndPlayTable" ref="plugAndPlayTable"
-       class="table table-striped table-sm table-borderless">
+       class="table table-striped table-sm table-borderless" summary="Plug-and-Play table">
         <thead>
           <tr>
-            <th>Node Id</th>
-            <th>Unique Id</th>
+            <th scope="nodeId">Node Id</th>
+            <th scope="uniqueId">Unique Id</th>
           </tr>
         </thead>
         <tbody>

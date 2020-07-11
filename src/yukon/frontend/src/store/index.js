@@ -24,5 +24,5 @@ export default new Vuex.Store({
     grv
   },
   strict: debug,
-  plugins: debug ? [] : []
+  plugins: []
 })
