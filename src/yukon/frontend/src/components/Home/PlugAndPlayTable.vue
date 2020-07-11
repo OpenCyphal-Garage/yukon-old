@@ -6,7 +6,7 @@
  -->
 
 <template>
-  <div class="mt-0" style="font-family: 'Roboto'; display: none;">
+  <div class="mt-0" style="font-family: Roboto, Monospace; display: none;">
     <div v-if="error === ''">
       <input v-model="search" ref="textSerarch" class="form-control col-sm-3" type="text"
        placeholder="Search PnP Table" aria-label="Search">

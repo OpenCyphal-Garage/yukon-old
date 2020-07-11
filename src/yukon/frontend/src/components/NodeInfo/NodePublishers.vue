@@ -7,17 +7,17 @@
  -->
 
 <template>
-  <div :class="{'subtle-border' : !loading}" style="font-family: 'Roboto';">
+  <div :class="{'subtle-border' : !loading}" style="font-family: Roboto, Monospace;">
     <div v-if="!loading" class="row fit-border pt-2 ml-3 mb-0">
       <p>Node has {{ publishers.length }} publisher</p>
     </div>
     <div class="node-params">
       <div v-if="!loading && publishers.length > 0" class="table-responsive">
-        <table class="table table-striped">
+        <table class="table table-striped" summary="Node publishers table">
         <thead>
-          <th>Port ID</th>
-          <th>Type</th>
-          <th>Rate</th>
+          <th id="portID">Port ID</th>
+          <th id="type">Type</th>
+          <th id="rate">Rate</th>
         </thead>
 
         <tbody ref="nodeListParamsTableBody">

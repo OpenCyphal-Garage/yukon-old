@@ -6,7 +6,7 @@
  -->
 
 <template>
-  <div :class="{'subtle-border' : !loading}" style="font-family: 'Roboto';">
+  <div :class="{'subtle-border' : !loading}" style="font-family: Roboto, Monospace;">
     <div class="node-constants fit-border pl-2 pt-2">
       <div class="row d-flex flex-row">
           <p class="mr-2 key">ID:</p>
