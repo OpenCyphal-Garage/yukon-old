@@ -20,14 +20,14 @@ const getters = {
 }
 
 const actions = {
-  async getNodeList({
+  async getNodeList ({
     commit
   }) {
     const response = await axios.get(ApiRoutes.Nodes.GetAll)
     const nodes = response.data
     commit('setNodeList', nodes)
   },
-  async getPlugAndPlayTable({
+  async getPlugAndPlayTable ({
     commit
   }) {
     const response = await axios.get(ApiRoutes.Nodes.GetPlugAndPlayTable)
@@ -37,13 +37,13 @@ const actions = {
 }
 
 const mutations = {
-  setNodeList(state, nodeList) {
+  setNodeList (state, nodeList) {
     state.nodeList = nodeList
   },
-  setPlugAndPlayTable(state, table) {
+  setPlugAndPlayTable (state, table) {
     state.plugAndPlayTable = table
   },
-  updateNodeStatus(state, newNodeStatus) {
+  updateNodeStatus (state, newNodeStatus) {
     const target = state.nodeList.find(node => node.id === newNodeStatus.id)
 
     if (!target) {
@@ -61,7 +61,7 @@ const mutations = {
       target[key] = newNodeStatus[key]
     }
   },
-  updateNodePublishers(state, newNodePublishers) {
+  updateNodePublishers (state, newNodePublishers) {
     const target = state.nodeList.find(node => node.id === newNodePublishers.id)
 
     if (!target) {

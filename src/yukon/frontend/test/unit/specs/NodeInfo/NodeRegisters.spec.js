@@ -10,7 +10,6 @@ import { mount, createLocalVue } from '@vue/test-utils'
 import axios from 'axios'
 import ApiRoutes from '@/api/ApiRoutes'
 import flushPromises from 'flush-promises'
-import vuexstore from '@/store/index'
 import Vuex from 'vuex'
 
 jest.mock('axios', () => {
@@ -49,23 +48,16 @@ jest.mock('axios', () => {
 })
 
 describe('NodeRegisters.vue', () => {
-  let wrapper;
-  let store;
+  const localVue = createLocalVue()
 
-  const localVue = createLocalVue();
-
-  localVue.use(Vuex);
-
-  beforeEach(() => {
-    store = vuexstore;
-  });
+  localVue.use(Vuex)
 
   it('should render correct contents and call edit param on tr click', async () => {
     var wrapper = mount(NodeRegisters, {
       propsData: {
         nodeId: 1234
       }
-    })
+    }, localVue)
 
     const editParam = jest.fn()
     wrapper.setMethods({ editParam })

@@ -28,17 +28,17 @@ jest.mock('axios', () => {
 })
 
 describe('BusInfo.vue', () => {
-  let wrapper;
-  let store;
+  let wrapper
+  let store
 
-  const localVue = createLocalVue();
+  const localVue = createLocalVue()
 
-  localVue.use(Vuex);
+  localVue.use(Vuex)
 
   beforeEach(() => {
-    store = vuexstore;
-    wrapper = mount(BusInfo, { store, localVue });
-  });
+    store = vuexstore
+    wrapper = mount(BusInfo, { store, localVue })
+  })
 
   it('should render correct contents', async () => {
     await flushPromises()

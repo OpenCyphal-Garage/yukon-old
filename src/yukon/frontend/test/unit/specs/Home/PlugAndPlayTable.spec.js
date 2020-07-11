@@ -6,12 +6,10 @@
  */
 
 import PlugAndPlayTable from '@/components/Home/PlugAndPlayTable'
-import { mount, createLocalVue } from '@vue/test-utils'
+import { mount } from '@vue/test-utils'
 import axios from 'axios'
-import ApiRoutes from '@/api/ApiRoutes'
 import flushPromises from 'flush-promises'
-import vuexstore from '@/store/index'
-import Vuex from 'vuex'
+import ApiRoutes from '@/api/ApiRoutes'
 
 jest.mock('axios', () => {
   return {
@@ -28,19 +26,9 @@ jest.mock('axios', () => {
 })
 
 describe('PlugAndPlayTable.vue', () => {
-  let wrapper;
-  let store;
-
-  const localVue = createLocalVue();
-
-  localVue.use(Vuex);
-
-  beforeEach(() => {
-    store = vuexstore;
-    wrapper = mount(PlugAndPlayTable, { store, localVue });
-  });
-
   it('should render correct contents', async () => {
+    var wrapper = mount(PlugAndPlayTable) // eslint-disable-line no-unused-vars
+
     await flushPromises()
 
     expect(axios.get).toHaveBeenCalledTimes(1)
@@ -48,6 +36,8 @@ describe('PlugAndPlayTable.vue', () => {
   })
 
   it('should render correct error', async () => {
+    var wrapper = mount(PlugAndPlayTable) // eslint-disable-line no-unused-vars
+
     await flushPromises()
 
     expect(axios.get).toHaveBeenCalledTimes(1)

@@ -30,19 +30,19 @@ import { mapState } from 'vuex'
 
 export default {
   name: 'BusInfo',
-  data() {
+  data () {
     return {
       error: ''
     }
   },
-  async mounted() {
+  async mounted () {
     await this.loadData()
   },
   computed: {
     ...mapState({
       info: state => state.general.busInfo
     }),
-    resilienceColor: function() {
+    resilienceColor: function () {
       const res = this.info.resilience
 
       if (res >= 3) {
@@ -61,7 +61,7 @@ export default {
     }
   },
   methods: {
-    async loadData() {
+    async loadData () {
       this.error = ''
       try {
         await this.$store.dispatch('general/getBusInfo')
