@@ -4,10 +4,10 @@ devserv package
 Submodules
 ----------
 
-devserv.mock\_responses module
-------------------------------
+devserv.mock\_server module
+---------------------------
 
-.. automodule:: devserv.mock_responses
+.. automodule:: devserv.mock_server
    :members:
    :undoc-members:
    :show-inheritance:
