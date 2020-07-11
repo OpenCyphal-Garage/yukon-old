@@ -61,7 +61,7 @@
                                         }
                                 ],
                                 "subscribers": [{
-                                        "type": "drone.actuator.esc.PowerCommandGroup.1.0",
+                                        "type": "drone.actuator.esc.PowerCommandGroup.0.1",
                                         "port_id": 4160
                                 }]
                         },
@@ -89,7 +89,7 @@
                                         }
                                 ],
                                 "subscribers": [{
-                                        "type": "drone.actuator.esc.PowerCommandGroup.1.0",
+                                        "type": "drone.actuator.esc.PowerCommandGroup.0.1",
                                         "port_id": 4160
                                 }]
                         },
@@ -122,7 +122,7 @@
                                                 "timeout": ""
                                         },
                                         {
-                                                "type": "drone.actuator.esc.PowerCommandGroup.1.0",
+                                                "type": "drone.actuator.esc.PowerCommandGroup.0.1",
                                                 "port_id": 4160,
                                                 "rate": 400,
                                                 "timestamp_start": "",
