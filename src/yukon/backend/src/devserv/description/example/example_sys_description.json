@@ -2,7 +2,7 @@
         "bus": {
                 "resilience": 2,
                 "name": "socketcan0",
-                "protocol": "CANFD"
+                "transport": "CAN"
         },
         "health": {
                 "uptime": 1000,
@@ -20,14 +20,15 @@
                 },
                 "detail": [{
                                 "id": 0,
-                                "name": "BMS 772",
+                                "name": "com.nxp.bms_772",
+                                "description": "BMS 772",
                                 "health": "OK",
                                 "mode": "OPERATIONAL",
                                 "uptime": 30,
                                 "vendorCode": 77777,
                                 "active": true,
                                 "registers": [{
-                                        "name": "drone.pub.battery_status",
+                                        "name": "uavcan.pub.battery_status",
                                         "type": "integer",
                                         "value": 4096,
                                         "default": 4096,
@@ -40,7 +41,7 @@
                                                 "active": true
                                         },
                                         {
-                                                "type": "drone.sensor.battery.Status.0.1",
+                                                "type": "uavcan.sensor.battery.Status.0.1",
                                                 "port_id": 4096,
                                                 "active": true
                                         }
@@ -54,7 +55,8 @@
                         },
                         {
                                 "id": 1,
-                                "name": "ESC Front Left",
+                                "name": "com.zubax.myxab_fl",
+                                "description": "ESC Front Left",
                                 "health": "OK",
                                 "mode": "OPERATIONAL",
                                 "uptime": 100,
@@ -66,20 +68,21 @@
                                                 "active": true
                                         },
                                         {
-                                                "type": "drone.actuator.esc.Feedback.0.1",
+                                                "type": "uavcan.actuator.esc.Feedback.0.1",
                                                 "port_id": 4172,
                                                 "active": true
                                         }
                                 ],
                                 "subscribers": [{
-                                        "type": "drone.actuator.esc.PowerCommandGroup.1.0",
+                                        "type": "uavcan.actuator.esc.PowerCommandGroup.1.0",
                                         "port_id": 4160,
                                         "active": true
                                 }]
                         },
                         {
                                 "id": 2,
-                                "name": "ESC Front Right",
+                                "name": "com.zubax.myxab_fr",
+                                "description": "ESC Front Right",
                                 "health": "CRITICAL",
                                 "mode": "INITIALIZATION",
                                 "uptime": 100,
@@ -88,7 +91,7 @@
                         },
                         {
                                 "id": 3,
-                                "name": "ESC Back Left",
+                                "name": "com.zubax.myxab_bl",
                                 "health": "ERROR",
                                 "mode": "MAINTAINANCE",
                                 "uptime": 100,
@@ -97,7 +100,8 @@
                         },
                         {
                                 "id": 4,
-                                "name": "ESC Back Right",
+                                "name": "com.zubax.myxab_br",
+                                "description": "ESC Back Right",
                                 "health": "WARNING",
                                 "mode": "SOFTWARE_UPDATE",
                                 "uptime": 100,
@@ -106,7 +110,8 @@
                         },
                         {
                                 "id": 5,
-                                "name": "MS5525 Airspeed",
+                                "name": "com.teconnectivity.ms5525dso",
+                                "description": "Airspeed sensor",
                                 "health": "OK",
                                 "mode": "OFFLINE",
                                 "uptime": 456,
@@ -115,7 +120,8 @@
                         },
                         {
                                 "id": 6,
-                                "name": "Servo Right Elevon",
+                                "name": "com.hitec.md250mw_right",
+                                "description": "Servo Right Elevon",
                                 "health": "OK",
                                 "mode": "OPERATIONAL",
                                 "uptime": 45,
@@ -124,7 +130,8 @@
                         },
                         {
                                 "id": 7,
-                                "name": "Servo Left Elevon",
+                                "name": "com.hitec.md250mw_left",
+                                "description": "Servo Left Elevon",
                                 "health": "OK",
                                 "mode": "MAINTAINANCE",
                                 "uptime": 456,
@@ -133,7 +140,8 @@
                         },
                         {
                                 "id": 8,
-                                "name": "Pixhawk 4",
+                                "name": "com.holybro.pixhawk4",
+                                "description": "Pixhawk 4",
                                 "health": "OK",
                                 "mode": "OPERATIONAL",
                                 "uptime": 1457,
@@ -145,7 +153,7 @@
                                                 "active": true
                                         },
                                         {
-                                                "type": "drone.actuator.esc.PowerCommandGroup.1.0",
+                                                "type": "uavcan.actuator.esc.PowerCommandGroup.1.0",
                                                 "port_id": 4160,
                                                 "active": true
                                         }
@@ -156,12 +164,12 @@
                                                 "active": true
                                         },
                                         {
-                                                "type": "drone.sensor.battery.Status.0.1",
+                                                "type": "uavcan.sensor.battery.Status.0.1",
                                                 "port_id": 4096,
                                                 "active": true
                                         },
                                         {
-                                                "type": "drone.actuator.esc.Feedback.0.1",
+                                                "type": "uavcan.actuator.esc.Feedback.0.1",
                                                 "port_id": 4172,
                                                 "active": true
                                         }
@@ -170,8 +178,9 @@
                 ],
                 "grv": [{
                                 "nodeId": 1,
-                                "nodeName": "esc_front_left",
-                                "registerName": "drone.param.naming",
+                                "nodeName": "com.zubax.myxab_fl",
+                                "nodeDescription": "ESC Front Left",
+                                "registerName": "uavcan.param.naming",
                                 "value": {
                                         "_type_": "uavcan.register.Access.Request.1.0",
                                         "foo": {
@@ -186,16 +195,18 @@
                         },
                         {
                                 "nodeId": 2,
-                                "nodeName": "esc_front_right",
-                                "registerName": "drone.pub.esc_status",
+                                "nodeName": "com.zubax.myxab_fr",
+                                "nodeDescription": "ESC Front Right",
+                                "registerName": "uavcan.pub.esc_status",
                                 "value": "4161",
                                 "mutable": true,
                                 "persistent": true
                         },
                         {
                                 "nodeId": 3,
-                                "nodeName": "esc_back_right",
-                                "registerName": "drone.pub.esc_status",
+                                "nodeName": "com.zubax.myxab_bl",
+                                "nodeDescription": "ESC Back Right",
+                                "registerName": "uavcan.pub.esc_status",
                                 "value": "4162",
                                 "mutable": true,
                                 "persistent": true

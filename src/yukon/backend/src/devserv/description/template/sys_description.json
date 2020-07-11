@@ -2,7 +2,7 @@
         "bus": {
                 "resilience": "",
                 "name": "",
-                "protocol": ""
+                "transport": ""
         },
         "health": {
                 "uptime": "",
@@ -71,6 +71,7 @@
                 "grv": [{
                                 "nodeId": "",
                                 "nodeName": "",
+                                "nodeDescription": "",
                                 "registerName": "",
                                 "value": {
                                         "_type_": "",
@@ -87,6 +88,7 @@
                         {
                                 "nodeId": "",
                                 "nodeName": "",
+                                "nodeDescription": "",
                                 "registerName": "",
                                 "value": "",
                                 "mutable": "true/false",

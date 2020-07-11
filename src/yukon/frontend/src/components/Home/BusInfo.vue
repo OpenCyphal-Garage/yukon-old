@@ -15,7 +15,7 @@
         <span class="badge" :class="resilienceColor">Resilience: {{ info.resilience }}</span>
       </div>
       <div class="col-sm-8">
-        <p style="vertical-align: right;">Bus: {{ info.name }} running on {{ info.protocol }}</p>
+        <p style="vertical-align: right;">Bus: {{ info.name }} running on {{ info.transport }}</p>
       </div>
     </div>
   </div>

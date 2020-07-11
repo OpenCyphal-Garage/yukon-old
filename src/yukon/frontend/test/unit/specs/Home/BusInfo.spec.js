@@ -19,8 +19,8 @@ jest.mock('axios', () => {
       .mockImplementationOnce(() => ({
         data: {
           resilience: 1,
-          name: 'cansocket',
-          protocol: 'CanFD'
+          name: 'socketcan0',
+          transport: 'CAN'
         }
       }))
       .mockImplementationOnce(() => Promise.reject(new Error('theerror')))
