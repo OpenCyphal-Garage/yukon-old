@@ -10,7 +10,6 @@ import { mount, createLocalVue } from '@vue/test-utils'
 import axios from 'axios'
 import ApiRoutes from '@/api/ApiRoutes'
 import flushPromises from 'flush-promises'
-import vuexstore from '@/store/index'
 import Vuex from 'vuex'
 
 jest.mock('axios', () => {
@@ -20,23 +19,16 @@ jest.mock('axios', () => {
 })
 
 describe('NodeControls.vue', () => {
-  let wrapper;
-  let store;
+  const localVue = createLocalVue()
 
-  const localVue = createLocalVue();
-
-  localVue.use(Vuex);
-
-  beforeEach(() => {
-    store = vuexstore;
-  });
+  localVue.use(Vuex)
 
   it('should call correct endpoints on button click', async () => {
     var wrapper = mount(NodeControls, {
       propsData: {
         nodeId: 1234
       }
-    })
+    }, localVue)
 
     await flushPromises()
 

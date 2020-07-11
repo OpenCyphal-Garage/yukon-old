@@ -14,9 +14,7 @@ import copyToClipboard from '@/util/usability.js'
 
 export default {
   name: 'CopyableText',
-  propsData: {
-   text: 'test'
-  },
+  props: ['text'],
   methods: {
     copy: text => {
       copyToClipboard(text)

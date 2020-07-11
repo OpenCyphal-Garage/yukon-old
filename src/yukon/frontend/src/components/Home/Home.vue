@@ -30,7 +30,7 @@
 import ServerHealth from './ServerHealth'
 import BusInfo from './BusInfo'
 import NodeList from './NodeList'
-// import PlugAndPlayTable from './PlugAndPlayTable'
+import PlugAndPlayTable from './PlugAndPlayTable'
 
 export default {
   name: 'Home',
@@ -38,7 +38,7 @@ export default {
     ServerHealth,
     BusInfo,
     NodeList,
-    // PlugAndPlayTable // eslint-disable-line vue/no-unused-components
+    PlugAndPlayTable
   }
 }
 </script>

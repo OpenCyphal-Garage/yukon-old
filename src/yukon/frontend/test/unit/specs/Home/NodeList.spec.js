@@ -62,17 +62,17 @@ jest.mock('axios', () => {
 })
 
 describe('NodeList.vue', () => {
-  let wrapper;
-  let store;
+  let wrapper
+  let store
 
-  const localVue = createLocalVue();
+  const localVue = createLocalVue()
 
-  localVue.use(Vuex);
+  localVue.use(Vuex)
 
   beforeEach(() => {
-    store = vuexstore;
-    wrapper = mount(NodeList, { store, localVue });
-  });
+    store = vuexstore
+    wrapper = mount(NodeList, { store, localVue })
+  })
 
   it('should render correct contents with filtering', async () => {
     const viewNodeDetails = jest.fn()

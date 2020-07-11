@@ -30,7 +30,7 @@
     "unit": "jest --config test/unit/jest.conf.js --coverage",
     "e2e": "node test/e2e/runner.js",
     "test": "npm run unit && npm run e2e",
-    "lint": "eslint --ext .js,.vue src test/unit test/e2e/specs",
+    "lint": "eslint --ext .js,.vue src test/unit test/e2e/specs --fix",
     "build": "node build/build.js"
   },
   "dependencies": {
@@ -54,7 +54,7 @@
   },
   "devDependencies": {
     "@vue/server-test-utils": "^1.0.0-beta.29",
-    "@vue/test-utils": "^1.0.0-beta.29",
+    "@vue/test-utils": "^1.0.3",
     "autoprefixer": "^7.1.2",
     "babel-core": "^6.22.1",
     "babel-eslint": "^8.2.1",
@@ -89,7 +89,7 @@
     "flush-promises": "^1.0.2",
     "friendly-errors-webpack-plugin": "^1.6.1",
     "html-webpack-plugin": "^2.30.1",
-    "jest": "^22.0.4",
+    "jest": "^22.4.4",
     "jest-serializer-vue": "^0.3.0",
     "nightwatch": "^0.9.12",
     "node-notifier": "^5.1.2",

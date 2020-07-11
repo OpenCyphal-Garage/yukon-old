@@ -11,15 +11,15 @@ import { mount } from '@vue/test-utils'
 describe('CopyableText.vue', () => {
   it('should render correct contents and call copyToClipboard on click', async () => {
     var wrapper = mount(CopyableText, {
-      propsData: {
+      props: {
         text: 'dummy'
       }
     })
-    wrapper.setMethods({ copy: jest.fn() })
+    wrapper.vm.copy = jest.fn()
 
-    expect(wrapper.find('.copyable').is('p')).toBe(true);
-    await wrapper.find('.copyable').trigger('click');
+    expect(wrapper.find('.copyable').is('p')).toBe(true)
+    await wrapper.find('.copyable').trigger('click')
 
-    expect(wrapper.vm.copy).toHaveBeenCalled();
+    expect(wrapper.vm.copy).toHaveBeenCalled()
   })
 })

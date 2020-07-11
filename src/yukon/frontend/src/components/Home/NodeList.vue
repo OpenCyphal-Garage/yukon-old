@@ -38,7 +38,7 @@
   <h2 style="text-align: center; font-family: 'Russo One';">Online Nodes</h2>
 
   <div class="row" style="display: none;">
-    <p v-if="error == '' && !loading && processedNodes.length == 0">No nodes found</p>
+    <p v-if="error === '' && !loading && processedNodes.length === 0">No nodes found</p>
 
     <div v-if="!loading && processedNodes.length > 0" class="table-responsive">
       <table class="table table-striped">
@@ -72,7 +72,7 @@
   </div>
 
   <div class="row">
-    <p v-if="error == '' && !loading && processedNodes.length == 0">No nodes found</p>
+    <p v-if="error === '' && !loading && processedNodes.length === 0">No nodes found</p>
 
     <div v-if="!loading && processedNodes.length > 0">
       <v-stage ref="stage" :config="configKonva">
@@ -140,7 +140,7 @@
     </div>
   </div>
 
-  <div v-if="loading && error.length != 0" class="row justify-content-center">
+  <div v-if="loading && error.length !== 0" class="row justify-content-center">
     <Spinner></Spinner>
   </div>
 
@@ -154,7 +154,7 @@
 import {
   mapState
 }
-from 'vuex'
+  from 'vuex'
 import AppRoutes from '@/Router'
 import Spinner from '@/components/Util/Spinner'
 import CopyableText from '@/components/Util/CopyableText'
@@ -168,7 +168,7 @@ export default {
     Spinner,
     CopyableText
   },
-  data() {
+  data () {
     return {
       loading: false,
       error: '',
@@ -215,7 +215,7 @@ export default {
     ...mapState({
       nodes: state => state.nodes.nodeList
     }),
-    processedNodes: function() {
+    processedNodes: function () {
       let filtered = this.nodes
       const lowerFilter = this.filter.toLowerCase()
 
@@ -256,16 +256,7 @@ export default {
       return filtered
     }
   },
-  watch: {
-    nodes: async function () {
-      await this.blinkLED()
-      await this.loadPubSub()
-      await this.drawSubjectLines()
-      await this.deleteSubjectLines()
-      await this.updateSubjectLines
-    }
-  },
-  async mounted() {
+  async mounted () {
     await this.loadData()
     await this.loadPubSub()
     await this.setNodesPositions()
@@ -275,30 +266,29 @@ export default {
 
     const vm = this
     // Run every second
-    this.interval = setInterval( async function() {
-       await vm.loadPubSub()
-       await vm.setNodesPositions()
-       await vm.deleteSubjectLines()
-       await vm.blinkLED()
-       await vm.drawSubjectLines()
-       this.updateSubjectLines
-    }, 1000);
-
+    this.interval = setInterval(async function () {
+      await vm.loadPubSub()
+      await vm.setNodesPositions()
+      await vm.deleteSubjectLines()
+      await vm.blinkLED()
+      await vm.drawSubjectLines()
+      await this.updateSubjectLines
+    }, 1000)
   },
   methods: {
-    clearControls() {
+    clearControls () {
       this.sortAttribute = 'None'
       this.filter = ''
       this.sortWay = this.sortWays.none.name
     },
-    generalSync: async function() {
-         await this.blinkLED()
-         await this.loadPubSub()
-         await this.drawSubjectLines()
-         await this.deleteSubjectLines()
-         await this.updateSubjectLines
+    generalSync: async function () {
+      await this.blinkLED()
+      await this.loadPubSub()
+      await this.drawSubjectLines()
+      await this.deleteSubjectLines()
+      await this.updateSubjectLines
     },
-    async loadData() {
+    async loadData () {
       this.error = ''
       this.loading = true
       try {
@@ -308,7 +298,7 @@ export default {
       }
       this.loading = false
     },
-    async loadPubSub() {
+    async loadPubSub () {
       for (var key in this.nodes) {
         if (this.nodes.hasOwnProperty(key)) {
           var pubs = this.nodes[key].publishers
@@ -321,135 +311,135 @@ export default {
               active: pubs[key2].active
             }
 
-            var idx_existing_pub;
-            const pub_exists = this.pubPortIDList.some( function(elem, i) {
-                               const parsedElem = JSON.parse(JSON.stringify(elem));
-                               return parsedElem.id === newPub.id && parsedElem.name === newPub.name
-                                      && parsedElem.port_id === newPub.port_id
-                                      && parsedElem.type === newPub.type ? (idx_existing_pub = i, true) : false;
-                       });
+            var idxExistingPub
+            const pubExists = this.pubPortIDList.some(function (elem, i) {
+              const parsedElem = JSON.parse(JSON.stringify(elem))
+              idxExistingPub = i
+              return !!(parsedElem.id === newPub.id && parsedElem.name === newPub.name &&
+                                      parsedElem.port_id === newPub.port_id &&
+                                      parsedElem.type === newPub.type)
+            })
 
-            if (this.pubPortIDList.length == 0) {
-              this.pubPortIDList.push(newPub);
-            } else if (!pub_exists) {
-              this.pubPortIDList.push(newPub);
-            } else if (pub_exists && (!pubs[key2].active || pubs[key2].active == 0 || pubs[key2].active == '0')) {
-              this.pubPortIDList[idx_existing_pub].active = false;
+            if (this.pubPortIDList.length === 0) {
+              this.pubPortIDList.push(newPub)
+            } else if (!pubExists) {
+              this.pubPortIDList.push(newPub)
+            } else if (pubExists && (!pubs[key2].active || pubs[key2].active === 0 || pubs[key2].active === '0')) {
+              this.pubPortIDList[idxExistingPub].active = false
             }
           }
         }
       }
 
-
-
-      for (var key in this.nodes) {
-        if (this.nodes.hasOwnProperty(key)) {
-          var subs = this.nodes[key].subscribers
-          for (var key2 in subs) {
+      for (var key3 in this.nodes) {
+        if (this.nodes.hasOwnProperty(key3)) {
+          var subs = this.nodes[key3].subscribers
+          for (var key4 in subs) {
             var newSub = {
-              id: key,
-              name: this.nodes[key].name,
-              port_id: subs[key2].port_id,
-              active: subs[key2].active
+              id: key3,
+              name: this.nodes[key3].name,
+              port_id: subs[key4].port_id,
+              active: subs[key4].active
             }
 
-            var idx_existing_sub;
-            const sub_exists = this.subPortIDList.some( function(elem, i) {
-                               const parsedElem = JSON.parse(JSON.stringify(elem));
-                               return parsedElem.id === newSub.id && parsedElem.name === newSub.name
-                                      && parsedElem.port_id === newSub.port_id
-                                      && parsedElem.type === newSub.type ? (idx_existing_sub = i, true) : false;
-                       });
+            var idxExistingSub
+            const subExists = this.subPortIDList.some(function (elem, i) {
+              const parsedElem = JSON.parse(JSON.stringify(elem))
+              idxExistingSub = i
+              return !!(parsedElem.id === newSub.id && parsedElem.name === newSub.name &&
+                                      parsedElem.port_id === newSub.port_id &&
+                                      parsedElem.type === newSub.type)
+            })
 
-            if (this.subPortIDList.length == 0) {
-              this.subPortIDList.push(newSub);
-            } else if (!sub_exists) {
-              this.subPortIDList.push(newSub);
-            } else if (sub_exists && (!subs[key2].active || subs[key2].active == 0 || subs[key2].active == '0')) {
-              this.subPortIDList[idx_existing_sub].active = false;
+            if (this.subPortIDList.length === 0) {
+              this.subPortIDList.push(newSub)
+            } else if (!subExists) {
+              this.subPortIDList.push(newSub)
+            } else if (subExists && (!subs[key4].active || subs[key4].active === 0 || subs[key4].active === '0')) {
+              this.subPortIDList[idxExistingSub].active = false
             }
           }
         }
       }
     },
-    viewNodeDetails(node_id) {
+    viewNodeDetails (nodeId) {
       this.$router.push({
         name: AppRoutes.NodeDetails.name,
         params: {
-          nodeId: node_id
+          nodeId: nodeId
         }
       })
     },
-    generateRandomXPos() {
-      return Math.random() * width * 0.75;
+    generateRandomXPos () {
+      return Math.random() * width * 0.75
     },
-    generateRandomYPos() {
-      return Math.random() * height * 0.75;
+    generateRandomYPos () {
+      return Math.random() * height * 0.75
     },
-    getNodePosition(nodeID) {
+    getNodePosition (nodeID) {
       for (var node in this.nodesInitialPosition) {
         if (this.nodesInitialPosition[node].id === nodeID && this.nodesInitialPosition[node].hasInitialPosition) {
           return [this.nodesInitialPosition[node].x, this.nodesInitialPosition[node].y]
         }
       }
     },
-    async setNodesPositions() {
-      for(var node in this.nodes) {
+    async setNodesPositions () {
+      for (var node in this.nodes) {
         this.nodesInitialPosition.push({
           id: this.nodes[node].id,
           x: this.generateRandomXPos(),
           y: this.generateRandomYPos(),
           hasInitialPosition: true
-        });
+        })
       }
     },
-    getRectangleBorderPoint(radians, size, xSideOffset, ySideOffset) {
-      const width = size.width + xSideOffset * 2;
-      const height = size.height + ySideOffset * 2;
+    getRectangleBorderPoint (radians, size, xSideOffset, ySideOffset) {
+      const width = size.width + xSideOffset * 2
+      const height = size.height + ySideOffset * 2
 
-      radians %= 2 * Math.PI;
+      radians %= 2 * Math.PI
       if (radians < 0) {
-        radians += Math.PI * 2;
+        radians += Math.PI * 2
       }
 
-      const phi = Math.atan(height / width);
+      const phi = Math.atan(height / width)
 
-      let x, y;
+      let x, y
       if (
         (radians >= 2 * Math.PI - phi && radians <= 2 * Math.PI) ||
         (radians >= 0 && radians <= phi)
       ) {
-        x = width / 2;
-        y = Math.tan(radians) * x;
+        x = width / 2
+        y = Math.tan(radians) * x
       } else if (radians >= phi && radians <= Math.PI - phi) {
-        y = height / 2;
-        x = y / Math.tan(radians);
+        y = height / 2
+        x = y / Math.tan(radians)
       } else if (radians >= Math.PI - phi && radians <= Math.PI + phi) {
-        x = -width / 2;
-        y = Math.tan(radians) * x;
+        x = -width / 2
+        y = Math.tan(radians) * x
       } else if (radians >= Math.PI + phi && radians <= 2 * Math.PI - phi) {
-        y = -height / 2;
-        x = y / Math.tan(radians);
+        y = -height / 2
+        x = y / Math.tan(radians)
       }
 
       return {
         x: -Math.round(x),
         y: Math.round(y)
-      };
+      }
     },
-    getCenterLeft(node) {
+    getCenterLeft (node) {
       return {
         x: node.x() + node.getChildren()[0].width() / 2,
         y: node.y() + node.getChildren()[0].height() / 2
       }
     },
-    getCenterRight(node) {
+    getCenterRight (node) {
       return {
         x: node.x() + node.getChildren()[0].width() / 2,
         y: node.y() + node.getChildren()[0].height() / 2
       }
     },
-    setStatusLedColor(health) {
+    setStatusLedColor (health) {
       if (health === 'OK') {
         return 'rgb(105,228,113)'
       } else if (health === 'WARNING') {
@@ -462,117 +452,119 @@ export default {
         return 'grey'
       }
     },
-    async blinkLED() {
-      const vm = this;
+    async blinkLED () {
+      var Konva = require('konva')
+      const vm = this
 
       // Applies to all nodes in stage
-      const circleCollection = this.$refs.layer.getNode().find('Circle');
+      if (typeof this.$refs.layer !== 'undefined') {
+        const circleCollection = this.$refs.layer.getNode().find('Circle')
 
-      const amplitude = 1;
-      const period = 5000;
+        const amplitude = 1
+        const period = 5000
 
-      circleCollection.each(function(shape) {
-        const anim = new Konva.Animation(function(frame) {
-          shape.setOpacity(
-            amplitude * Math.sin((frame.time * 2 * Math.PI) / period)
-          );
-        }, shape.getLayer());
+        circleCollection.each(function (shape) {
+          const anim = new Konva.Animation(function (frame) {
+            shape.setOpacity(
+              amplitude * Math.sin((frame.time * 2 * Math.PI) / period)
+            )
+          }, shape.getLayer())
 
-        if (shape.id() == 'WARNING' || shape.id() == 'CRITICAL') {
-           shape.fill(vm.setStatusLedColor(shape.id()));
+          if (shape.id() === 'WARNING' || shape.id() === 'CRITICAL') {
+            shape.fill(vm.setStatusLedColor(shape.id()))
 
-           if (vm.healthBlinkLedAnime.length == 0 || !vm.healthBlinkLedAnime.some(
-             function(elem) { return elem.id === shape.id() && elem.name === shape.name(); }))
-           {
-             vm.healthBlinkLedAnime.push({
-               id: shape.id(),
-               name: shape.name(),
-               anim: anim
-             });
+            if (vm.healthBlinkLedAnime.length === 0 || !vm.healthBlinkLedAnime.some(
+              function (elem) { return elem.id === shape.id() && elem.name === shape.name() })) {
+              vm.healthBlinkLedAnime.push({
+                id: shape.id(),
+                name: shape.name(),
+                anim: anim
+              })
 
-             vm.healthBlinkLedAnime[vm.healthBlinkLedAnime.length - 1].anim.start();
-           }
-        } else {
-           vm.healthBlinkLedAnime.forEach(
-             function(elem) {
-               if (elem.name == shape.name()) {
-                 elem.anim.stop();
-               }
-             }
-           );
+              vm.healthBlinkLedAnime[vm.healthBlinkLedAnime.length - 1].anim.start()
+            }
+          } else {
+            vm.healthBlinkLedAnime.forEach(
+              function (elem) {
+                if (elem.name === shape.name()) {
+                  elem.anim.stop()
+                }
+              }
+            )
 
-           vm.healthBlinkLedAnime = vm.healthBlinkLedAnime.filter(elem => elem.name != shape.name());
-           shape.fill(vm.setStatusLedColor(shape.id()));
-        }
-      });
+            vm.healthBlinkLedAnime = vm.healthBlinkLedAnime.filter(elem => elem.name !== shape.name())
+            shape.fill(vm.setStatusLedColor(shape.id()))
+          }
+        })
+      }
     },
-    async highlightNodeBox(e) {
-      e.target.getStage().container().style.cursor = 'pointer';
+    async highlightNodeBox (e) {
+      e.target.getStage().container().style.cursor = 'pointer'
 
       e.target.to({
         shadowColor: 'blue',
         duration: 0.1
-      });
+      })
     },
-    async deemphasizeNodeBox(e) {
+    async deemphasizeNodeBox (e) {
       // Applies to all nodes in stage
-      e.target.getStage().container().style.cursor = 'default';
+      e.target.getStage().container().style.cursor = 'default'
 
-      e.target.getLayer().find('Rect').each(function(shape, n ) {
+      e.target.getLayer().find('Rect').each(function (shape, n) {
         shape.to({
           shadowColor: 'black',
           duration: 0.1
-        });
-      });
+        })
+      })
     },
-    defaultCursorStyle(e) {
-      e.target.getStage().container().style.cursor = 'pointer';
+    defaultCursorStyle (e) {
+      e.target.getStage().container().style.cursor = 'pointer'
     },
-    showPortID(e) {
-      const mousePos = this.$refs.stage.getNode().getPointerPosition();
-      const topicText = this.$refs.topicText.getNode();
+    showPortID (e) {
+      const mousePos = this.$refs.stage.getNode().getPointerPosition()
+      const topicText = this.$refs.topicText.getNode()
 
-      topicText.setText(e.target.id() + "\n" + e.target.name());
-      topicText.setX(mousePos.x);
-      topicText.setY(mousePos.y);
+      topicText.setText(e.target.id() + '\n' + e.target.name())
+      topicText.setX(mousePos.x)
+      topicText.setY(mousePos.y)
 
-      topicText.to({opacity: 1});
-      setTimeout(function (){
-        topicText.to({opacity: 0});
-      }, 1000);
+      topicText.to({opacity: 1})
+      setTimeout(function () {
+        topicText.to({opacity: 0})
+      }, 1000)
     },
-    getPoints(r1, r2, offset) {
-      const c1 = this.getCenterRight(r1);
-      const c2 = this.getCenterLeft(r2);
+    getPoints (r1, r2, offset) {
+      const c1 = this.getCenterRight(r1)
+      const c2 = this.getCenterLeft(r2)
 
-      const dx = c1.x - c2.x;
-      const dy = c1.y - c2.y;
-      const angle = Math.atan2(-dy, dx);
+      const dx = c1.x - c2.x
+      const dy = c1.y - c2.y
+      const angle = Math.atan2(-dy, dx)
 
-      const startOffset = this.getRectangleBorderPoint(angle + Math.PI, r1.getChildren()[0].size(), offset, 0);
-      const endOffset = this.getRectangleBorderPoint(angle, r2.getChildren()[0].size(), offset, 0);
+      const startOffset = this.getRectangleBorderPoint(angle + Math.PI, r1.getChildren()[0].size(), offset, 0)
+      const endOffset = this.getRectangleBorderPoint(angle, r2.getChildren()[0].size(), offset, 0)
 
-      const width = r1.getChildren()[0].size().width + offset * 2;
-      const height = r1.getChildren()[0].size().height + offset * 2;
+      const width = r1.getChildren()[0].size().width + offset * 2
+      const height = r1.getChildren()[0].size().height + offset * 2
 
-      let radians = angle + Math.PI;
+      let radians = angle + Math.PI
 
-      radians %= 2 * Math.PI;
+      radians %= 2 * Math.PI
       if (radians < 0) {
-        radians += Math.PI * 2;
+        radians += Math.PI * 2
       }
 
-      const phi = Math.atan(height / width);
+      const phi = Math.atan(height / width)
 
       let start = {
         x: 0,
         y: 0
-      };
+      }
 
       let end = {
         x: 0,
         y: 0
-      };
+      }
 
       if (
         (radians >= 2 * Math.PI - phi && radians <= 2 * Math.PI) ||
@@ -581,153 +573,149 @@ export default {
         start = {
           x: c1.x - startOffset.x - offset,
           y: c1.y - startOffset.y
-        };
+        }
 
         end = {
           x: c2.x - endOffset.x + offset,
           y: c2.y - endOffset.y
-        };
+        }
       } else if (radians >= phi && radians <= Math.PI - phi) {
         start = {
           x: c1.x - startOffset.x + offset,
           y: c1.y - startOffset.y
-        };
+        }
 
         end = {
           x: c2.x - endOffset.x + offset,
           y: c2.y - endOffset.y
-        };
+        }
       } else if (radians >= Math.PI - phi && radians <= Math.PI + phi) {
         start = {
           x: c1.x - startOffset.x + offset,
           y: c1.y - startOffset.y
-        };
+        }
 
         end = {
           x: c2.x - endOffset.x - offset,
           y: c2.y - endOffset.y
-        };
+        }
       } else if (radians >= Math.PI + phi && radians <= 2 * Math.PI - phi) {
         start = {
           x: c1.x - startOffset.x - offset,
           y: c1.y - startOffset.y
-        };
+        }
 
         end = {
           x: c2.x - endOffset.x - offset,
           y: c2.y - endOffset.y
-        };
+        }
       }
 
       return [start.x, start.y, end.x, end.y]
     },
-    async drawSubjectLines() {
-      var offset = 0;
+    async drawSubjectLines () {
+      var Konva = require('konva')
 
-      const vm = this;
+      var offset = 0
+
+      const vm = this
 
       for (var key in this.pubPortIDList) {
         for (var key2 in this.subPortIDList) {
           // Creates a line between matching port identifiers
           if (this.pubPortIDList[key].name !== this.subPortIDList[key2].name && this.pubPortIDList[key].port_id === this.subPortIDList[key2].port_id) {
-            const pubNodeName = this.pubPortIDList[key].name;
-            const subNodeName = this.subPortIDList[key2].name;
-            const lineID = pubNodeName + ': ' + this.pubPortIDList[key].port_id;
+            const pubNodeName = this.pubPortIDList[key].name
+            const subNodeName = this.subPortIDList[key2].name
+            const lineID = pubNodeName + ': ' + this.pubPortIDList[key].port_id
 
-            if (this.nodePubOffset.length == 0 || !this.nodePubOffset.some(
-                       function(elem) {
-                               const parsedElem = JSON.parse(JSON.stringify(elem));
-                               return parsedElem.id === lineID && parsedElem.name === vm.pubPortIDList[key].type;
-                       }))
-            {
-
+            if (this.nodePubOffset.length === 0 || !this.nodePubOffset.some(
+              function (elem) {
+                const parsedElem = JSON.parse(JSON.stringify(elem))
+                return parsedElem.id === lineID && parsedElem.name === vm.pubPortIDList[key].type
+              })) {
               this.nodePubOffset.push({
                 id: pubNodeName + ': ' + this.pubPortIDList[key].port_id,
                 name: this.pubPortIDList[key].type,
                 offset: offset
-              });
+              })
 
               var arrow = new Konva.Arrow({
-                      id: lineID,
-                      name: this.pubPortIDList[key].type,
-                      stroke: 'rgb(35,0,179)',
-                      fill: 'rgb(35,0,179)',
-                      strokeWidth: 3
-                });
+                id: lineID,
+                name: this.pubPortIDList[key].type,
+                stroke: 'rgb(35,0,179)',
+                fill: 'rgb(35,0,179)',
+                strokeWidth: 3
+              })
 
-              arrow.on('click', this.showPortID);
+              arrow.on('click', this.showPortID)
 
-              const points = this.getPoints(vm.$refs[pubNodeName][0].getNode(), vm.$refs[subNodeName][0].getNode(), offset);
+              const points = this.getPoints(vm.$refs[pubNodeName][0].getNode(), vm.$refs[subNodeName][0].getNode(), offset)
               offset += 15
 
-              arrow.points(points);
-              vm.$refs.layer.getNode().add(arrow);
+              arrow.points(points)
+              vm.$refs.layer.getNode().add(arrow)
+              vm.$refs.layer.getNode().draw()
             }
           }
         }
       }
-
-      this.$refs.layer.getNode().draw();
     },
-    async deleteSubjectLines() {
-      const vm = this;
-      const layer = vm.$refs.layer.getNode();
+    async deleteSubjectLines () {
+      const vm = this
 
-      let arrowCollection;
+      if (typeof this.$refs.layer !== 'undefined') {
+        const arrowCollection = vm.$refs.layer.getNode().find('Arrow')
 
-      if (typeof layer !== 'undefined') {
-         arrowCollection = layer.find('Arrow');
+        const subjectsToDelete = this.pubPortIDList.filter(function (e) {
+          return e.active === false
+        })
 
-         const subjectsToDelete = this.pubPortIDList.filter(function (e) {
-                                             return e.active === false;
-                                           });
+        arrowCollection.each(function (shape) {
+          for (var idx in subjectsToDelete) {
+            if (shape.id() === subjectsToDelete[idx].name + ': ' + subjectsToDelete[idx].port_id) {
+              shape.to({opacity: 0, duration: 10})
 
-         arrowCollection.each(function(shape) {
-           for (var idx in subjectsToDelete) {
-             if(shape.id() === subjectsToDelete[idx].name + ': ' + subjectsToDelete[idx].port_id) {
-               shape.to({opacity: 0, duration: 10});
-
-               if(shape.getAbsoluteOpacity() < 0.02){
-                 vm.pubPortIDList = vm.pubPortIDList.filter(function(subj) {
-                        return (JSON.stringify(subj) !== JSON.stringify(subjectsToDelete[idx]));
-                 });
-                 shape.destroy();
-               }
-             }
-           }
-         });
+              if (shape.getAbsoluteOpacity() < 0.02) {
+                vm.pubPortIDList = vm.pubPortIDList.filter(function (subj) {
+                  return (JSON.stringify(subj) !== JSON.stringify(subjectsToDelete[idx]))
+                })
+                shape.destroy()
+              }
+            }
+          }
+        })
       }
     },
-    async updateSubjectLines(e) {
-      e.target.getStage().container().style.cursor = 'move';
+    async updateSubjectLines (e) {
+      e.target.getStage().container().style.cursor = 'move'
 
-      var offset = 0;
+      var offset = 0
 
-      const vm = this;
+      const vm = this
 
       for (var key in this.pubPortIDList) {
         for (var key2 in this.subPortIDList) {
           // Creates a line between matching port identifiers
           if (this.pubPortIDList[key].name !== this.subPortIDList[key2].name && this.pubPortIDList[key].port_id === this.subPortIDList[key2].port_id) {
-            const pubNodeName = this.pubPortIDList[key].name;
-            const subNodeName = this.subPortIDList[key2].name;
+            const pubNodeName = this.pubPortIDList[key].name
+            const subNodeName = this.subPortIDList[key2].name
 
             for (var key3 in this.nodePubOffset) {
               if (this.nodePubOffset[key3].id === (pubNodeName + ': ' + vm.pubPortIDList[key].port_id)) {
-                offset = this.nodePubOffset[key3].offset;
-                break;
+                offset = this.nodePubOffset[key3].offset
+                break
               }
             }
 
-            const points = this.getPoints(vm.$refs[pubNodeName][0].getNode(), vm.$refs[subNodeName][0].getNode(), offset);
+            const points = this.getPoints(vm.$refs[pubNodeName][0].getNode(), vm.$refs[subNodeName][0].getNode(), offset)
 
-            const arrowCollection = this.$refs.layer.getNode().find('Arrow');
+            const arrowCollection = this.$refs.layer.getNode().find('Arrow')
 
-            arrowCollection.each(function(shape, n) {
-              if(shape.id() === (pubNodeName + ': ' + vm.pubPortIDList[key].port_id)) {
-                shape.points(points);
+            arrowCollection.each(function (shape, n) {
+              if (shape.id() === (pubNodeName + ': ' + vm.pubPortIDList[key].port_id)) {
+                shape.points(points)
               }
-            });
+            })
           }
         }
       }

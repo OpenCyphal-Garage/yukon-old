@@ -34,16 +34,14 @@ jest.mock('axios', () => {
 })
 
 describe('NodeConstants.vue', () => {
-  let wrapper;
-  let store;
+  let store
+  const localVue = createLocalVue()
 
-  const localVue = createLocalVue();
-
-  localVue.use(Vuex);
+  localVue.use(Vuex)
 
   beforeEach(() => {
-    store = vuexstore;
-  });
+    store = vuexstore
+  })
 
   it('should render correct contents', async () => {
     var wrapper = mount(NodeConstants, {
