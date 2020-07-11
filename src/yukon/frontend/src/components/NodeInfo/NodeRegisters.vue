@@ -12,15 +12,15 @@
     </div>
     <div class="node-params">
       <div v-if="!loading && registers.length > 0" class="table-responsive">
-        <table class="table table-striped">
+        <table class="table table-striped" summary="Node Registers table">
         <thead>
-          <th>index</th>
-          <th>name</th>
-          <th>type</th>
-          <th>value</th>
-          <th>default</th>
-          <th>min</th>
-          <th>max</th>
+          <th scope="index">index</th>
+          <th scope="name">name</th>
+          <th scope="type">type</th>
+          <th scope="value">value</th>
+          <th scope="default">default</th>
+          <th scope="min">min</th>
+          <th scope="max">max</th>
         </thead>
 
         <tbody ref="nodeListParamsTableBody">

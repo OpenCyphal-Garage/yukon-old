@@ -31,12 +31,12 @@
     </div>
 
     <div v-if="dataTargets.length > 0" class="table-responsive">
-      <table class="table table-striped table-sm">
+      <table class="table table-striped table-sm" summary="Targets table">
         <thead>
-          <th>portId</th>
-          <th>dataType</th>
-          <th>requestObject</th>
-          <th>Actions</th>
+          <th scope="portID">portId</th>
+          <th scope="dataType">dataType</th>
+          <th scope="requestObject">requestObject</th>
+          <th scope="actions">Actions</th>
         </thead>
 
         <tbody>
@@ -72,11 +72,11 @@
     </div>
 
     <div v-if="scalarTargets.length > 0" class="table-responsive">
-      <table class="table table-striped table-sm">
+      <table class="table table-striped table-sm" summary="Plotter table">
         <thead>
-          <th>from</th>
-          <th>extract</th>
-          <th>Actions</th>
+          <th scope="from">from</th>
+          <th scope="extract">extract</th>
+          <th scope="Actions">Actions</th>
         </thead>
 
         <tbody>
@@ -108,7 +108,7 @@
     <div class="row ml-2">
       <component v-bind:is="selectedPlotType.component"></component>
     </div>
-    <img :src="require('@/assets/under_construction.gif')"/>
+    <img alt="" :src="require('@/assets/under_construction.gif')"/>
   </div>
 </template>
 

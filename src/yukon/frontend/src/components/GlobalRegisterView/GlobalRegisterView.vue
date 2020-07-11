@@ -44,12 +44,12 @@
     </div>
 
     <div class="table-responsive global-register-view">
-      <table class="table table-striped table-bordered table-sm">
+      <table class="table table-striped table-bordered table-sm" summary="Registers table">
         <thead>
-          <th>full register name</th>
-          <th>tree</th>
+          <th scope="registerName">full register name</th>
+          <th scope="registerTree">tree</th>
 
-          <th v-for="node in Object.keys(nodeMapByName)" :key="node">
+          <th scope="node" v-for="node in Object.keys(nodeMapByName)" :key="node">
             {{ node }}
           </th>
         </thead>
@@ -88,7 +88,7 @@
         </tbody>
       </table>
     </div>
-    <img :src="require('@/assets/under_construction.gif')"/>
+    <img alt="" :src="require('@/assets/under_construction.gif')"/>
   </div>
 </template>
 
