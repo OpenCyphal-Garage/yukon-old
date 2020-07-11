@@ -45,6 +45,7 @@
         <thead>
           <th scope="id">id</th>
           <th scope="name">name</th>
+          <th scope="description">description</th>
           <th scope="mode">mode</th>
           <th scope="health">health</th>
           <th scope="uptime">uptime</th>
@@ -116,7 +117,7 @@
                         y:10,
                         fontSize: 16,
                         fontFamily: 'Roboto',
-                        text: node.name,
+                        text: node.description,
                 }"></v-text>
             <v-text :class="node.mode.toLowerCase()" :config="{
                         x:10,
