@@ -6,7 +6,7 @@
  -->
 
 <template>
-  <div style="font-family: 'Roboto';">
+  <div style="font-family: Roboto, Monospace;">
     <div class="d-flex flex-row">
       <h3 class="p-2 mr-3">
         Subscriptions

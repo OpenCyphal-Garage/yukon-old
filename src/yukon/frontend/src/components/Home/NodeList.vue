@@ -35,7 +35,7 @@
   </div>
 
   <!-- Nodes List -->
-  <h2 style="text-align: center; font-family: 'Russo One';">Online Nodes</h2>
+  <h2 style="text-align: center; font-family: Russo One, sans-serif;">Online Nodes</h2>
 
   <div class="row" style="display: none;">
     <p v-if="error === '' && !loading && processedNodes.length === 0">No nodes found</p>

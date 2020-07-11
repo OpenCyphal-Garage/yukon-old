@@ -6,7 +6,7 @@
  -->
 
 <template>
-  <div style="font-family: 'Roboto';">
+  <div style="font-family: Roboto, Monospace;">
     <RegisterWorkset />
 
     <div class="subtle-border">

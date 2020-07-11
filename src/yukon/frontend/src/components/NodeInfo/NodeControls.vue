@@ -6,7 +6,7 @@
  -->
 
 <template>
-  <div class="subtle-border" style="font-family: 'Roboto';">
+  <div class="subtle-border" style="font-family: Roboto, Monospace;">
     <div class="fit-border">
       <div class="row d-flex flex-row">
         <button type="button" @click="showRestartConfirmationDialog()" class="btn btn-danger mr-2" ref="restartButton">Restart</button>
