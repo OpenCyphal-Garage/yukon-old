@@ -108,6 +108,7 @@
     <div class="row ml-2">
       <component v-bind:is="selectedPlotType.component"></component>
     </div>
+    <img :src="require('@/assets/under_construction.gif')"/>
   </div>
 </template>
 
