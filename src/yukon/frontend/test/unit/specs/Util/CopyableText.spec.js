@@ -6,23 +6,20 @@
  */
 
 import CopyableText from '@/components/Util/CopyableText.vue'
-import {
-  mount
-} from '@vue/test-utils'
+import { mount } from '@vue/test-utils'
 
 describe('CopyableText.vue', () => {
-  it('should render correct contents and call copyToClipboard on click', () => {
+  it('should render correct contents and call copyToClipboard on click', async () => {
     var wrapper = mount(CopyableText, {
       propsData: {
         text: 'dummy'
       }
     })
-    const copyToClipboard = jest.fn()
-    wrapper.setMethods({copyToClipboard})
+    wrapper.setMethods({ copy: jest.fn() })
 
-    expect(wrapper.find('.copyable').is('p')).toBe(true)
-    wrapper.find('.copyable').trigger('click')
+    expect(wrapper.find('.copyable').is('p')).toBe(true);
+    await wrapper.find('.copyable').trigger('click');
 
-    expect(copyToClipboard).toBeCalledWith('dummy')
+    expect(wrapper.vm.copy).toHaveBeenCalled();
   })
 })
