@@ -51,7 +51,11 @@ export default {
   name: 'App',
   data () {
     return {
-      navigationRouteOptions: [AppRoutes.Home, AppRoutes.GlobalRegisterView, AppRoutes.Plotter]
+      navigationRouteOptions: [
+        AppRoutes.Home,
+        AppRoutes.GlobalRegisterView
+        // AppRoutes.Plotter
+      ]
     }
   },
   methods: {
