@@ -167,16 +167,16 @@ class MockLoader:
             # Bus specific data. Gets rendered in the BusInfo component of the
             # Home page
             if 'bus' in data:
-                self.mock_response(os.path.join(
-                    self.api_prefix, 'bus'), 'bus_mock()', data['bus'])
+                self.mock_response(
+                    self.api_prefix + '/bus', 'bus_mock()', data['bus'])
 
             # Node specific data. Gets rendered in the NodeList component of the
             # Home page but also on each node specific detail page.
             if 'nodes' in data:
                 if data['nodes']['detail']:
                     # Rendered in the NodeList component
-                    self.mock_response(os.path.join(
-                        self.api_prefix, 'nodes'), 'nodes_info_mock()', data['nodes']['detail'])
+                    self.mock_response(
+                        self.api_prefix + '/nodes', 'nodes_info_mock()', data['nodes']['detail'])
 
                     for nodes in data['nodes']['detail']:
                         self.handle_nodes_detail(data, nodes)
@@ -184,26 +184,26 @@ class MockLoader:
                 # Rendered in the Plug&Play table in the Home page
                 # Note: currently hidden
                 if data['nodes']['plugandplay']:
-                    self.mock_response(os.path.join(
-                        self.api_prefix, 'nodes/plugandplay'), 'plugandplay_mock()', data['nodes']['plugandplay'])
+                    self.mock_response(
+                        self.api_prefix + '/nodes/plugandplay', 'plugandplay_mock()', data['nodes']['plugandplay'])
 
                 # Rendered in the GlobalRegisterView page
                 # Note: needs further improvements
                 if data['nodes']['grv']:
-                    self.mock_response(os.path.join(
-                        self.api_prefix, 'nodes/grv'), 'grv_mock()', data['nodes']['grv'])
+                    self.mock_response(
+                        self.api_prefix + '/nodes/grv', 'grv_mock()', data['nodes']['grv'])
 
             # Backend server health information
             # Rendered in the ServerHealth component of the Home page
             if 'health' in data:
-                self.mock_response(os.path.join(
-                    self.api_prefix, 'health'), 'health_mock()', data['health'])
+                self.mock_response(
+                    self.api_prefix + '/health', 'health_mock()', data['health'])
 
             # Data Type information
             # Note: needs further improvement and assotiation to the PRDT
             if 'types' in data:
-                self.mock_response(os.path.join(
-                    self.api_prefix, 'types'), 'types_mock()', data['types'])
+                self.mock_response(
+                    self.api_prefix + '/types', 'types_mock()', data['types'])
 
     def handle_nodes_detail(self, data: dict, nodes: dict) -> None:
         """
@@ -211,29 +211,31 @@ class MockLoader:
         """
         # Node detailed info
         # Rendered in each node page (identified by its ID)
-        self.mock_response(os.path.join(self.api_prefix, 'nodes/' + str(nodes['id'])),
+        self.mock_response(self.api_prefix + '/nodes/' + str(nodes['id']),
                            'nodes_id' + str(nodes['id']) + '_mock()',
                            data['nodes']['detail'][nodes['id']])
 
         # Node assotiated registers
         # Rendered in the Register table of each node page
         if 'registers' in nodes:
-            self.mock_response(os.path.join(self.api_prefix, 'nodes/' + str(nodes['id'])
-                                            + '/registers'), 'nodes_id' + str(nodes['id']) + '_registers_mock()',
+            self.mock_response(self.api_prefix + '/nodes/' + str(nodes['id'])
+                               + '/registers', 'nodes_id' +
+                               str(nodes['id']) + '_registers_mock()',
                                data['nodes']['detail'][nodes['id']]['registers'])
 
         # Node assotiated publishers
         # Rendered in the Publishers table of each node page
         if 'publishers' in nodes:
-            self.mock_response(os.path.join(self.api_prefix, 'nodes/' + str(nodes['id'])
-                                            + '/publishers'), 'nodes_id' + str(nodes['id']) +
+            self.mock_response(self.api_prefix + '/nodes/' + str(nodes['id'])
+                               + '/publishers', 'nodes_id' + str(nodes['id']) +
                                '_pub_mock()', data['nodes']['detail'][nodes['id']]['publishers'])
 
         # Node assotiated subscribers
         # Rendered in the Subscribers table of each node page
         if 'subscribers' in nodes:
-            self.mock_response(os.path.join(self.api_prefix, 'nodes/' + str(nodes['id'])
-                                            + '/subscribers'), 'nodes_id' + str(nodes['id']) + '_sub_mock()',
+            self.mock_response(self.api_prefix + '/nodes/' + str(nodes['id'])
+                               + '/subscribers', 'nodes_id' +
+                               str(nodes['id']) + '_sub_mock()',
                                data['nodes']['detail'][nodes['id']]['subscribers'])
 
     def mock_response(self, route: str, func_name: str, data: dict) -> None:
