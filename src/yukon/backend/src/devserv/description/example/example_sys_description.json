@@ -55,7 +55,7 @@
                         },
                         {
                                 "id": 1,
-                                "name": "com.zubax.myxab_fl",
+                                "name": "com.zubax.myxab",
                                 "description": "ESC Front Left",
                                 "health": "OK",
                                 "mode": "OPERATIONAL",
@@ -81,7 +81,7 @@
                         },
                         {
                                 "id": 2,
-                                "name": "com.zubax.myxab_fr",
+                                "name": "com.zubax.myxab",
                                 "description": "ESC Front Right",
                                 "health": "CRITICAL",
                                 "mode": "INITIALIZATION",
@@ -91,7 +91,7 @@
                         },
                         {
                                 "id": 3,
-                                "name": "com.zubax.myxab_bl",
+                                "name": "com.zubax.myxab",
                                 "description": "ESC Back Left",
                                 "health": "ERROR",
                                 "mode": "MAINTAINANCE",
@@ -101,7 +101,7 @@
                         },
                         {
                                 "id": 4,
-                                "name": "com.zubax.myxab_br",
+                                "name": "com.zubax.myxab",
                                 "description": "ESC Back Right",
                                 "health": "WARNING",
                                 "mode": "SOFTWARE_UPDATE",
@@ -121,7 +121,7 @@
                         },
                         {
                                 "id": 6,
-                                "name": "com.hitec.md250mw_right",
+                                "name": "com.hitec.md250mw",
                                 "description": "Servo Right Elevon",
                                 "health": "OK",
                                 "mode": "OPERATIONAL",
@@ -131,7 +131,7 @@
                         },
                         {
                                 "id": 7,
-                                "name": "com.hitec.md250mw_left",
+                                "name": "com.hitec.md250mw",
                                 "description": "Servo Left Elevon",
                                 "health": "OK",
                                 "mode": "MAINTAINANCE",
@@ -179,7 +179,7 @@
                 ],
                 "grv": [{
                                 "nodeId": 1,
-                                "nodeName": "com.zubax.myxab_fl",
+                                "nodeName": "com.zubax.myxab",
                                 "nodeDescription": "ESC Front Left",
                                 "registerName": "uavcan.param.naming",
                                 "value": {
@@ -196,7 +196,7 @@
                         },
                         {
                                 "nodeId": 2,
-                                "nodeName": "com.zubax.myxab_fr",
+                                "nodeName": "com.zubax.myxab",
                                 "nodeDescription": "ESC Front Right",
                                 "registerName": "uavcan.pub.esc_status",
                                 "value": "4161",
@@ -205,7 +205,7 @@
                         },
                         {
                                 "nodeId": 3,
-                                "nodeName": "com.zubax.myxab_bl",
+                                "nodeName": "com.zubax.myxab",
                                 "nodeDescription": "ESC Back Right",
                                 "registerName": "uavcan.pub.esc_status",
                                 "value": "4162",
