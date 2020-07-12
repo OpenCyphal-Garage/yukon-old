@@ -78,7 +78,7 @@
     <div v-if="!loading && processedNodes.length > 0">
       <v-stage ref="stage" :config="configKonva">
         <v-layer ref="layer">
-          <v-group v-for="node in this.nodes" :ref="node.name" :key="node.id" @click="viewNodeDetails(node.id)" @dragmove="updateSubjectLines" @dragend="defaultCursorStyle" @mouseover="highlightNodeBox" @mouseleave="deemphasizeNodeBox" :config="{
+          <v-group v-for="node in this.nodes" :ref="node.id + '_' + node.name" :key="node.id" @click="viewNodeDetails(node.id)" @dragmove="updateSubjectLines" @dragend="defaultCursorStyle" @mouseover="highlightNodeBox" @mouseleave="deemphasizeNodeBox" :config="{
                 x: getNodePosition(node.id) ? getNodePosition(node.id)[0] : 0,
                 y: getNodePosition(node.id) ? getNodePosition(node.id)[1] : 0,
                 id: node.id,
@@ -102,7 +102,7 @@
                         radius: 10,
                         fill: setStatusLedColor(node.health),
                         stroke: 'black',
-                        name: node.name,
+                        name: node.id + '_' + node.name,
                         id: node.health
                 }"></v-circle>
             <v-text :config="{
@@ -110,21 +110,21 @@
                         y: 10,
                         fontSize: 16,
                         fontFamily: 'Roboto',
-                        text: 'Node ID ' + node.id,
+                        text: 'Node ID ' + node.id
                 }"></v-text>
             <v-text :config="{
                         x:140,
                         y:10,
                         fontSize: 16,
                         fontFamily: 'Roboto',
-                        text: node.description,
+                        text: node.description
                 }"></v-text>
             <v-text :class="node.mode.toLowerCase()" :config="{
                         x:10,
                         y:40,
                         fontSize: 16,
                         fontFamily: 'Roboto',
-                        text: 'Mode: ' + node.mode,
+                        text: 'Mode: ' + node.mode
                 }"></v-text>
           </v-group>
           <v-text ref="topicText" :config="{
@@ -459,7 +459,7 @@ export default {
 
       // Applies to all nodes in stage
       if (typeof this.$refs.layer !== 'undefined') {
-        const circleCollection = this.$refs.layer.getNode().find('Circle')
+        const circleCollection = this.$refs.layer.getNode().find('Circle');
 
         const amplitude = 1
         const period = 5000
@@ -624,10 +624,10 @@ export default {
       for (var key in this.pubPortIDList) {
         for (var key2 in this.subPortIDList) {
           // Creates a line between matching port identifiers
-          if (this.pubPortIDList[key].name !== this.subPortIDList[key2].name && this.pubPortIDList[key].port_id === this.subPortIDList[key2].port_id) {
-            const pubNodeName = this.pubPortIDList[key].name
-            const subNodeName = this.subPortIDList[key2].name
-            const lineID = pubNodeName + ': ' + this.pubPortIDList[key].port_id
+          if (this.pubPortIDList[key].id !== this.subPortIDList[key2].id && this.pubPortIDList[key].port_id === this.subPortIDList[key2].port_id) {
+            const pubNodeName = this.pubPortIDList[key].id + "_" + this.pubPortIDList[key].name;
+            const subNodeName = this.subPortIDList[key2].id + "_" + this.subPortIDList[key2].name;
+            const lineID = pubNodeName + ': ' + this.pubPortIDList[key].port_id;
 
             if (this.nodePubOffset.length === 0 || !this.nodePubOffset.some(
               function (elem) {
@@ -673,7 +673,8 @@ export default {
 
         arrowCollection.each(function (shape) {
           for (var idx in subjectsToDelete) {
-            if (shape.id() === subjectsToDelete[idx].name + ': ' + subjectsToDelete[idx].port_id) {
+            const lineID = subjectsToDelete[idx].id + "_" + subjectsToDelete[idx].name + ': ' + subjectsToDelete[idx].port_id;
+            if (shape.id() === lineID) {
               shape.to({opacity: 0, duration: 10})
 
               if (shape.getAbsoluteOpacity() < 0.02) {
@@ -688,21 +689,22 @@ export default {
       }
     },
     async updateSubjectLines (e) {
-      e.target.getStage().container().style.cursor = 'move'
+      e.target.getStage().container().style.cursor = 'move';
 
-      var offset = 0
+      var offset = 0;
 
-      const vm = this
+      const vm = this;
 
       for (var key in this.pubPortIDList) {
         for (var key2 in this.subPortIDList) {
           // Creates a line between matching port identifiers
-          if (this.pubPortIDList[key].name !== this.subPortIDList[key2].name && this.pubPortIDList[key].port_id === this.subPortIDList[key2].port_id) {
-            const pubNodeName = this.pubPortIDList[key].name
-            const subNodeName = this.subPortIDList[key2].name
+          if (this.pubPortIDList[key].id !== this.subPortIDList[key2].id && this.pubPortIDList[key].port_id === this.subPortIDList[key2].port_id) {
+            const pubNodeName = this.pubPortIDList[key].id + "_" + this.pubPortIDList[key].name;
+            const subNodeName = this.subPortIDList[key2].id + "_" + this.subPortIDList[key2].name;
+            const lineID = pubNodeName + ': ' + this.pubPortIDList[key].port_id;
 
             for (var key3 in this.nodePubOffset) {
-              if (this.nodePubOffset[key3].id === (pubNodeName + ': ' + vm.pubPortIDList[key].port_id)) {
+              if (this.nodePubOffset[key3].id === lineID) {
                 offset = this.nodePubOffset[key3].offset
                 break
               }
@@ -713,7 +715,7 @@ export default {
             const arrowCollection = this.$refs.layer.getNode().find('Arrow')
 
             arrowCollection.each(function (shape, n) {
-              if (shape.id() === (pubNodeName + ': ' + vm.pubPortIDList[key].port_id)) {
+              if (shape.id() === lineID) {
                 shape.points(points)
               }
             })
