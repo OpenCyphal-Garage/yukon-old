@@ -14,28 +14,28 @@
 .. moduleauthor:: Nuno Marques <nuno.marques@dronesolutions.io>
 """
 
-import os
-import sys
 import argparse
 import asyncio
 import json
+import os
+import quart
+import quart_cors
+import sched
+import sys
 import threading
-from quart import Quart, Response
-from quart_cors import cors
-from sched import scheduler
-from time import sleep, time
-from typing import Any, AsyncGenerator, Callable, Dict, Tuple
+import time
+import typing
 
 
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 
 
-def rename(newname: str) -> Callable:
+def rename(newname: str) -> typing.Callable:
     """
     Decorator to rename function name.
     Required since each Quart path requires a different function.
     """
-    def decorator(f: Callable) -> Callable[..., Any]:
+    def decorator(f: typing.Callable) -> typing.Callable[..., typing.Any]:
         f.__name__ = newname
         return f
     return decorator
@@ -106,12 +106,12 @@ class MockLoader:
         self._sys_descr = sys_descr
         self._sess_descr = sess_descr
 
-        self._app = Quart(__name__,
-                          static_folder='../../../frontend/static/',
-                          template_folder='../../../frontend/')
-        self._app = cors(self._app)
-        self._session_timer_start = time()
-        self._session_scheduler = scheduler(time, sleep)
+        self._app = quart.Quart(__name__,
+                                static_folder='../../../frontend/static/',
+                                template_folder='../../../frontend/')
+        self._app = quart_cors.cors(self._app)
+        self._session_timer_start = time.time()
+        self._session_scheduler = sched.scheduler(time.time, time.sleep)
         self._event = ServerSentEvent()
 
         self.load_mock_system_description()
@@ -122,7 +122,7 @@ class MockLoader:
         return self._api_prefix
 
     @property
-    def app(self) -> Quart:
+    def app(self) -> quart.Quart:
         return self._app
 
     @property
@@ -138,7 +138,7 @@ class MockLoader:
         return self._session_timer_start
 
     @property
-    def session_scheduler(self) -> scheduler:
+    def session_scheduler(self) -> sched.scheduler:
         return self._session_scheduler
 
     @property
@@ -236,7 +236,7 @@ class MockLoader:
         """
         @ self.app.route(route)
         @ rename(func_name)
-        async def func() -> Tuple[str, int]:
+        async def func() -> typing.Tuple[str, int]:
             response = json.dumps(data)
             if response:
                 return (response, 200)
@@ -261,7 +261,7 @@ class MockLoader:
             event_scheduler_th.start()
 
             @ self.app.route(self.api_prefix + '/eventSource')
-            async def sse_node_update() -> Tuple[AsyncGenerator[bytes, None], Dict[str, str]]:
+            async def sse_node_update() -> typing.Tuple[typing.AsyncGenerator[bytes, None], typing.Dict[str, str]]:
                 """
                 Establishes a central co-routine that updates at a defined
                 rate and sends server generated events at each iteration.
@@ -269,12 +269,12 @@ class MockLoader:
                 scheduler thread defines, according to the defined timestamps
                 on the session description.
                 """
-                async def send_event(rate: float) -> AsyncGenerator[bytes, None]:
+                async def send_event(rate: float) -> typing.AsyncGenerator[bytes, None]:
                     while True:
                         await asyncio.sleep(1 / rate)
                         yield self.event.encode()
 
-                return Response(send_event(30.0), mimetype="text/event-stream")
+                return quart.Response(send_event(30.0), mimetype="text/event-stream")
 
     def event_scheduler(self, description: dict) -> None:
         """
@@ -301,7 +301,7 @@ class MockLoader:
 
         # Waits for a defined amount of seconds before starting the session
         while True:
-            if ((time() - self._session_timer_start) >= session_start):
+            if ((time.time() - self._session_timer_start) >= session_start):
                 sys.stdout.write('\033[34mMock session started...\n\033[0m')
                 self.session_scheduler.run()
                 break
