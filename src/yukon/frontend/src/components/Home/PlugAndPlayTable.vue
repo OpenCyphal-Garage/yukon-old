@@ -15,8 +15,8 @@
        class="table table-striped table-sm table-borderless" summary="Plug-and-Play table">
         <thead>
           <tr>
-            <th scope="nodeId">Node Id</th>
-            <th scope="uniqueId">Unique Id</th>
+            <th scope="nodeID">Node ID</th>
+            <th scope="uniqueID">Unique ID</th>
           </tr>
         </thead>
         <tbody>

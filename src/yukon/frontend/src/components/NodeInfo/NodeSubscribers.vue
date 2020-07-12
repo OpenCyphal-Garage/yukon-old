@@ -9,7 +9,7 @@
 <template>
   <div :class="{'subtle-border' : !loading}" style="font-family: Roboto, Monospace;">
     <div v-if="!loading" class="row fit-border pt-2 ml-3 mb-0">
-      <p>Node has {{ subscribers.length }} subscrber</p>
+      <p>Node has {{ subscribers.length }} subscribers</p>
     </div>
     <div class="node-params">
       <div v-if="!loading && subscribers.length > 0" class="table-responsive">

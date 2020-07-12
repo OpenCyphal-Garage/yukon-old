@@ -9,7 +9,7 @@
 <template>
   <div :class="{'subtle-border' : !loading}" style="font-family: Roboto, Monospace;">
     <div v-if="!loading" class="row fit-border pt-2 ml-3 mb-0">
-      <p>Node has {{ publishers.length }} publisher</p>
+      <p>Node has {{ publishers.length }} publishers</p>
     </div>
     <div class="node-params">
       <div v-if="!loading && publishers.length > 0" class="table-responsive">
