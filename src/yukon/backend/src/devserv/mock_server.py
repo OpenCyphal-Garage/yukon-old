@@ -27,7 +27,7 @@ from time import sleep, time
 from typing import Any, AsyncGenerator, Callable, Dict, Tuple
 
 
-dir_path = os.path.dirname(os.path.realpath(__file__))
+DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 
 
 def rename(newname: str) -> Callable:
@@ -155,7 +155,7 @@ class MockLoader:
         the diferent components and loaded once, with each response sent to its
         specific path.
         """
-        with open(os.path.join(dir_path, self.sys_descr + ".json")) as json_file:
+        with open(os.path.join(DIR_PATH, self.sys_descr + ".json")) as json_file:
             data = json.load(json_file)
 
             # Bus specific data. Gets rendered in the BusInfo component of the
@@ -213,21 +213,21 @@ class MockLoader:
         # Rendered in the Register table of each node page
         if 'registers' in nodes:
             self.mock_response(os.path.join(self.api_prefix, 'nodes/' + str(nodes['id'])
-                               + '/registers'), 'nodes_id' + str(nodes['id']) + '_registers_mock()',
+                                            + '/registers'), 'nodes_id' + str(nodes['id']) + '_registers_mock()',
                                data['nodes']['detail'][nodes['id']]['registers'])
 
         # Node assotiated publishers
         # Rendered in the Publishers table of each node page
         if 'publishers' in nodes:
             self.mock_response(os.path.join(self.api_prefix, 'nodes/' + str(nodes['id'])
-                               + '/publishers'), 'nodes_id' + str(nodes['id']) +
+                                            + '/publishers'), 'nodes_id' + str(nodes['id']) +
                                '_pub_mock()', data['nodes']['detail'][nodes['id']]['publishers'])
 
         # Node assotiated subscribers
         # Rendered in the Subscribers table of each node page
         if 'subscribers' in nodes:
             self.mock_response(os.path.join(self.api_prefix, 'nodes/' + str(nodes['id'])
-                               + '/subscribers'), 'nodes_id' + str(nodes['id']) + '_sub_mock()',
+                                            + '/subscribers'), 'nodes_id' + str(nodes['id']) + '_sub_mock()',
                                data['nodes']['detail'][nodes['id']]['subscribers'])
 
     def mock_response(self, route: str, func_name: str, data: dict) -> None:
@@ -248,7 +248,7 @@ class MockLoader:
         Load session description. This loads the time triggered events,
         which dynamically affect the visuals on the GUI canvas.
         """
-        with open(os.path.join(dir_path, self.sess_descr + ".json")) as json_file:
+        with open(os.path.join(DIR_PATH, self.sess_descr + ".json")) as json_file:
             description = json.load(json_file)
 
             # The event scheduler assotiates an event to the timestamp
@@ -294,7 +294,8 @@ class MockLoader:
                     for idx, node in enumerate(event['nodes']):
                         node_event = event['nodes'][node]
 
-                        self.schedule_node_status_update_events(node, node_event)
+                        self.schedule_node_status_update_events(
+                            node, node_event)
                         self.schedule_publishers_events(node, node_event)
                         self.schedule_subscribers_events(node, node_event)
 
