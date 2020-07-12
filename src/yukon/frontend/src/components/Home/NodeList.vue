@@ -43,13 +43,13 @@
     <div v-if="!loading && processedNodes.length > 0" class="table-responsive">
       <table class="table table-striped" summary="Node List">
         <thead>
-          <th scope="id">id</th>
-          <th scope="name">name</th>
-          <th scope="description">description</th>
-          <th scope="mode">mode</th>
-          <th scope="health">health</th>
-          <th scope="uptime">uptime</th>
-          <th scope="vendor">vendor</th>
+          <th scope="id">ID</th>
+          <th scope="name">Name</th>
+          <th scope="description">Description</th>
+          <th scope="mode">Mode</th>
+          <th scope="health">Health</th>
+          <th scope="uptime">Uptime</th>
+          <th scope="vendor">Vendor</th>
         </thead>
 
         <tbody ref="nodeListTableBody">
