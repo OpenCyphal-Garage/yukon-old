@@ -84,7 +84,7 @@
                 },
                 {
                         "number": "",
-                        "bus": "",
+                        "redundant_instance": "",
                         "type_of_failure": ""
                 }
         ]
