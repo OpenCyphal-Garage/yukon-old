@@ -16,7 +16,9 @@
 
 import argparse
 import asyncio
+import coloredlogs
 import json
+import logging
 import os
 import quart
 import quart_cors
@@ -113,6 +115,10 @@ class MockLoader:
         self._session_timer_start = time.time()
         self._session_scheduler = sched.scheduler(time.time, time.sleep)
         self._event = ServerSentEvent()
+
+        # Commented for now as the logs are showing doubled
+        # coloredlogs.install(level='DEBUG', logger=logging.getLogger('quart.app'))
+        # coloredlogs.install(level='DEBUG', logger=logging.getLogger('quart.serving'))
 
         self.load_mock_system_description()
         self.load_mock_session_description()
@@ -302,7 +308,7 @@ class MockLoader:
         # Waits for a defined amount of seconds before starting the session
         while True:
             if ((time.time() - self._session_timer_start) >= session_start):
-                sys.stdout.write('\033[34mMock session started...\n\033[0m')
+                logger.info('Mock session started...\n')
                 self.session_scheduler.run()
                 break
 
@@ -400,7 +406,10 @@ class MockLoader:
 
 
 if __name__ == "__main__":
-    sys.stdout.write('\n\033[92mMock Backend process started!\n\033[0m')
+    logger = logging.getLogger(__name__)
+    coloredlogs.install(level='DEBUG', logger=logger)
+
+    logger.info('Mock Backend process started!\n')
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--system-description", dest='sysdesc_file', type=str,
@@ -420,5 +429,5 @@ if __name__ == "__main__":
     try:
         mock_backend.app.run(port=5000)
     except (KeyboardInterrupt, SystemExit):
-        sys.stdout.write('\n\n\033[94mMock process terminated!\n\033[0m')
+        logger.info('Mock Backend process terminated!\n')
         sys.exit(0)
