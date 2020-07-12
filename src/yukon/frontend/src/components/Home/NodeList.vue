@@ -312,7 +312,7 @@ export default {
               active: pubs[key2].active
             }
 
-            var idxExistingPub;
+            var idxExistingPub
             const pubExists = this.pubPortIDList.some(function (elem, i) {
               const parsedElem = JSON.parse(JSON.stringify(elem))
               idxExistingPub = i
@@ -343,7 +343,7 @@ export default {
               active: subs[key4].active
             }
 
-            var idxExistingSub;
+            var idxExistingSub
             const subExists = this.subPortIDList.some(function (elem, i) {
               const parsedElem = JSON.parse(JSON.stringify(elem))
               idxExistingSub = i
@@ -459,7 +459,7 @@ export default {
 
       // Applies to all nodes in stage
       if (typeof this.$refs.layer !== 'undefined') {
-        const circleCollection = this.$refs.layer.getNode().find('Circle');
+        const circleCollection = this.$refs.layer.getNode().find('Circle')
 
         const amplitude = 1
         const period = 5000
@@ -625,9 +625,9 @@ export default {
         for (var key2 in this.subPortIDList) {
           // Creates a line between matching port identifiers
           if (this.pubPortIDList[key].id !== this.subPortIDList[key2].id && this.pubPortIDList[key].port_id === this.subPortIDList[key2].port_id) {
-            const pubNodeName = this.pubPortIDList[key].id + "_" + this.pubPortIDList[key].name;
-            const subNodeName = this.subPortIDList[key2].id + "_" + this.subPortIDList[key2].name;
-            const lineID = pubNodeName + ': ' + this.pubPortIDList[key].port_id;
+            const pubNodeName = this.pubPortIDList[key].id + '_' + this.pubPortIDList[key].name
+            const subNodeName = this.subPortIDList[key2].id + '_' + this.subPortIDList[key2].name
+            const lineID = pubNodeName + ': ' + this.pubPortIDList[key].port_id
 
             if (this.nodePubOffset.length === 0 || !this.nodePubOffset.some(
               function (elem) {
@@ -673,7 +673,7 @@ export default {
 
         arrowCollection.each(function (shape) {
           for (var idx in subjectsToDelete) {
-            const lineID = subjectsToDelete[idx].id + "_" + subjectsToDelete[idx].name + ': ' + subjectsToDelete[idx].port_id;
+            const lineID = subjectsToDelete[idx].id + '_' + subjectsToDelete[idx].name + ': ' + subjectsToDelete[idx].port_id
             if (shape.id() === lineID) {
               shape.to({opacity: 0, duration: 10})
 
@@ -689,19 +689,19 @@ export default {
       }
     },
     async updateSubjectLines (e) {
-      e.target.getStage().container().style.cursor = 'move';
+      e.target.getStage().container().style.cursor = 'move'
 
-      var offset = 0;
+      var offset = 0
 
-      const vm = this;
+      const vm = this
 
       for (var key in this.pubPortIDList) {
         for (var key2 in this.subPortIDList) {
           // Creates a line between matching port identifiers
           if (this.pubPortIDList[key].id !== this.subPortIDList[key2].id && this.pubPortIDList[key].port_id === this.subPortIDList[key2].port_id) {
-            const pubNodeName = this.pubPortIDList[key].id + "_" + this.pubPortIDList[key].name;
-            const subNodeName = this.subPortIDList[key2].id + "_" + this.subPortIDList[key2].name;
-            const lineID = pubNodeName + ': ' + this.pubPortIDList[key].port_id;
+            const pubNodeName = this.pubPortIDList[key].id + '_' + this.pubPortIDList[key].name
+            const subNodeName = this.subPortIDList[key2].id + '_' + this.subPortIDList[key2].name
+            const lineID = pubNodeName + ': ' + this.pubPortIDList[key].port_id
 
             for (var key3 in this.nodePubOffset) {
               if (this.nodePubOffset[key3].id === lineID) {
