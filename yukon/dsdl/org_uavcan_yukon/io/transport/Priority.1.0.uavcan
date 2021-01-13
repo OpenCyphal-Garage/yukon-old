@@ -1,0 +1,12 @@
+uint3 value
+
+uint3 EXCEPTIONAL = 0
+uint3 IMMEDIATE   = 1
+uint3 FAST        = 2
+uint3 HIGH        = 3
+uint3 NOMINAL     = 4
+uint3 LOW         = 5
+uint3 SLOW        = 6
+uint3 OPTIONAL    = 7
+
+@sealed

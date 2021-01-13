@@ -1,0 +1,10 @@
+# Whenever IOW receives this message, it checks if the expressions match those it executed last.
+# If there is a mismatch in any of them, then the mismatching interfaces are destroyed and replacements
+# are constructed. When no messages are received, the last active configuration is kept.
+# If the requested configuration cannot be established, the error is reported via Feedback.
+
+uint8 MAX_REDUNDANCY_FACTOR = 8
+
+uavcan.primitive.String.1.0[<=MAX_REDUNDANCY_FACTOR] iface_initialization_expression
+
+@extent 2048 * 8

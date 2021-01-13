@@ -1,0 +1,6 @@
+uint32 CAPACITY = 1 * (1024 ** 2)
+# TODO: INCREASE THE CAPACITY TO 100 MiB AT LEAST
+
+uint8[<=CAPACITY] payload
+
+@sealed

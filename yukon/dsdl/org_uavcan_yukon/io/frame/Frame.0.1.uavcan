@@ -1,0 +1,7 @@
+@union
+
+uavcan.metatransport.can.Frame.0.2       can
+uavcan.metatransport.serial.Fragment.0.2 serial
+uavcan.metatransport.ethernet.Frame.0.1  udp
+
+@sealed

@@ -1,0 +1,8 @@
+# Status of a single interface in the redundant group.
+
+uavcan.primitive.String.1.0 initialization_expression
+# The expression that unambiguously describes this interface. It was also used to construct it.
+
+State.0.1 state
+
+@extent 1024 * 8

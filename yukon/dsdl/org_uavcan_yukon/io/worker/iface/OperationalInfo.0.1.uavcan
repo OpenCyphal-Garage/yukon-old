@@ -1,0 +1,18 @@
+# Operational statistics of a single interface in the redundant group.
+# The values start from zero when the interface is launched.
+
+uint64  frames_rx           # Number of frames picked up from the network in promiscuous mode.
+uint64  frames_tx           # Number of frames sent to the network by the IOW.
+float32 frame_rate_1sec     # Average frame rate over the last second [frame/second].
+
+uint64  bytes_rx            # Total number of transport-layer payload bytes in the above frames.
+uint64  bytes_tx            # Likewise, for sent frames.
+float32 byte_rate_1sec      # Average transport-layer payload data rate over the last second [byte/second].
+
+uint64 transfers_tx         # There is no RX transfer count because the IOW does not reassemble all of them.
+
+uint64 errors_nic           # Registered problems of the local network interface card (NIC), adapter, or driver.
+
+float32 network_load_pct    # Estimated total network load relative to its theoretical maximum; NaN if unknown.
+
+@extent 256 * 8

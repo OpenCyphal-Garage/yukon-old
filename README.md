@@ -8,7 +8,7 @@
 
 Yukon is a rich integrated development environment (IDE) for developing and maintaining
 [UAVCAN](https://uavcan.org)-powered vehicular computing systems.
-It is designed to run on GNU/Linux, Windows and macOS.
+It is designed to run on GNU/Linux, Windows, and macOS.
 
 Yukon eats its own dog's food: it is built as a distributed real-time application based on UAVCAN,
 following the best practices of real-time distributed computing per the [UAVCAN Guide](https://uavcan.org/guide).
