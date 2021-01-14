@@ -7,15 +7,18 @@ import asyncio
 from pyuavcan.transport import redundant
 from pyuavcan.application import Node
 from pyuavcan.presentation import Publisher, Subscriber
-from . import Frame, Configuration, Transfer, Status
+from org_uavcan_yukon.io.frame import Capture_0_1 as Capture
+from org_uavcan_yukon.io.worker import Config_0_1 as Config
+from org_uavcan_yukon.io.worker import Feedback_0_1 as Feedback
+from org_uavcan_yukon.io.transport import SpoofedTransfer_0_1 as SpoofedTransfer
 
 
 async def run(
     node: Node,
-    pubs_frame: typing.Sequence[Publisher[Frame]],
-    pub_status: Publisher[Status],
-    sub_config: Subscriber[Configuration],
-    sub_transfer: Subscriber[Transfer],
+    pubs_capture: typing.Sequence[Publisher[Capture]],
+    pub_feedback: Publisher[Feedback],
+    sub_config: Subscriber[Config],
+    sub_spoof: Subscriber[SpoofedTransfer],
 ) -> None:
     try:
         transport = redundant.RedundantTransport()
