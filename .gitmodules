@@ -1,0 +1,3 @@
+[submodule "dsdl/public_regulated_data_types"]
+	path = yukon/dsdl_src/public_regulated_data_types
+	url = https://github.com/UAVCAN/public_regulated_data_types/

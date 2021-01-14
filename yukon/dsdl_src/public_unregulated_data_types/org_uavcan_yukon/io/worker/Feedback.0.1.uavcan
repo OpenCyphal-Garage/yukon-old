@@ -1,0 +1,5 @@
+# Published in response to Configuration.
+
+org_uavcan_yukon.io.worker.iface.Feedback.0.1[<=Configuration.0.1.MAX_REDUNDANCY_FACTOR] iface_status
+
+@extent 4096 * 8

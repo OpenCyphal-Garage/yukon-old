@@ -10,6 +10,7 @@ import asyncio
 import pyuavcan
 import pyuavcan.application
 import yukon.dcs
+import yukon.transport
 
 
 SUBJECT_ID_TYPE = click.IntRange(0, pyuavcan.transport.MessageDataSpecifier.SUBJECT_ID_MASK)
@@ -19,21 +20,21 @@ _logger = logging.getLogger(__name__)
 
 
 @click.command()
-@click.argument("ipc-transport-expression", required=True)
+@click.argument("dcs-transport-expression", required=True)
 @click.option("--pub-frame-id-min-max", required=True, type=SUBJECT_ID_TYPE, nargs=2)
-@click.option("--pub-status-id", required=True, type=SUBJECT_ID_TYPE)
+@click.option("--pub-feedback-id", required=True, type=SUBJECT_ID_TYPE)
 @click.option("--sub-config-id", required=True, type=SUBJECT_ID_TYPE)
-@click.option("--sub-transfer-id", required=True, type=SUBJECT_ID_TYPE)
+@click.option("--sub-spoof-id", required=True, type=SUBJECT_ID_TYPE)
 def main(
-    ipc_transport_expression: str,
+    dcs_transport_expression: str,
     pub_frame_id_min_max: typing.Tuple[int, int],
     pub_status_id: int,
     sub_config_id: int,
     sub_transfer_id: int,
 ) -> None:
-    transport = io.evaluate_transport_initialization_expression(ipc_transport_expression)
+    transport = yukon.transport.construct(dcs_transport_expression)
     if transport.local_node_id is None:
-        raise ValueError("IPC transport configuration error: IO worker cannot be an anonymous node")
+        raise ValueError("DCS transport configuration error: IO worker cannot be an anonymous node")
 
     pub_frame_id_set = set(range(pub_frame_id_min_max[0], pub_frame_id_min_max[-1] + 1))
     other_list = [pub_status_id, sub_config_id, sub_transfer_id]
@@ -56,7 +57,7 @@ def main(
     sub_config = presentation.make_subscriber(Configuration, sub_config_id)
     sub_transfer = presentation.make_subscriber(Transfer, sub_transfer_id)
 
-    _logger.info(f"Starting IO worker on IPC node {node} using ports:")
+    _logger.info(f"Starting IO worker on DCS node {node} using ports:")
     _logger.info(f"- {pubs_frame[0]}")
     _logger.info(f"...<{len(pubs_frame) - 2} instances not shown, {len(pubs_frame)} total>...")
     _logger.info(f"- {pubs_frame[-1]}")

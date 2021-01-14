@@ -9,15 +9,6 @@ import click
 
 AnyPath = typing.Union[str, Path]
 
-PACKAGE_ROOT = Path(__file__).resolve().parent.parent
-
-_DSDL_ROOT = PACKAGE_ROOT / "dsdl"
-DSDL_NAMESPACES = {
-    "org_uavcan_yukon": _DSDL_ROOT / "org_uavcan_yukon",
-    "uavcan": _DSDL_ROOT / "public_regulated_data_types" / "uavcan",
-    "reg": _DSDL_ROOT / "public_regulated_data_types" / "reg",
-}
-
 
 class AppDirs:
     @property

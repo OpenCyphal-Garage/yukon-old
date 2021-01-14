@@ -7,6 +7,6 @@ uint3 HIGH        = 3
 uint3 NOMINAL     = 4
 uint3 LOW         = 5
 uint3 SLOW        = 6
-uint3 OPTIONAL    = 7
+uint3 OPTIONAL_   = 7  # "optional" is a reserved word in DSDL.
 
 @sealed

@@ -5,5 +5,5 @@ include = '''
 (yukon|tests)/.*\.pyi?$
 '''
 exclude = '''
-/\..*/
+(/\..*/)|(/dsdl_src/)
 '''
