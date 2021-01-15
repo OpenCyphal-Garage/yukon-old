@@ -1,5 +1,3 @@
-# Abstract interface state.
-
 @union
 
 OperationalInfo.0.1         operational

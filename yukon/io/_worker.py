@@ -3,26 +3,42 @@
 # Author: Pavel Kirienko <pavel@uavcan.org>
 
 import typing
+import logging
 import asyncio
-from pyuavcan.transport import redundant
+import pyuavcan.transport
 from pyuavcan.application import Node
 from pyuavcan.presentation import Publisher, Subscriber
 from org_uavcan_yukon.io.frame import Capture_0_1 as Capture
-from org_uavcan_yukon.io.worker import Config_0_1 as Config
-from org_uavcan_yukon.io.worker import Feedback_0_1 as Feedback
-from org_uavcan_yukon.io.transport import SpoofedTransfer_0_1 as SpoofedTransfer
+from org_uavcan_yukon.io import Config_0_1 as Config
+from org_uavcan_yukon.io import Status_0_1 as Status
+from org_uavcan_yukon.io.transfer import Spoof_0_1 as Spoof
+from ._spoofer import Spoofer
 
 
-async def run(
-    node: Node,
-    pubs_capture: typing.Sequence[Publisher[Capture]],
-    pub_feedback: Publisher[Feedback],
-    sub_config: Subscriber[Config],
-    sub_spoof: Subscriber[SpoofedTransfer],
-) -> None:
-    try:
-        transport = redundant.RedundantTransport()
-        transport_init_expr: typing.List[str] = []
-    finally:
-        node.close()
-        await asyncio.wait(asyncio.all_tasks(), timeout=1)
+_logger = logging.getLogger(__name__)
+
+
+class IOWorker:
+    def __init__(
+        self,
+        node: Node,
+        pubs_capture: typing.Sequence[Publisher[Capture]],
+        pub_status: Publisher[Status],
+        sub_config: Subscriber[Config],
+        sub_spoof: Subscriber[Spoof],
+    ) -> None:
+        self._node = node
+        self._dcs_pub_status = pub_status
+        self._dsc_sub_config = sub_config
+        self._spoofer = Spoofer(sub_spoof)
+
+    async def run(self) -> None:
+        try:
+            pass
+        except (pyuavcan.transport.ResourceClosedError, asyncio.CancelledError):
+            pass
+        except Exception as ex:
+            _logger.fatal("IO worker failed: %s", ex)
+        finally:
+            self._node.close()
+            await asyncio.wait(asyncio.all_tasks(), timeout=1)

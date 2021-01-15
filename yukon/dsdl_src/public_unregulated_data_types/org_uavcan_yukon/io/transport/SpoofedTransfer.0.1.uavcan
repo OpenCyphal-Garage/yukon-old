@@ -1,7 +1,0 @@
-Priority.1.0 priority
-Session.0.1  session
-uint8[<=1]   iface_index  # If set, the transfer will be emitted over the specified iface only.
-uint64[<=1]  transfer_id  # If not set, the correct transfer-ID will be filled in automatically by the IO worker.
-Payload.1.0  payload
-
-@sealed
