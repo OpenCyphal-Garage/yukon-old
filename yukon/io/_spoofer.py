@@ -9,9 +9,10 @@ import dataclasses
 from collections import defaultdict
 import pyuavcan
 from pyuavcan.transport import AlienTransfer, AlienTransferMetadata, AlienSessionSpecifier, Priority
-from pyuavcan.transport import MessageDataSpecifier, ServiceDataSpecifier, Transport, ResourceClosedError
+from pyuavcan.transport import Transport, ResourceClosedError
 from pyuavcan.presentation import Subscriber, OutgoingTransferIDCounter
 from org_uavcan_yukon.io.transfer import Spoof_0_1 as Spoof
+from . import from_dcs_session
 
 
 _logger = logging.getLogger(__name__)
@@ -51,30 +52,7 @@ class Spoofer:
 
     async def _on_spoof_message(self, msg: Spoof, transfer: pyuavcan.transport.TransferFrom) -> None:
         _logger.debug("Spoofing %s %s over %d transports", transfer, msg, len(self._inferiors))
-
-        if msg.session.subject:
-            try:
-                source_node_id = msg.session.subject.source[0].value
-            except LookupError:
-                source_node_id = None
-            ss = AlienSessionSpecifier(
-                source_node_id=source_node_id,
-                destination_node_id=None,
-                data_specifier=MessageDataSpecifier(subject_id=msg.session.subject.subject_id.value),
-            )
-        elif msg.session.service:
-            ss = AlienSessionSpecifier(
-                source_node_id=msg.session.service.source.value,
-                destination_node_id=msg.session.service.destination.value,
-                data_specifier=ServiceDataSpecifier(
-                    service_id=msg.session.service.service_id,
-                    role=ServiceDataSpecifier.Role.REQUEST
-                    if msg.session.service.is_request
-                    else ServiceDataSpecifier.Role.RESPONSE,
-                ),
-            )
-        else:
-            assert False
+        ss = from_dcs_session(msg.session)
 
         if msg.transfer_id.size:
             transfer_id = int(msg.transfer_id[0])

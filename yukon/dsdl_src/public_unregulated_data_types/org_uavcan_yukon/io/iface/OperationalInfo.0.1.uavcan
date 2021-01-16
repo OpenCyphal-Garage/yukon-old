@@ -1,12 +1,12 @@
 # Operational statistics of a single interface in the redundant group.
 # The values start from zero when the interface is (re-)initialized.
 
-uint64 total_frames             # Number of frames picked up from the network in promiscuous mode, including spoofed frames.
-uint64 total_bytes              # Total number of transport-layer payload bytes in the above frames.
-uint7  total_network_load_pct   # Estimated load relative to the theoretical worst-case maximum. NaN if unknown.
+uint64 media_frames             # Number of frames captured from the network, including spoofed frames.
+uint64 media_bytes              # Total number of media-layer payload bytes in the above frames.
+uint7  media_utilization_pct    # Estimated load relative to the theoretical worst-case maximum. NaN if unknown.
 void1
 
-uint64 spoof_bytes              # Included in total bytes.
+uint64 spoof_bytes              # Cumulative size of the presentation-layer payload transferred so far.
 uint64 spoof_transfers          # Spoofed transfers that are actually sent to the network on time.
 uint64 spoof_timeouts           # Spoofs that would be successful if not for the timeout.
 uint64 spoof_failures           # The number of spoofing requests that could not be executed due to an error.
