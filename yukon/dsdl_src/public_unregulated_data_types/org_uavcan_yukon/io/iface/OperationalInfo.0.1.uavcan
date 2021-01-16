@@ -1,16 +1,19 @@
 # Operational statistics of a single interface in the redundant group.
 # The values start from zero when the interface is (re-)initialized.
 
-uint64 total_frames     # Number of frames picked up from the network in promiscuous mode, including spoofed frames.
-uint64 total_bytes      # Total number of transport-layer payload bytes in the above frames.
+uint64 total_frames             # Number of frames picked up from the network in promiscuous mode, including spoofed frames.
+uint64 total_bytes              # Total number of transport-layer payload bytes in the above frames.
+uint7  total_network_load_pct   # Estimated load relative to the theoretical worst-case maximum. NaN if unknown.
+void1
 
-uint64 spoof_bytes       # Included in total bytes.
-uint64 spoof_transfers   # Spoofed transfers that are actually sent to the network on time.
-uint64 spoof_timeouts    # Spoofs that would be successful if not for the timeout.
-uint64 spoof_failures    # The number of spoofing requests that could not be executed due to an error.
+uint64 spoof_bytes              # Included in total bytes.
+uint64 spoof_transfers          # Spoofed transfers that are actually sent to the network on time.
+uint64 spoof_timeouts           # Spoofs that would be successful if not for the timeout.
+uint64 spoof_failures           # The number of spoofing requests that could not be executed due to an error.
+uint32 spoof_backlog_current    # Number of transfers that are waiting for transmission at the moment.
+uint32 spoof_backlog_peak       # The largest seen value of the above.
 
-uint64 nic_errors        # Registered problems of the local network interface card (NIC), adapter, or driver.
-
-float32 network_load_pct  # Estimated total network load relative to its theoretical worst-case maximum; NaN if unknown.
+uint64 nic_errors
+# Registered problems of the local network interface card (NIC), adapter, or driver.
 
 @extent 256 * 8

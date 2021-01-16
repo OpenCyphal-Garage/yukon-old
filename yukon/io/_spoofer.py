@@ -7,9 +7,9 @@ import logging
 import asyncio
 import dataclasses
 from collections import defaultdict
-import pyuavcan.transport
+import pyuavcan
 from pyuavcan.transport import AlienTransfer, AlienTransferMetadata, AlienSessionSpecifier, Priority
-from pyuavcan.transport import MessageDataSpecifier, ServiceDataSpecifier, Transport
+from pyuavcan.transport import MessageDataSpecifier, ServiceDataSpecifier, Transport, ResourceClosedError
 from pyuavcan.presentation import Subscriber, OutgoingTransferIDCounter
 from org_uavcan_yukon.io.transfer import Spoof_0_1 as Spoof
 
@@ -18,50 +18,40 @@ _logger = logging.getLogger(__name__)
 
 
 @dataclasses.dataclass
-class SpoofStatistics:
+class IfaceStatus:
     num_bytes: int = 0
     num_transfers: int = 0
     num_timeouts: int = 0
     num_errors: int = 0
+    backlog: int = 0
+    backlog_peak: int = 0
 
 
 class Spoofer:
     def __init__(self, dcs_sub_spoof: Subscriber[Spoof]) -> None:
-        self._dcs_sub_spoof = dcs_sub_spoof
         self._transfer_id_map: typing.DefaultDict[AlienSessionSpecifier, OutgoingTransferIDCounter] = defaultdict(
             OutgoingTransferIDCounter
         )
         self._inferiors: typing.Dict[int, _Inferior] = {}
-        self._task = asyncio.create_task(self._task_fn())
+        dcs_sub_spoof.receive_in_background(self._on_spoof_message)
 
     @property
-    def is_alive(self) -> bool:
-        return not self._task.done()
-
-    @property
-    def statistics(self) -> typing.Dict[int, SpoofStatistics]:
-        return {k: e.statistics for k, e in self._inferiors.items()}
+    def status(self) -> typing.Dict[int, IfaceStatus]:
+        return {k: e.status for k, e in self._inferiors.items()}
 
     def add_iface(self, iface_id: int, transport: Transport) -> None:
-        self._inferiors[iface_id] = _Inferior(SpoofStatistics(), transport)
+        self._inferiors[iface_id] = _Inferior(transport)
 
     def remove_iface(self, iface_id: int) -> None:
-        del self._inferiors[iface_id]
+        self._inferiors.pop(iface_id).close()
 
-    async def _task_fn(self) -> None:
-        try:
-            async for msg, transfer in self._dcs_sub_spoof:
-                _logger.debug("Spoofing %s %s over %d transports", transfer, msg, len(self._inferiors))
-                assert isinstance(msg, Spoof)
-                await self._spoof(msg)
-        except Exception as ex:
-            if isinstance(ex, asyncio.CancelledError):
-                raise
-            if isinstance(ex, pyuavcan.transport.ResourceClosedError):
-                return
-            _logger.fatal("SPOOFER FAILURE: %s", ex, exc_info=True)
+    def close(self) -> None:
+        for k in list(self._inferiors):
+            self.remove_iface(k)
 
-    async def _spoof(self, msg: Spoof) -> None:
+    async def _on_spoof_message(self, msg: Spoof, transfer: pyuavcan.transport.TransferFrom) -> None:
+        _logger.debug("Spoofing %s %s over %d transports", transfer, msg, len(self._inferiors))
+
         if msg.session.subject:
             try:
                 source_node_id = msg.session.subject.source[0].value
@@ -109,24 +99,57 @@ class Spoofer:
         else:
             inferiors = self._inferiors.values()
         monotonic_deadline = asyncio.get_event_loop().time() + msg.timeout.second
-        await asyncio.gather(*(inf.spoof(atr, monotonic_deadline) for inf in inferiors))
+        for inf in inferiors:
+            inf.push(atr, monotonic_deadline)
 
 
-@dataclasses.dataclass
 class _Inferior:
-    statistics: SpoofStatistics
-    transport: Transport
+    def __init__(self, transport: Transport) -> None:
+        self._status = IfaceStatus()
+        self._transport = transport
+        self._queue: asyncio.Queue[typing.Tuple[AlienTransfer, float]] = asyncio.Queue()
+        self._task = asyncio.create_task(self._task_fn())
 
-    async def spoof(self, transfer: AlienTransfer, monotonic_deadline: float) -> bool:
+    @property
+    def status(self) -> IfaceStatus:
+        from copy import copy
+
+        return copy(self._status)
+
+    def push(self, transfer: AlienTransfer, monotonic_deadline: float) -> None:
+        self._update_status()
+        self._queue.put_nowait((transfer, monotonic_deadline))
+
+    def close(self) -> None:
+        self._task.cancel()
+
+    def _update_status(self) -> None:
+        self._status.backlog = self._queue.qsize()
+        self._status.backlog_peak = max(self._status.backlog_peak, self._status.backlog)
+
+    async def _task_fn(self) -> None:
         try:
-            result = await self.transport.spoof(transfer, monotonic_deadline)
-            if result:
-                self.statistics.num_bytes += sum(map(len, transfer.fragmented_payload))
-                self.statistics.num_transfers += 1
-            else:
-                self.statistics.num_timeouts += 1
-            return result
+            while True:
+                self._update_status()
+                transfer, monotonic_deadline = await self._queue.get()
+                await self._do_spoof(transfer, monotonic_deadline)
+        except asyncio.CancelledError:
+            pass
+        except ResourceClosedError:
+            _logger.warning("Spoofer worker for %s is stopping because the transport is closed", self._transport)
         except Exception as ex:
-            self.statistics.num_errors += 1
-            _logger.exception("Spoofing failure %s on transport %s", ex, self.transport)
-            return False
+            _logger.fatal("Spoofer worker for %s has failed: %s", self._transport, ex, exc_info=True)
+
+    async def _do_spoof(self, transfer: AlienTransfer, monotonic_deadline: float) -> None:
+        try:
+            result = await self._transport.spoof(transfer, monotonic_deadline)
+            if result:
+                self._status.num_bytes += sum(map(len, transfer.fragmented_payload))
+                self._status.num_transfers += 1
+            else:
+                self._status.num_timeouts += 1
+        except Exception as ex:
+            self._status.num_errors += 1
+            if isinstance(ex, (asyncio.CancelledError, ResourceClosedError)):
+                raise
+            _logger.exception("Could not spoof on %s because: %s", self._transport, ex)
