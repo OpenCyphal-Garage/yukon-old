@@ -23,19 +23,14 @@ _logger = logging.getLogger(__name__)
 
 
 class Node(pyuavcan.application.Node):
-    def __init__(self, dcs_transport_expr: str, node_name_suffix: str, allow_anonymity: bool = False) -> None:
+    def __init__(self, dcs_transport_expr: str, node_name_suffix: str) -> None:
         from yukon import __version_info__
 
-        _logger.debug(
-            "Constructing DCS node: DCS transport %r, name suffix %r, allow anonymity: %r",
-            dcs_transport_expr,
-            node_name_suffix,
-            allow_anonymity,
-        )
+        _logger.debug("Constructing DCS node: DCS transport %r, name suffix %r", dcs_transport_expr, node_name_suffix)
 
         transport = _construct_transport(dcs_transport_expr)
-        if transport.local_node_id is None and not allow_anonymity:
-            raise ValueError("DCS transport configuration error: this node cannot be anonymous")
+        if transport.local_node_id is None:
+            raise ValueError("DCS transport configuration error: node cannot be anonymous")
 
         presentation = pyuavcan.presentation.Presentation(transport)
 

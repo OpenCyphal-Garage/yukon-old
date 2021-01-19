@@ -3,7 +3,8 @@
 
 uint64 media_frames             # Number of frames captured from the network, including spoofed frames.
 uint64 media_bytes              # Total number of media-layer payload bytes in the above frames.
-uint7  media_utilization_pct    # Estimated load relative to the theoretical worst-case maximum. NaN if unknown.
+uint7  media_utilization_pct    # Estimated load relative to the theoretical worst-case maximum.
+uint7  MEDIA_UTILIZATION_PCT_UNKNOWN = 127
 void1
 
 uint64 spoof_bytes              # Cumulative size of the presentation-layer payload transferred so far.
@@ -13,7 +14,7 @@ uint64 spoof_failures           # The number of spoofing requests that could not
 uint32 spoof_backlog_current    # Number of transfers that are waiting for transmission at the moment.
 uint32 spoof_backlog_peak       # The largest seen value of the above.
 
-uint64 nic_errors
-# Registered problems of the local network interface card (NIC), adapter, or driver.
+uint64 errors
+# Registered problems of the local network interface card (NIC), adapter, driver, or the media layer logic.
 
 @extent 256 * 8
