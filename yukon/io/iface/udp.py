@@ -31,14 +31,14 @@ class UDPIface(Iface):
         assert udp_cfg
         tr = pyuavcan.transport.udp.UDPTransport(
             udp_cfg.local_nic_address.value.tobytes().decode(),
-            anonymous=True,
+            local_node_id=None,
             mtu=udp_cfg.mtu,
             service_transfer_multiplier=2 if udp_cfg.duplicate_service_transfers else 1,
         )
         return UDPIface(tr)
 
     @staticmethod
-    def convert_capture_from_dcs(ts: pyuavcan.transport.Timestamp, fr: DCSFrame) -> pyuavcan.transport.Capture:
+    def capture_from_dcs(ts: pyuavcan.transport.Timestamp, fr: DCSFrame) -> pyuavcan.transport.Capture:
         udp_frame = fr.udp
         assert udp_frame
 

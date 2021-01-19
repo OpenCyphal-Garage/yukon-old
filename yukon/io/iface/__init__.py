@@ -29,7 +29,7 @@ class Iface:
         raise NotImplementedError
 
     @staticmethod
-    def convert_capture_from_dcs(ts: pyuavcan.transport.Timestamp, fr: DCSFrame) -> pyuavcan.transport.Capture:
+    def capture_from_dcs(ts: pyuavcan.transport.Timestamp, fr: DCSFrame) -> pyuavcan.transport.Capture:
         raise NotImplementedError
 
     def begin_capture(self, handler: typing.Callable[[IfaceCapture], None]) -> None:

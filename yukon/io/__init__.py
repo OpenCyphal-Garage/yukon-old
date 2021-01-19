@@ -2,10 +2,10 @@
 # This software is distributed under the terms of the MIT License.
 # Author: Pavel Kirienko <pavel@uavcan.org>
 
-from . import transport
+from . import iface
 
-from ._session import to_dcs_session as to_dcs_session
-from ._session import from_dcs_session as from_dcs_session
+from ._session import session_to_dcs as session_to_dcs
+from ._session import session_from_dcs as session_from_dcs
 
-from ._time import to_dcs_timestamp as to_dcs_timestamp
-from ._time import from_dcs_timestamp as from_dcs_timestamp
+from ._time import timestamp_to_dcs as timestamp_to_dcs
+from ._time import timestamp_from_dcs as timestamp_from_dcs

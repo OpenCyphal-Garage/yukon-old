@@ -10,7 +10,7 @@ from collections import defaultdict
 import pyuavcan
 from pyuavcan.transport import AlienTransfer, AlienTransferMetadata, AlienSessionSpecifier, ResourceClosedError
 from pyuavcan.presentation import Subscriber, OutgoingTransferIDCounter
-from org_uavcan_yukon.io.transfer import Spoof_0_1 as Spoof
+from org_uavcan_yukon.io.transfer import Spoof_0_1 as DCSSpoof
 from . import from_dcs_session
 from .iface import Iface
 
@@ -29,7 +29,7 @@ class SpoofStatus:
 
 
 class Spoofer:
-    def __init__(self, dcs_sub_spoof: Subscriber[Spoof]) -> None:
+    def __init__(self, dcs_sub_spoof: Subscriber[DCSSpoof]) -> None:
         self._transfer_id_map: typing.DefaultDict[AlienSessionSpecifier, OutgoingTransferIDCounter] = defaultdict(
             OutgoingTransferIDCounter
         )
@@ -50,7 +50,7 @@ class Spoofer:
         for k in list(self._inferiors):
             self.remove_iface(k)
 
-    async def _on_spoof_message(self, msg: Spoof, transfer: pyuavcan.transport.TransferFrom) -> None:
+    async def _on_spoof_message(self, msg: DCSSpoof, transfer: pyuavcan.transport.TransferFrom) -> None:
         _logger.debug("Spoofing %s %s over %d ifaces", transfer, msg, len(self._inferiors))
         ss = from_dcs_session(msg.session)
 

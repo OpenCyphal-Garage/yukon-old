@@ -2,9 +2,10 @@
 # This software is distributed under the terms of the MIT License.
 # Author: Pavel Kirienko <pavel@uavcan.org>
 
+import os
+import sys
 import typing
 from pathlib import Path
-import click
 
 
 AnyPath = typing.Union[str, Path]
@@ -13,9 +14,16 @@ AnyPath = typing.Union[str, Path]
 class AppDirs:
     @property
     def root(self) -> Path:
-        import yukon
+        user = Path("~").expanduser()
+        if sys.platform.startswith("win"):
+            root = os.environ.get("APPDATA", user)
+            return _prepare(Path(root, "UAVCAN", "Yukon"))
 
-        return _prepare(click.get_app_dir(yukon.__name__))
+        if sys.platform.startswith("darwin"):
+            return _prepare(user / "Library" / "Application Support" / "UAVCAN" / "Yukon")
+
+        root = Path(os.environ.get("XDG_CONFIG_HOME", user / ".config"))
+        return _prepare(root / "uavcan" / "yukon")
 
     @property
     def log(self) -> Path:

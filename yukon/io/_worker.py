@@ -8,12 +8,12 @@ import logging
 import asyncio
 import concurrent.futures
 import pyuavcan.transport
-from pyuavcan.application import Node
-from pyuavcan.presentation import Publisher, Subscriber
-from org_uavcan_yukon.io import Config_0_1 as DCSConfig
-from org_uavcan_yukon.io import Status_0_1 as DCSStatus
-from org_uavcan_yukon.io.iface import Config_0_1 as DCSIfaceConfig
-from ._spoofer import Spoofer, SpoofStatus, Spoof
+from pyuavcan.presentation import Publisher
+from org_uavcan_yukon.io import Config_0_1 as IOConfig
+from org_uavcan_yukon.io import Status_0_1 as IOStatus
+from org_uavcan_yukon.io.iface import Config_0_1 as IOIfaceConfig
+import yukon.dcs
+from ._spoofer import Spoofer, SpoofStatus, DCSSpoof
 from ._captor import DCSCapture, setup_capture_forwarding
 from .iface import Iface
 
@@ -28,25 +28,19 @@ _logger = logging.getLogger(__name__)
 
 
 class IOWorker:
-    def __init__(
-        self,
-        node: Node,
-        pub_capture: Publisher[DCSCapture],
-        pub_status: Publisher[DCSStatus],
-        sub_config: Subscriber[DCSConfig],
-        sub_spoof: Subscriber[Spoof],
-    ) -> None:
-        self._node = node
-        self._pub_capture = pub_capture
-        self._pub_status = pub_status
-        self._sub_config = sub_config
-        self._spoofer = Spoofer(sub_spoof)
+    def __init__(self) -> None:
+        self._node = yukon.dcs.Node("io")
+        self._pub_status = self._node.make_publisher(IOStatus, "io_status")
+        self._sub_config = self._node.make_subscriber(IOConfig, "io_config")
+        self._pub_capture = self._node.make_publisher(DCSCapture, "capture")
+        self._spoofer = Spoofer(self._node.make_subscriber(DCSSpoof, "spoof"))
         self._ifaces: typing.Dict[int, typing.Union[Iface, typing.Awaitable[Iface], str]] = {}
         self._executor = concurrent.futures.ThreadPoolExecutor(thread_name_prefix="io_worker_pool")
 
     async def run(self) -> None:
         try:
             while True:
+                assert set(self._ifaces.keys()) >= set(self._spoofer.status.keys()), "State divergence"
                 cfg_transfer = await self._sub_config.receive_for(MAX_UPDATE_PERIOD)
                 if cfg_transfer:
                     self._reconfigure(cfg_transfer[0])
@@ -59,10 +53,14 @@ class IOWorker:
             self._node.close()
             await asyncio.wait(asyncio.all_tasks(), timeout=1)
 
-    def _reconfigure(self, cfg: DCSConfig) -> None:
+    def close(self) -> None:
+        self._node.close()
+
+    def _reconfigure(self, cfg: IOConfig) -> None:
+        _logger.debug("Processing %s", cfg)
         to_remove = set(self._ifaces.keys())
         for ifc in cfg.iface_config:
-            assert isinstance(ifc, DCSIfaceConfig)
+            assert isinstance(ifc, IOIfaceConfig)
             try:
                 to_remove.remove(ifc.iface_id)
             except LookupError:
@@ -92,18 +90,19 @@ class IOWorker:
                 assert False
 
     async def _update(self) -> None:
-        from org_uavcan_yukon.io.iface import OperationalInfo_0_1 as OperationalInfo, State_0_1 as DCSIfaceState
-        from org_uavcan_yukon.io.iface import Status_0_1 as DCSIfaceStatus
+        from org_uavcan_yukon.io.iface import OperationalInfo_0_1 as OperationalInfo, State_0_1 as IOIfaceState
+        from org_uavcan_yukon.io.iface import Status_0_1 as IOIfaceStatus
         from uavcan.primitive import Empty_1_0, String_1_0
 
-        msg = DCSStatus()
+        msg = IOStatus()
         spoof_status = self._spoofer.status
         for iface_id, iface in list(self._ifaces.items()):  # Create a copy to allow mutation.
-            dcs_iface_state = DCSIfaceState()
+            dcs_iface_state = IOIfaceState()
             if isinstance(iface, asyncio.Future) and iface.done():
                 try:
                     iface = iface.result()
                     assert isinstance(iface, Iface)
+                    self._spoofer.add_iface(iface_id, iface)
                 except Exception as ex:
                     iface = f"Init failed: {type(ex).__name__}: {ex or '<description not available>'}"
 
@@ -135,13 +134,13 @@ class IOWorker:
                 assert False
 
             # Concatenation is ugly because we use NumPy arrays.
-            msg.iface_status = list(msg.iface_status) + [DCSIfaceStatus(iface_id=iface_id, state=dcs_iface_state)]
+            msg.iface_status = list(msg.iface_status) + [IOIfaceStatus(iface_id=iface_id, state=dcs_iface_state)]
 
         if not await self._pub_status.publish(msg):
             _logger.error("IO status publication has timed out")
 
 
-def _initialize_iface(pub_capture: Publisher[DCSCapture], ifc: DCSIfaceConfig) -> Iface:
+def _initialize_iface(pub_capture: Publisher[DCSCapture], ifc: IOIfaceConfig) -> Iface:
     iface = Iface.resolve(ifc.config).new(ifc.config)
     setup_capture_forwarding(pub_capture, ifc.iface_id, iface)
     return iface

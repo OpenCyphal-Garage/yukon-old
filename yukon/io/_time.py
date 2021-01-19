@@ -7,7 +7,7 @@ import pyuavcan
 import uavcan.time
 
 
-def to_dcs_timestamp(ts: pyuavcan.transport.Timestamp) -> uavcan.time.SynchronizedTimestamp_1_0:
+def timestamp_to_dcs(ts: pyuavcan.transport.Timestamp) -> uavcan.time.SynchronizedTimestamp_1_0:
     """
     System (wall) timestamp is repackaged into the DSDL object.
     Monotonic timestamp is discarded because it is only valid in the local machine (and possibly only this process).
@@ -15,7 +15,7 @@ def to_dcs_timestamp(ts: pyuavcan.transport.Timestamp) -> uavcan.time.Synchroniz
     return uavcan.time.SynchronizedTimestamp_1_0(microsecond=ts.system_ns // 1000)
 
 
-def from_dcs_timestamp(ts: uavcan.time.SynchronizedTimestamp_1_0) -> pyuavcan.transport.Timestamp:
+def timestamp_from_dcs(ts: uavcan.time.SynchronizedTimestamp_1_0) -> pyuavcan.transport.Timestamp:
     """
     System (wall) timestamp is fetched from the supplied DSDL object.
     Monotonic timestamp is sampled from :func:`time.monotonic_ns`.
