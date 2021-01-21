@@ -12,7 +12,7 @@ import pyuavcan
 import pyuavcan.application
 from pyuavcan.presentation import Publisher, Subscriber, Client, Server
 from uavcan.node import GetInfo_1_0, Heartbeat_1_0, ExecuteCommand_1_1, Version_1_0
-import uavcan.diagnostic
+from ._logger import setup_log_publisher
 
 
 UI_NODE_ID = 1
@@ -74,20 +74,25 @@ class Node(pyuavcan.application.Node):
         self._sub_heartbeat.receive_in_background(self._on_heartbeat)
         self._last_ui_heartbeat_at = time.monotonic()
 
-        self._setup_logger()
+        setup_log_publisher(self.presentation)
+        self.start()
 
     def make_publisher(self, dtype: typing.Type[MessageClass], port_name: str) -> Publisher[MessageClass]:
+        """:raises: :class:`KeyError` if such port is not configured."""
         return self.presentation.make_publisher(dtype, _get_port_id("pub", port_name, dtype))
 
     def make_subscriber(self, dtype: typing.Type[MessageClass], port_name: str) -> Subscriber[MessageClass]:
+        """:raises: :class:`KeyError` if such port is not configured."""
         return self.presentation.make_subscriber(dtype, _get_port_id("sub", port_name, dtype))
 
     def make_client(
         self, dtype: typing.Type[ServiceClass], port_name: str, server_node_id: int
     ) -> Client[ServiceClass]:
+        """:raises: :class:`KeyError` if such port is not configured."""
         return self.presentation.make_client(dtype, _get_port_id("cln", port_name, dtype), server_node_id)
 
     def get_server(self, dtype: typing.Type[ServiceClass], port_name: str) -> Server[ServiceClass]:
+        """:raises: :class:`KeyError` if such port is not configured."""
         return self.presentation.get_server(dtype, _get_port_id("srv", port_name, dtype))
 
     def _on_heartbeat(self, _msg: Heartbeat_1_0, transfer: pyuavcan.transport.TransferFrom) -> None:
@@ -112,26 +117,17 @@ class Node(pyuavcan.application.Node):
             _logger.error("UI node is dead, exiting automatically")
             self.presentation.transport.loop.call_soon(self.close)
 
-    def _setup_logger(self) -> None:
-        pub_log = self.presentation.make_publisher_with_fixed_subject_id(uavcan.diagnostic.Record_1_1)
-
-        class LogForwarder(logging.Handler):
-            def emit(self, record: logging.LogRecord) -> None:
-                pub_log.publish_soon(log_record_to_dcs(record))
-
-        logging.root.addHandler(LogForwarder(logging.INFO))
-
 
 def _construct_transport() -> pyuavcan.transport.Transport:
     from ipaddress import ip_address
 
     try:
-        node_id: typing.Optional[int] = int(_get_parameter("node.id"))
+        node_id: typing.Optional[int] = int(_get_parameter("node.id.natural16"))
     except LookupError:
         node_id = None
 
     try:
-        udp_addr = ip_address(_get_parameter("transport.udp.ip"))
+        udp_addr = ip_address(_get_parameter("udp.ip.string"))
     except LookupError:
         pass
     else:
@@ -140,7 +136,7 @@ def _construct_transport() -> pyuavcan.transport.Transport:
         return UDPTransport(udp_addr, local_node_id=node_id)
 
     try:
-        serial_port = _get_parameter("transport.serial.port")
+        serial_port = _get_parameter("serial.port.string")
     except LookupError:
         pass
     else:
@@ -152,15 +148,3 @@ def _construct_transport() -> pyuavcan.transport.Transport:
         "DCS transport configuration not found in environment variables: "
         + str(list(k for k in os.environ if k.startswith("UAVCAN_")))
     )
-
-
-def log_record_to_dcs(record: logging.LogRecord) -> uavcan.diagnostic.Record_1_1:
-    from uavcan.time import SynchronizedTimestamp_1_0 as SynchronizedTimestamp
-    from uavcan.diagnostic import Severity_1_0 as Severity
-
-    # The magic severity conversion formula is found by a trivial linear regression:
-    #   Fit[data, {1, x}, {{0, 0}, {10, 1}, {20, 2}, {30, 4}, {40, 5}, {50, 6}}]
-    sev = min(7, round(-0.14285714285714374 + 0.12571428571428572 * record.levelno))
-    ts = SynchronizedTimestamp(microsecond=int(record.created * 1e6))
-    text = record.getMessage()[:255]  # TODO: this is crude; expose array lengths from DSDL.
-    return uavcan.diagnostic.Record_1_1(timestamp=ts, severity=Severity(sev), text=text)

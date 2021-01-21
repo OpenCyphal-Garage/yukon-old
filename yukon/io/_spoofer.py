@@ -11,7 +11,7 @@ import pyuavcan
 from pyuavcan.transport import AlienTransfer, AlienTransferMetadata, AlienSessionSpecifier, ResourceClosedError
 from pyuavcan.presentation import Subscriber, OutgoingTransferIDCounter
 from org_uavcan_yukon.io.transfer import Spoof_0_1 as DCSSpoof
-from . import from_dcs_session
+from . import session_from_dcs
 from .iface import Iface
 
 
@@ -52,13 +52,14 @@ class Spoofer:
 
     async def _on_spoof_message(self, msg: DCSSpoof, transfer: pyuavcan.transport.TransferFrom) -> None:
         _logger.debug("Spoofing %s %s over %d ifaces", transfer, msg, len(self._inferiors))
-        ss = from_dcs_session(msg.session)
+        ss = session_from_dcs(msg.session)
 
         if msg.transfer_id.size:
             transfer_id = int(msg.transfer_id[0])
         else:
             transfer_id = self._transfer_id_map[ss].get_then_increment()
 
+        # noinspection PyArgumentList
         atr = AlienTransfer(
             metadata=AlienTransferMetadata(
                 priority=pyuavcan.transport.Priority(msg.priority.value),
