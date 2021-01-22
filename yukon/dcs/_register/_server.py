@@ -3,37 +3,15 @@
 # Author: Pavel Kirienko <pavel@uavcan.org>
 
 from __future__ import annotations
-import os
+from fnmatch import fnmatchcase
 import typing
 from pathlib import Path
 import logging
 import pyuavcan
-from uavcan.register import Access_1_0 as Access, Value_1_0 as Value
+from uavcan.register import Access_1_0 as Access
+from ._storage import Storage, Flags, Value
+from ._primitives import AssignableType, assign
 
-
-AssignableType = typing.Union[
-    Value,
-    str,
-    bytes,
-    bool,
-    int,
-    float,
-    typing.Iterable[bool],
-    typing.Iterable[int],
-    typing.Iterable[float],
-]
-"""
-These types can be automatically converted to a ``uavcan.register.Value``:
-
-- ``str``             -> ``string``
-- ``bytes``           -> ``unstructured``
-- ``bool``            -> ``bit[1]``
-- ``int``             -> ``integerXX[1]``
-- ``float``           -> ``realXX[1]``
-- ``Iterable[bool]``  -> ``bit[]``
-- ``Iterable[int]``   -> ``integerXX[]``
-- ``Iterable[float]`` -> ``realXX[]``
-"""
 
 _logger = logging.getLogger(__name__)
 
@@ -46,21 +24,22 @@ class RegisterServer:
     def __init__(
         self,
         presentation: pyuavcan.presentation.Presentation,
-        database_file: typing.Optional[typing.Union[str, Path]] = None,
-        *,
-        create_from_env: typing.Union[typing.Dict[str, str], bool] = True,
-        set_from_env: typing.Union[typing.Dict[str, str], bool] = True,
+        storage_file: typing.Optional[typing.Union[str, Path]] = None,
     ) -> None:
         self._srv_access = presentation.get_server_with_fixed_service_id(Access)
-        self._hooks: typing.List[typing.Callable[[str, Value], typing.Optional[Value]]] = [self.set]
-
-        self._db = _Database(database_file)
+        self._hooks: typing.List[typing.Callable[[str, Value], typing.Optional[Value]]] = []
+        self._storage = Storage(storage_file)
+        self.add_access_hook(self.set)  # Last hook, lowest precedence, last resort.
 
     def start(self) -> None:
+        """
+        Starts the ``uavcan.register.Access`` server. All other functionality is available regardless of this.
+        """
         self._srv_access.serve_in_background(self._on_request)
 
     def close(self) -> None:
         self._srv_access.close()
+        self._storage.close()
 
     def add_access_hook(self, hook: typing.Callable[[str, Value], typing.Optional[Value]]) -> None:
         """
@@ -71,53 +50,128 @@ class RegisterServer:
         """
         self._hooks.append(hook)
 
-    def keys(self) -> typing.Iterable[str]:
-        raise NotImplementedError
+    def keys(self) -> typing.List[str]:
+        """
+        >>> from uavcan.primitive.array import Bit_1_0
+        >>> rs = RegisterServer(_make_loopback())
+        >>> rs.create("b", Value(bit=Bit_1_0([True, False])))
+        >>> rs.create("a", Value(bit=Bit_1_0()))
+        >>> rs.keys()  # Sorted lexicographically.
+        ['a', 'b']
+        """
+        return self._storage.get_names()
 
     def get(self, name: str) -> typing.Optional[Value]:
         """
-        Returns None if the register does not exist.
+        >>> from uavcan.primitive.array import Bit_1_0
+        >>> rs = RegisterServer(_make_loopback())
+        >>> rs.get("foo") is None  # No such register --> None.
+        True
+        >>> rs.create("foo", Value(bit=Bit_1_0([True, False])))
+        >>> value = rs.get("foo")
+        >>> not value.empty                         # Detect the type by querying the union fields.
+        True
+        >>> not value.string                        # etc...
+        True
+        >>> value.bit.value[0], value.bit.value[1]  # The value is a standard NumPy array.
+        (True, False)
         """
-        raise NotImplementedError
+        val_flags = self._storage.get(name)
+        if val_flags is None:
+            return None
+        val, _ = val_flags
+        return val
 
     def set(self, name: str, value: AssignableType) -> Value:
         """
-        If the value is empty or if the register does not exist, this is a no-op and the return value is empty.
+        If the register exists and the type of the value is matching or can be converted to the register's type,
+        the value is assigned and the resulting converted value is returned.
 
-        If the register exists and the type of the value is matching or can be converted to its type, the value
-        is converted, assigned, and the resulting value returned.
+        Observe that the mutability/persistence flags bear no relevance here because they only affect the RPC-service.
 
-        If the register exists but the value cannot be converted to the correct type, the old value is retained
-        and returned.
+        :raises: :class:`KeyError` if the register does not exist.
+                 :class:`ConflictError` if the register exists but the value cannot be converted to its type.
         """
-        raise NotImplementedError
+        val_flags = self._storage.get(name)
+        if not val_flags:
+            raise KeyError(name)
+        assignee, flags = val_flags
+        if not assign(assignee, value):
+            raise ConflictError(f"Cannot assign {assignee!r} from {value!r}")
+        self._storage.set(name, assignee, flags)
+        return assignee
 
-    def create(self, name: str, value: Value, *, flags: Flags) -> None:
+    def create(self, name: str, value: Value, *, mutable: bool = True, persistent: bool = True) -> None:
         """
-        Creates a new register if it doesn't exist.
-        If the register already exists and its name, value, and flags match the arguments, does nothing
-        (the method is thus idempotent).
-        If the register already exists and any of its parameters are different, a :class:`ConflictError` is raised.
-        If the value is empty, a :class:`ValueError` is raised.
-        """
-        raise NotImplementedError
+        If the register exists, behaves like :meth:`set` and the flags are ignored. Otherwise it is created.
 
-    def clear(self) -> None:
+        :raises: :class:`ValueError` if the name or value are empty.
         """
-        Erase all registers. Calling :meth:`set_from_environment_variables` afterwards might be sensible.
+        if not name or value.empty:
+            raise ValueError("Cannot create an empty register")
+        try:
+            self.set(name, value)
+        except KeyError:
+            self._storage.set(name, value, Flags(mutable=mutable, persistent=persistent))
+
+    def delete(self, wildcard: str) -> None:
         """
-        raise NotImplementedError
+        Remove all registers that match the specified wildcard. Matching is case-sensitive.
+
+        >>> from uavcan.primitive.array import Bit_1_0
+        >>> rs = RegisterServer(_make_loopback())
+        >>> rs.create("foo.bar", Value(bit=Bit_1_0()))
+        >>> rs.create("foo.baz", Value(bit=Bit_1_0()))
+        >>> rs.create("bar.bar", Value(bit=Bit_1_0()))
+        >>> rs.delete("foo.*")
+        >>> rs.keys()
+        ['bar_bar']
+        """
+        names = [n for n in self.keys() if fnmatchcase(n, wildcard)]
+        _logger.debug("Deleting %d registers matching %r: %r", len(names), wildcard, names)
+        self._storage.delete(names)
+
+    async def _on_request(
+        self, request: Access.Request, meta: pyuavcan.presentation.ServiceRequestMetadata
+    ) -> Access.Response:
+        pass
 
     def __getitem__(self, item: str) -> Value:
         """
         Like :meth:`get`, but if the register is missing it raises :class:`KeyError` instead of returning None.
+
+        >>> from uavcan.primitive.array import Bit_1_0
+        >>> rs = RegisterServer(_make_loopback())
+        >>> rs["foo"]
+        Traceback (most recent call last):
+        ...
+        KeyError: 'foo'
+        >>> rs.create("foo", Value(bit=Bit_1_0([True])))
+        >>> rs["foo"].bit.value[0]
+        True
         """
         out = self.get(item)
         if out is None:
             raise KeyError(item)
         return out
 
-    async def _on_request(
-        self, request: Access.Request, meta: pyuavcan.presentation.ServiceRequestMetadata
-    ) -> Access.Response:
-        pass
+    def __iter__(self) -> typing.Iterator[str]:
+        """
+        >>> from uavcan.primitive.array import Bit_1_0
+        >>> rs = RegisterServer(_make_loopback())
+        >>> rs.create("b", Value(bit=Bit_1_0()))
+        >>> rs.create("a", Value(bit=Bit_1_0()))
+        >>> list(rs)
+        ['a', 'b']
+        """
+        return iter(self.keys())
+
+    def __repr__(self) -> str:
+        return pyuavcan.util.repr_attributes(self, self._storage, self._srv_access)
+
+
+def _make_loopback() -> pyuavcan.presentation.Presentation:
+    """This is for testing only."""
+    from pyuavcan.transport.loopback import LoopbackTransport
+
+    return pyuavcan.presentation.Presentation(LoopbackTransport(1))

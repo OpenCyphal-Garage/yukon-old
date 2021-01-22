@@ -33,10 +33,10 @@ class Storage:
         """
         :param location: Either a path to the database file, or None. If None, the registry will be stored in memory.
         """
-        loc = str(location or _LOCATION_VOLATILE).strip()
-        self._db = sqlite3.connect(loc, timeout=_TIMEOUT)
+        self._loc = str(location or _LOCATION_VOLATILE).strip()
+        self._db = sqlite3.connect(self._loc, timeout=_TIMEOUT)
         self._mutable = self._check_mutability()
-        self._persistent = loc.lower() != _LOCATION_VOLATILE
+        self._persistent = self._loc.lower() != _LOCATION_VOLATILE
 
         self._db.execute(
             r"""
@@ -50,6 +50,7 @@ class Storage:
             """
         )
         self._db.commit()
+        _logger.debug("%r: Initialized with registers: %r", self, self.get_names())
 
     @property
     def flags(self) -> Flags:
@@ -82,25 +83,27 @@ class Storage:
         """
         res = self._db.execute(r"select mutable, persistent, value from registry where name = ?", (name,)).fetchone()
         if res is None:
+            _logger.debug("%r: Get %r -> (nothing)", self, name)
             return None
         mutable, persistent, value = res
         assert isinstance(value, bytes)
         obj = pyuavcan.dsdl.deserialize(Value, [memoryview(value)])
         if obj is None:  # pragma: no cover
-            _logger.warning(
-                "Database: stored value of %r is not a valid serialized representation of %s: %r", name, Value, value
-            )
-        # If the entire DB is immutable, no point reporting a single register as mutable. Same for persistency.
-        return obj, Flags(
+            _logger.warning("%r: Value of %r is not a valid serialization of %s: %r", self, name, Value, value)
+        flags = Flags(
             mutable=mutable and self.flags.mutable,
             persistent=persistent and self.flags.persistent,
         )
+        _logger.debug("%r: Get %r -> %r, %r", self, name, obj, flags)
+        # If the entire DB is immutable, no point reporting a single register as mutable. Same for persistency.
+        return obj, flags
 
     def set(self, name: str, value: Value, flags: Flags) -> None:
         """
         If the register does not exist, it will be created.
         If exists, it will be overwritten unconditionally with the specified value and flags.
         """
+        _logger.debug("%r: Set %r <- %r, %r", self, name, value, flags)
         serialized = b"".join(pyuavcan.dsdl.serialize(value))
         self._db.execute(
             r"""
@@ -114,10 +117,12 @@ class Storage:
         """
         Removes specified registers from the storage.
         """
+        _logger.debug("%r: Delete %r", self, names)
         self._db.executemany(r"delete from registry where name = ?", ((x,) for x in names))
         self._db.commit()
 
     def close(self) -> None:
+        _logger.debug("%r: Closing", self)
         self._db.close()
 
     def _check_mutability(self) -> bool:
@@ -129,6 +134,9 @@ class Storage:
             return False
         return True
 
+    def __repr__(self) -> str:
+        return pyuavcan.util.repr_attributes(self, repr(self._loc), self.flags)
+
 
 _logger = logging.getLogger(__name__)
 
@@ -137,6 +145,7 @@ def _unittest_storage_memory() -> None:
     from uavcan.primitive import String_1_0 as String, Unstructured_1_0 as Unstructured
 
     st = Storage()
+    print(st)
     assert st.flags.mutable
     assert not st.flags.persistent
     assert not st.get_names()
@@ -186,6 +195,7 @@ def _unittest_storage_file() -> None:
     db_file = tempfile.mktemp(".db")
     print("DB file:", db_file)
     st = Storage(db_file)
+    print(st)
     assert st.flags.mutable
     assert st.flags.persistent
     st.set("mutable", Value(unstructured=Unstructured([1, 2, 3])), flags=Flags(mutable=True, persistent=False))
@@ -194,6 +204,7 @@ def _unittest_storage_file() -> None:
 
     # Then re-open it in writeable mode and ensure correctness.
     st = Storage(db_file)
+    print(st)
     val_flags = st.get("mutable")
     assert val_flags
     val, flags = val_flags
@@ -216,6 +227,7 @@ def _unittest_storage_file() -> None:
     # Then re-open it in read-only mode.
     os.chmod(db_file, 0o444)
     st = Storage(db_file)
+    print(st)
     val_flags = st.get("mutable")
     assert val_flags
     _, flags = val_flags
