@@ -31,23 +31,6 @@ These types can be automatically converted to a ``uavcan.register.Value``.
 """
 
 
-def parse_environment_variables(env: typing.Dict[str, str]) -> typing.Iterable[typing.Tuple[str, Value]]:
-    """
-    Given a list of environment variables, generates pairs of (name, :class:`Value`).
-    A register name is mapped to the environment variable name as follows:
-
-    >>> name = 'm.motor.flux_linkage'
-    >>> ty = 'real32'
-    >>> (name + "." + ty).upper().replace(".", "_" * 2)  # Name mapping rule.
-    'M__MOTOR__FLUX_LINKAGE__REAL32'
-
-    Where ``ty`` is the name of the value option from ``uavcan.register.Value``, like ``bit``, ``integer8``, etc.
-    Array items are separated using the standard path separator (e.g., colon or semicolon, depending on platform).
-    Environment variables that contain invalid values or named incorrectly are simply ignored.
-    """
-    pass
-
-
 def convert(to: Value, source: RelaxedValue) -> typing.Optional[Value]:
     """
     Converts the source into the type of destination.
@@ -118,13 +101,13 @@ def _strictify(s: RelaxedValue) -> Value:
     if not s:
         return Value()  # Empty list generalized into Value.empty.
     if all(isinstance(x, bool) for x in s):
-        return Value(bit=s)
+        return Value(bit=Bit(s))
     if all(isinstance(x, int) for x in s):
-        return Value(natural64=s) if all(x >= 0 for x in s) else Value(integer64=s)
+        return Value(natural64=Natural64(s)) if all(x >= 0 for x in s) else Value(integer64=Integer64(s))
     if all(isinstance(x, float) for x in s):
-        return Value(real64=s)
+        return Value(real64=Real64(s))
 
-    raise ValueError(f"Don't know how to convert {s!r} into {Value}")
+    raise ValueError(f"Don't know how to convert {s!r} into {Value}")  # pragma: no cover
 
 
 def _get_option_name(x: Value) -> str:
@@ -135,4 +118,49 @@ def _get_option_name(x: Value) -> str:
 
 
 def _unittest_strictify() -> None:
-    pass
+    import pytest
+
+    v = Value(string=String("abc"))
+    assert v is _strictify(v)  # Transparency.
+
+    assert list(_strictify(+1).natural64.value) == [+1]
+    assert list(_strictify(-1).integer64.value) == [-1]
+    assert list(_strictify(1.1).real64.value) == [pytest.approx(1.1)]
+    assert list(_strictify(True).bit.value) == [True]
+    assert _strictify([]).empty
+
+    assert _strictify("Hello").string.value.tobytes().decode() == "Hello"
+    assert _strictify(b"Hello").unstructured.value.tobytes() == b"Hello"
+
+
+def _unittest_convert() -> None:
+    import pytest
+
+    q = Value
+
+    def _once(a: q, b: q) -> q:
+        c = convert(a, b)
+        assert c
+        return c
+
+    assert _once(q(), q()).empty
+    assert _once(q(), q(string=String("Hello"))).empty
+    assert _once(q(string=String("A")), q(string=String("B"))).string.value.tobytes().decode() == "B"
+    assert _once(q(string=String("A")), q(unstructured=Unstructured(b"B"))).string.value.tobytes().decode() == "B"
+    assert list(_once(q(natural16=Natural16([1, 2])), q(natural64=Natural64([1, 2]))).natural16.value) == [1, 2]
+
+    # Dimensionality mismatch.
+    assert None is convert(q(integer16=Integer16([1, 2, 3])), q(integer16=Integer16([1, 2])))
+
+    assert list(_once(q(bit=Bit([False, False])), q(integer32=Integer32([-1, 0]))).bit.value) == [True, False]
+    assert list(_once(q(integer8=Integer8([0, 1])), q(real64=Real64([3.3, 6.4]))).integer8.value) == [3, 6]
+    assert list(_once(q(integer16=Integer16([0, 1])), q(real64=Real64([3.3, 6.4]))).integer16.value) == [3, 6]
+    assert list(_once(q(integer32=Integer32([0, 1])), q(real64=Real64([3.3, 6.4]))).integer32.value) == [3, 6]
+    assert list(_once(q(integer64=Integer64([0, 1])), q(real64=Real64([3.3, 6.4]))).integer64.value) == [3, 6]
+    assert list(_once(q(natural8=Natural8([0, 1])), q(real64=Real64([3.3, 6.4]))).natural8.value) == [3, 6]
+    assert list(_once(q(natural16=Natural16([0, 1])), q(real64=Real64([3.3, 6.4]))).natural16.value) == [3, 6]
+    assert list(_once(q(natural32=Natural32([0, 1])), q(real64=Real64([3.3, 6.4]))).natural32.value) == [3, 6]
+    assert list(_once(q(natural64=Natural64([0, 1])), q(real64=Real64([3.3, 6.4]))).natural64.value) == [3, 6]
+    assert list(_once(q(real16=Real16([0])), q(bit=Bit([True]))).real16.value) == [pytest.approx(1.0)]
+    assert list(_once(q(real32=Real32([0])), q(bit=Bit([True]))).real32.value) == [pytest.approx(1.0)]
+    assert list(_once(q(real64=Real64([0])), q(bit=Bit([True]))).real64.value) == [pytest.approx(1.0)]

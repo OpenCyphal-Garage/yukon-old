@@ -96,18 +96,18 @@ class Registry:
                  :class:`ConflictError` if the register exists but the value cannot be converted to its type.
 
         >>> rs = Registry()
-        >>> rs.set("foo", True)                      # No such register, will fail.
+        >>> rs.set("foo", True)                      # No such register, will fail. # doctest: +IGNORE_EXCEPTION_DETAIL
         Traceback (most recent call last):
         ...
         MissingRegisterError: 'foo'
         >>> from uavcan.primitive.array import Bit_1_0
         >>> rs.create("foo", Value(bit=Bit_1_0([True])))    # Create explicitly.
-        >>> rs.get("foo").value.bit[0]                      # Yup, created.
+        >>> rs.get("foo").value.bit.value[0]                # Yup, created.
         True
         >>> rs.set("foo", False)                            # Now it can be set.
-        >>> rs.get("foo").value.bit[0].value.bit[0]
+        >>> rs.get("foo").value.bit.value[0]
         False
-        >>> rs.set("foo", Value())                          # Type error -- cannot set empty value.
+        >>> rs.set("foo", [True, False])                    # Wrong dimensionality. # doctest: +IGNORE_EXCEPTION_DETAIL
         Traceback (most recent call last):
         ...
         ConflictError: ...
@@ -163,7 +163,7 @@ class Registry:
         >>> rs.create("zoo.bar", Value())
         >>> rs.delete("foo.*")
         >>> rs.keys()
-        ['zoo_bar']
+        ['zoo.bar']
         """
         names = [n for n in self.keys() if fnmatchcase(n, wildcard)]
         _logger.debug("Deleting %d registers matching %r: %r", len(names), wildcard, names)
@@ -176,7 +176,7 @@ class Registry:
 
         >>> from uavcan.primitive.array import Bit_1_0
         >>> rs = Registry()
-        >>> rs["foo"]
+        >>> rs["foo"]                                           # doctest: +IGNORE_EXCEPTION_DETAIL
         Traceback (most recent call last):
         ...
         MissingRegisterError: 'foo'

@@ -16,6 +16,12 @@ _TIMEOUT = 0.5
 _LOCATION_VOLATILE = ":memory:"
 
 
+class StorageError(RuntimeError):
+    """
+    Unsuccessful storage transaction. This is a very low-level error representing a system configuration issue.
+    """
+
+
 @dataclasses.dataclass(frozen=True)
 class Entry:
     value: Value
@@ -35,7 +41,7 @@ class Storage:
         """
         self._loc = str(location or _LOCATION_VOLATILE).strip()
         self._db = sqlite3.connect(self._loc, timeout=_TIMEOUT)
-        self._db.execute(
+        self._execute(
             r"""
             create table if not exists `registry` (
                 `name`      varchar(255) not null unique primary key,
@@ -43,9 +49,9 @@ class Storage:
                 `value`     blob not null,
                 `ts`        time not null default current_timestamp
             )
-            """
+            """,
+            commit=True,
         )
-        self._db.commit()
         _logger.debug("%r: Initialized with registers: %r", self, self.get_names())
 
     @property
@@ -55,13 +61,13 @@ class Storage:
 
     def count(self) -> int:
         """Number of registers."""
-        return self._db.execute(r"select count(*) from registry").fetchone()[0]
+        return self._execute(r"select count(*) from registry").fetchone()[0]
 
     def get_names(self) -> typing.List[str]:
         """
         :returns: List of all registers ordered lexicographically.
         """
-        return [x for x, in self._db.execute(r"select name from registry order by name").fetchall()]
+        return [x for x, in self._execute(r"select name from registry order by name").fetchall()]
 
     def get_name_at_index(self, index: int) -> typing.Optional[str]:
         """
@@ -78,7 +84,7 @@ class Storage:
         """
         :returns: None if no such register is available; otherwise value and mutability flag.
         """
-        res = self._db.execute(r"select mutable, value from registry where name = ?", (name,)).fetchone()
+        res = self._execute(r"select mutable, value from registry where name = ?", name).fetchone()
         if res is None:
             _logger.debug("%r: Get %r -> (nothing)", self, name)
             return None
@@ -98,34 +104,39 @@ class Storage:
         """
         _logger.debug("%r: Set %r <- %r", self, name, e)
         serialized = b"".join(pyuavcan.dsdl.serialize(e.value))
-        self._db.execute(
+        self._execute(
             r"""
             insert or replace into registry (name, mutable, value) values (?, ?, ?)
             """,
-            (name, e.mutable, serialized),
+            name,
+            e.mutable,
+            serialized,
+            commit=True,
         )
-        self._db.commit()
 
-    def delete(self, names: typing.Iterable[str]) -> None:
+    def delete(self, names: typing.Sequence[str]) -> None:
         """
         Removes specified registers from the storage.
         """
         _logger.debug("%r: Delete %r", self, names)
-        self._db.executemany(r"delete from registry where name = ?", ((x,) for x in names))
-        self._db.commit()
+        try:
+            self._db.executemany(r"delete from registry where name = ?", ((x,) for x in names))
+            self._db.commit()
+        except sqlite3.OperationalError as ex:
+            raise StorageError(f"Could not delete {len(names)} registers: {ex}")
 
     def close(self) -> None:
         _logger.debug("%r: Closing", self)
         self._db.close()
 
-    def _check_mutability(self) -> bool:
+    def _execute(self, statement: str, *params: typing.Any, commit: bool = False) -> sqlite3.Cursor:
         try:
-            self._db.execute("""create table if not exists `write_test` ( dummy int )""")
-            self._db.execute("""drop table `write_test`""")
-            self._db.commit()
-        except sqlite3.OperationalError:
-            return False
-        return True
+            cur = self._db.execute(statement, params)
+            if commit:
+                self._db.commit()
+            return cur
+        except sqlite3.OperationalError as ex:
+            raise StorageError(f"Database transaction has failed: {ex}") from ex
 
     def __repr__(self) -> str:
         return pyuavcan.util.repr_attributes(self, repr(self._loc))
