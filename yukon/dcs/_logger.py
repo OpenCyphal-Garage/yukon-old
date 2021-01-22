@@ -20,10 +20,20 @@ def setup_log_publisher(presentation: pyuavcan.presentation.Presentation) -> Non
     pub_log = presentation.make_publisher_with_fixed_subject_id(Record)
 
     class LogForwarder(logging.Handler):
-        def emit(self, record: logging.LogRecord) -> None:
-            pub_log.publish_soon(log_record_to_dcs(record))
+        def __init__(self) -> None:
+            self._recursion = False
+            super().__init__(logging.INFO)
 
-    logging.root.addHandler(LogForwarder(logging.INFO))
+        def emit(self, record: logging.LogRecord) -> None:
+            if self._recursion:  # Prevent recursive calls from the publisher we are invoking.
+                return
+            try:
+                self._recursion = True
+                pub_log.publish_soon(log_record_to_dcs(record))
+            finally:
+                self._recursion = False
+
+    logging.root.addHandler(LogForwarder())
 
 
 def log_record_to_dcs(record: logging.LogRecord) -> Record:

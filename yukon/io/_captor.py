@@ -6,7 +6,7 @@ import asyncio
 import logging
 from pyuavcan.presentation import Publisher
 from org_uavcan_yukon.io.frame import Capture_0_1 as DCSCapture
-from . import to_dcs_timestamp
+from . import timestamp_to_dcs
 from .iface import IfaceCapture, Iface
 
 
@@ -19,7 +19,7 @@ def setup_capture_forwarding(dcs_pub_capture: Publisher[DCSCapture], iface_id: i
     def handle_capture(cap: IfaceCapture) -> None:
         nonlocal sequence_number
         msg = DCSCapture(
-            timestamp=to_dcs_timestamp(cap.timestamp),
+            timestamp=timestamp_to_dcs(cap.timestamp),
             iface_id=iface_id,
             sequence_number=sequence_number,
             frame=cap.frame,

@@ -38,10 +38,14 @@ class Node(pyuavcan.application.Node):
             node_name_suffix,
             list(k for k in os.environ if k.startswith("UAVCAN_")),
         )
+        self._registry = register.Registry()
+        # TODO: configure the schema first.
+        for n, v in register.parse_environment_variables():
+            self._registry.create(n, v)
+
         transport = self._construct_transport()
         if transport.local_node_id is None:
             raise ValueError("DCS transport configuration error: node cannot be anonymous")
-
         presentation = pyuavcan.presentation.Presentation(transport)
 
         node_info = GetInfo_1_0.Response(
@@ -57,13 +61,16 @@ class Node(pyuavcan.application.Node):
         self._sub_heartbeat.receive_in_background(self._on_heartbeat)
         self._last_ui_heartbeat_at = time.monotonic()
 
-        self._registry = register.Registry()
-        for n, v in register.parse_environment_variables():
-            self._registry.create(n, v)
         self._srv_register_access = self.presentation.get_server_with_fixed_service_id(uavcan.register.Access_1_0)
         self._srv_register_list = self.presentation.get_server_with_fixed_service_id(uavcan.register.List_1_0)
 
         setup_log_publisher(self.presentation)
+        verbosity = self._registry.get_concrete("uavcan.diagnostic.verbosity", register.Natural8)
+        if verbosity and verbosity.value[0] > 0:
+            logging.root.setLevel(logging.INFO)
+        if verbosity and verbosity.value[0] > 1:
+            logging.root.setLevel(logging.DEBUG)
+
         self.start()
 
     def start(self) -> None:
@@ -166,7 +173,4 @@ class Node(pyuavcan.application.Node):
 
             return SerialTransport(s.value.tobytes().decode(), local_node_id=node_id)
 
-        raise ValueError(
-            "DCS transport configuration not found in environment variables: "
-            + str(list(k for k in os.environ if k.startswith("UAVCAN_")))
-        )
+        raise ValueError(f"DCS transport configuration not found in environment variables: {list(os.environ)}")
