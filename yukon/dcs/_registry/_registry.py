@@ -9,7 +9,7 @@ from pathlib import Path
 import logging
 import pyuavcan
 from ._storage import Storage, Entry, Value
-from ._primitives import RelaxedValue, assign
+from ._primitives import RelaxedValue, convert
 
 
 _logger = logging.getLogger(__name__)
@@ -115,9 +115,10 @@ class Registry:
         e = self._storage.get(name)
         if not e:
             raise MissingRegisterError(name)
-        if not assign(e.value, value):
+        converted = convert(e.value, value)
+        if not converted:
             raise ConflictError(f"Cannot assign {e.value!r} from {value!r}")
-        self._storage.set(name, e)
+        self._storage.set(name, Entry(converted, mutable=e.mutable))
 
     def create(self, name: str, value: Value, *, mutable: bool = True) -> None:
         """
@@ -146,7 +147,9 @@ class Registry:
         e = self._storage.get(name)
         if not e:
             return Entry(Value(), mutable=False)
-        if e.mutable and assign(e.value, value):
+        converted = convert(e.value, value)
+        if e.mutable and converted:
+            e = Entry(converted, mutable=e.mutable)
             self._storage.set(name, e)
         return e  # No point querying the storage again, just return the local value.
 
