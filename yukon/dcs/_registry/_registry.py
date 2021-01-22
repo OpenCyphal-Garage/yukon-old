@@ -24,33 +24,21 @@ class MissingRegisterError(KeyError):
 
 
 class Registry:
-    def __init__(self, storage_file: typing.Optional[typing.Union[str, Path]] = None, immutable: bool = False) -> None:
+    def __init__(self, storage_file: typing.Optional[typing.Union[str, Path]] = None) -> None:
         """
         :param storage_file: Where to read from and store to the registry data.
             The file will be created if it doesn't exist.
             If not provided, the registry will be kept in-memory, in which case :attr:`persistent` is False.
-            If provided but the file is not writable, all registers will be marked immutable.
 
-        :param immutable: Assume the storage to be immutable even if it is actually writable.
-        """
-        self._storage = Storage(storage_file, immutable=immutable)
-
-    @property
-    def mutable(self) -> bool:
-        """
-        Whether the storage can be modified at all.
-        If not, every register will be reported as immutable when read regardless of its own mutability status.
-
-        >>> rs = Registry()
-        >>> rs.create("foo", Value(), mutable=True)     # Create a new register and make it mutable.
-        >>> rs.get("foo").mutable                       # Confirm that it is read as mutable.
-        True
-        >>> rs = Registry(immutable=True)               # Force immutability of the storage.
-        >>> rs.create("foo", Value(), mutable=True)     # Create a new register and make it mutable.
-        >>> rs.get("foo").mutable                       # Reads back as immutable because the storage is immutable.
+        >>> Registry().persistent
         False
+        >>> import tempfile
+        >>> rs = Registry(tempfile.mktemp(".db"))
+        >>> rs.persistent
+        True
+        >>> rs.close()
         """
-        return self._storage.mutable
+        self._storage = Storage(storage_file)
 
     @property
     def persistent(self) -> bool:
@@ -63,14 +51,24 @@ class Registry:
 
     def keys(self) -> typing.List[str]:
         """
-        >>> from uavcan.primitive.array import Bit_1_0
         >>> rs = Registry()
-        >>> rs.create("b", Value(bit=Bit_1_0([True, False])))
-        >>> rs.create("a", Value(bit=Bit_1_0()))
+        >>> rs.create("b", Value())
+        >>> rs.create("a", Value())
         >>> rs.keys()  # Sorted lexicographically.
         ['a', 'b']
         """
         return self._storage.get_names()
+
+    def get_name_at_index(self, index: int) -> typing.Optional[str]:
+        """
+        >>> rs = Registry()
+        >>> rs.create("foo", Value())
+        >>> rs.get_name_at_index(0)
+        'foo'
+        >>> rs.get_name_at_index(1) is None
+        True
+        """
+        return self._storage.get_name_at_index(index)
 
     def get(self, name: str) -> typing.Optional[Entry]:
         """
@@ -87,18 +85,32 @@ class Registry:
         >>> e.value.bit.value[0], e.value.bit.value[1]  # The value is a standard NumPy array.
         (True, False)
         """
-        e = self._storage.get(name)
-        if e is None:
-            return None
-        return Entry(e.value, mutable=e.mutable and self._storage.mutable)
+        return self._storage.get(name)
 
-    def set(self, name: str, value: RelaxedValue) -> Entry:
+    def set(self, name: str, value: RelaxedValue) -> None:
         """
-        If the register exists and the type of the value is matching or can be converted to the register's type,
-        the value is assigned and the resulting converted value is returned.
+        Set if the register exists and the type of the value is matching or can be converted to the register's type.
+        The mutability flag is ignored.
 
         :raises: :class:`MissingRegisterError` (subclass of :class:`KeyError`) if the register does not exist.
                  :class:`ConflictError` if the register exists but the value cannot be converted to its type.
+
+        >>> rs = Registry()
+        >>> rs.set("foo", True)                      # No such register, will fail.
+        Traceback (most recent call last):
+        ...
+        MissingRegisterError: 'foo'
+        >>> from uavcan.primitive.array import Bit_1_0
+        >>> rs.create("foo", Value(bit=Bit_1_0([True])))    # Create explicitly.
+        >>> rs.get("foo").value.bit[0]                      # Yup, created.
+        True
+        >>> rs.set("foo", False)                            # Now it can be set.
+        >>> rs.get("foo").value.bit[0].value.bit[0]
+        False
+        >>> rs.set("foo", Value())                          # Type error -- cannot set empty value.
+        Traceback (most recent call last):
+        ...
+        ConflictError: ...
         """
         e = self._storage.get(name)
         if not e:
@@ -106,7 +118,6 @@ class Registry:
         if not assign(e.value, value):
             raise ConflictError(f"Cannot assign {e.value!r} from {value!r}")
         self._storage.set(name, e)
-        return e
 
     def create(self, name: str, value: Value, *, mutable: bool = True) -> None:
         """
@@ -116,6 +127,28 @@ class Registry:
             self.set(name, value)
         except MissingRegisterError:
             self._storage.set(name, Entry(value, mutable=mutable))
+
+    def access(self, name: str, value: Value) -> Entry:
+        """
+        Perform the set/get transaction as defined by the RPC-service ``uavcan.register.Access``.
+        No exceptions are raised. This method is intended for use with RPC-service implementations.
+
+        >>> rs = Registry()
+        >>> bool(rs.access("foo", Value()).value.empty)                       # No such register.
+        True
+        >>> from uavcan.primitive.array import Bit_1_0
+        >>> rs.create("foo", Value(bit=Bit_1_0([True])))
+        >>> rs.access("foo", Value()).value.bit.value[0]                      # Read access.
+        True
+        >>> rs.access("foo", Value(bit=Bit_1_0([False]))).value.bit.value[0]  # Write access.
+        False
+        """
+        e = self._storage.get(name)
+        if not e:
+            return Entry(Value(), mutable=False)
+        if e.mutable and assign(e.value, value):
+            self._storage.set(name, e)
+        return e  # No point querying the storage again, just return the local value.
 
     def delete(self, wildcard: str) -> None:
         """
@@ -162,6 +195,16 @@ class Registry:
         ['a', 'b']
         """
         return iter(self.keys())
+
+    def __len__(self) -> int:
+        """
+        >>> rs = Registry()
+        >>> rs.create("b", Value())
+        >>> rs.create("a", Value())
+        >>> len(rs)
+        2
+        """
+        return self._storage.count()
 
     def __repr__(self) -> str:
         return pyuavcan.util.repr_attributes(self, self._storage)

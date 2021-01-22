@@ -29,16 +29,12 @@ class Storage:
     Supports either persistent on-disk single-file storage or volatile in-memory storage.
     """
 
-    def __init__(self, location: typing.Optional[typing.Union[str, Path]] = None, immutable: bool = False):
+    def __init__(self, location: typing.Optional[typing.Union[str, Path]] = None):
         """
         :param location: Either a path to the database file, or None. If None, the registry will be stored in memory.
-        :param immutable: Assume the storage to be immutable even if the file is writable.
         """
         self._loc = str(location or _LOCATION_VOLATILE).strip()
         self._db = sqlite3.connect(self._loc, timeout=_TIMEOUT)
-        self._mutable = (not immutable) and self._check_mutability()
-        self._persistent = self._loc.lower() != _LOCATION_VOLATILE
-
         self._db.execute(
             r"""
             create table if not exists `registry` (
@@ -53,14 +49,13 @@ class Storage:
         _logger.debug("%r: Initialized with registers: %r", self, self.get_names())
 
     @property
-    def mutable(self) -> bool:
-        """A non-writeable DB is reported as immutable, where an attempt to modify registers will trigger an error."""
-        return self._mutable
-
-    @property
     def persistent(self):
         """An in-memory DB is reported as non-persistent."""
-        return self._persistent
+        return self._loc.lower() != _LOCATION_VOLATILE
+
+    def count(self) -> int:
+        """Number of registers."""
+        return self._db.execute(r"select count(*) from registry").fetchone()[0]
 
     def get_names(self) -> typing.List[str]:
         """
@@ -68,7 +63,7 @@ class Storage:
         """
         return [x for x, in self._db.execute(r"select name from registry order by name").fetchall()]
 
-    def get_name_by_index(self, index: int) -> typing.Optional[str]:
+    def get_name_at_index(self, index: int) -> typing.Optional[str]:
         """
         :returns: Name of the register at the specified index or None if the index is out of range.
             The ordering is guaranteed to be stable while the set of registers is not modified.
@@ -133,7 +128,7 @@ class Storage:
         return True
 
     def __repr__(self) -> str:
-        return pyuavcan.util.repr_attributes(self, repr(self._loc), mutable=self.mutable)
+        return pyuavcan.util.repr_attributes(self, repr(self._loc))
 
 
 _logger = logging.getLogger(__name__)
@@ -144,10 +139,10 @@ def _unittest_storage_memory() -> None:
 
     st = Storage()
     print(st)
-    assert st.mutable
     assert not st.get_names()
-    assert not st.get_name_by_index(0)
+    assert not st.get_name_at_index(0)
     assert None is st.get("foo")
+    assert st.count() == 0
     st.delete(["foo"])
 
     st.set("foo", Entry(Value(string=String("Hello world!")), mutable=False))
@@ -156,6 +151,7 @@ def _unittest_storage_memory() -> None:
     assert e.value.string
     assert e.value.string.value.tobytes().decode() == "Hello world!"
     assert not e.mutable
+    assert st.count() == 1
 
     # Override the same register.
     st.set("foo", Entry(Value(unstructured=Unstructured([1, 2, 3])), mutable=True))
@@ -164,20 +160,21 @@ def _unittest_storage_memory() -> None:
     assert e.value.unstructured
     assert e.value.unstructured.value.tobytes() == b"\x01\x02\x03"
     assert e.mutable
+    assert st.count() == 1
 
     assert ["foo"] == st.get_names()
-    assert "foo" == st.get_name_by_index(0)
-    assert None is st.get_name_by_index(1)
+    assert "foo" == st.get_name_at_index(0)
+    assert None is st.get_name_at_index(1)
     st.delete(["baz"])
     assert ["foo"] == st.get_names()
     st.delete(["foo", "baz"])
     assert [] == st.get_names()
+    assert st.count() == 0
 
     st.close()
 
 
 def _unittest_storage_file() -> None:
-    import os
     import tempfile
     from uavcan.primitive import Unstructured_1_0 as Unstructured
 
@@ -186,14 +183,15 @@ def _unittest_storage_file() -> None:
     print("DB file:", db_file)
     st = Storage(db_file)
     print(st)
-    assert st.mutable
     st.set("mutable", Entry(Value(unstructured=Unstructured([1, 2, 3])), mutable=True))
     st.set("immutable", Entry(Value(unstructured=Unstructured([4, 5, 6])), mutable=False))
+    assert st.count() == 2
     st.close()
 
     # Then re-open it in writeable mode and ensure correctness.
     st = Storage(db_file)
     print(st)
+    assert st.count() == 2
     e = st.get("mutable")
     assert e
     assert e.value.unstructured
@@ -204,18 +202,5 @@ def _unittest_storage_file() -> None:
     assert e
     assert e.value.unstructured
     assert e.value.unstructured.value.tobytes() == b"\x04\x05\x06"
-    assert not e.mutable
-    st.close()
-
-    # Then re-open it in read-only mode.
-    os.chmod(db_file, 0o444)
-    st = Storage(db_file)
-    print(st)
-    e = st.get("mutable")
-    assert e
-    assert not e.mutable
-
-    e = st.get("immutable")
-    assert e
     assert not e.mutable
     st.close()
