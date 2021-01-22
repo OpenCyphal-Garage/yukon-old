@@ -22,6 +22,8 @@ from uavcan.primitive.array import Real32_1_0 as Real32
 from uavcan.primitive.array import Real16_1_0 as Real16
 
 from ._storage import Value as Value
+from ._storage import Entry as Entry
 
-from ._server import RegisterServer as RegisterServer
-from ._server import ConflictError as ConflictError
+from ._registry import Registry as Registry
+from ._registry import ConflictError as ConflictError
+from ._registry import MissingRegisterError as MissingRegisterError
