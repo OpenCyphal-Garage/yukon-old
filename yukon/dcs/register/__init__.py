@@ -6,17 +6,14 @@ from uavcan.primitive import Empty_1_0 as Empty
 from uavcan.primitive import String_1_0 as String
 from uavcan.primitive import Unstructured_1_0 as Unstructured
 from uavcan.primitive.array import Bit_1_0 as Bit
-
 from uavcan.primitive.array import Integer64_1_0 as Integer64
 from uavcan.primitive.array import Integer32_1_0 as Integer32
 from uavcan.primitive.array import Integer16_1_0 as Integer16
 from uavcan.primitive.array import Integer8_1_0 as Integer8
-
 from uavcan.primitive.array import Natural64_1_0 as Natural64
 from uavcan.primitive.array import Natural32_1_0 as Natural32
 from uavcan.primitive.array import Natural16_1_0 as Natural16
 from uavcan.primitive.array import Natural8_1_0 as Natural8
-
 from uavcan.primitive.array import Real64_1_0 as Real64
 from uavcan.primitive.array import Real32_1_0 as Real32
 from uavcan.primitive.array import Real16_1_0 as Real16

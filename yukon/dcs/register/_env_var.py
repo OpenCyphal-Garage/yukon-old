@@ -32,11 +32,11 @@ def parse_environment_variables(env: Optional[Dict[str, str]] = None) -> List[Tu
     - ``unstructured`` values are hex-decoded (e.g., ``68656c6c6f`` --> "hello").
     - ``bit``, ``integer*``, ``natural*``, ``real*`` are assumed to be in decimal notation.
 
-    Array items are separated using the standard path separator (e.g., colon or semicolon, depending on platform).
+    Array items are separated using the standard path separator (e.g., colon or semicolon, depending on the OS).
 
     >>> parsed = parse_environment_variables({
     ...     "M__MOTOR__FLUX_LINKAGE__REAL32":    os.pathsep.join(map(str, [1.23, 4.56])),   # Separated like PATH.
-    ...     "M__MOTOR__VENDOR_ID__STRING":       "Sirius Cyber Corp.",                      # Regular string as-is.
+    ...     "M__MOTOR__VENDOR_ID__STRING":       "Name: Sirius Cyber Corp.",                # Regular string as-is.
     ...     "M__MOTOR__UNIQUE_ID__UNSTRUCTURED": "587ebed4a860984ab78b2095ee07484c",        # Hex-encoded binary blob.
     ...     "LD_PRELOAD":                        "/opt/unrelated.so",       # Unrelated variables are simply ignored.
     ... })
@@ -63,7 +63,10 @@ def _parse(env: Dict[str, str]) -> Iterable[Tuple[str, Value]]:
             continue
 
         reg_name, reg_type_name = name_type
-        value = _parse_value(reg_type_name, env_value)
+        try:
+            value = _parse_value(reg_type_name, env_value)
+        except ValueError:
+            value = None
         if value is None:
             _logger.info("Could not parse environment variable %r with value %r", env_name, env_value)
             continue

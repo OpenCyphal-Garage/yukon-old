@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 import os
-import re
 import time
 import typing
 import logging
@@ -12,7 +11,10 @@ import pyuavcan
 import pyuavcan.application
 from pyuavcan.presentation import Publisher, Subscriber, Client, Server
 from uavcan.node import GetInfo_1_0, Heartbeat_1_0, ExecuteCommand_1_1, Version_1_0
+import uavcan.register
+import uavcan.time
 from ._logger import setup_log_publisher
+from . import register
 
 
 UI_NODE_ID = 1
@@ -23,27 +25,8 @@ The node-ID of the UI process that coordinates the DCS.
 MessageClass = typing.TypeVar("MessageClass", bound=pyuavcan.dsdl.CompositeObject)
 ServiceClass = typing.TypeVar("ServiceClass", bound=pyuavcan.dsdl.ServiceObject)
 
-_PORT_NAME_PATTERN = re.compile(r"[a-z][a-z0-9_]*")
-
 
 _logger = logging.getLogger(__name__)
-
-
-def _get_parameter(name: str, default: typing.Any = None) -> str:
-    full_name = "UAVCAN_" + name.upper().replace(".", "_").replace("-", "_")
-    try:
-        return os.environ[full_name]
-    except LookupError:
-        pass
-    if default is None:
-        raise KeyError(f"Environment variable {full_name!r} is not set and no default value is available") from None
-    return str(default)
-
-
-def _get_port_id(prefix: str, port_name: str, dtype: typing.Type[MessageClass]) -> int:
-    if not _PORT_NAME_PATTERN.match(port_name):
-        raise ValueError(f"Port name {port_name!r} does not match {_PORT_NAME_PATTERN.pattern!r}")
-    return int(_get_parameter(f"{prefix}.{port_name}.id", pyuavcan.dsdl.get_fixed_port_id(dtype)))
 
 
 class Node(pyuavcan.application.Node):
@@ -55,7 +38,7 @@ class Node(pyuavcan.application.Node):
             node_name_suffix,
             list(k for k in os.environ if k.startswith("UAVCAN_")),
         )
-        transport = _construct_transport()
+        transport = self._construct_transport()
         if transport.local_node_id is None:
             raise ValueError("DCS transport configuration error: node cannot be anonymous")
 
@@ -74,26 +57,41 @@ class Node(pyuavcan.application.Node):
         self._sub_heartbeat.receive_in_background(self._on_heartbeat)
         self._last_ui_heartbeat_at = time.monotonic()
 
+        self._registry = register.Registry()
+        for n, v in register.parse_environment_variables():
+            self._registry.create(n, v)
+        self._srv_register_access = self.presentation.get_server_with_fixed_service_id(uavcan.register.Access_1_0)
+        self._srv_register_list = self.presentation.get_server_with_fixed_service_id(uavcan.register.List_1_0)
+
         setup_log_publisher(self.presentation)
         self.start()
 
+    def start(self) -> None:
+        super().start()
+        self._srv_register_access.serve_in_background(self._on_register_access)
+        self._srv_register_list.serve_in_background(self._on_register_list)
+
+    def close(self) -> None:
+        super().close()  # There is no need to close each port separately, it's automated.
+        self._registry.close()
+
     def make_publisher(self, dtype: typing.Type[MessageClass], port_name: str) -> Publisher[MessageClass]:
         """:raises: :class:`KeyError` if such port is not configured."""
-        return self.presentation.make_publisher(dtype, _get_port_id("pub", port_name, dtype))
+        return self.presentation.make_publisher(dtype, self._get_port_id("pub", port_name, dtype))
 
     def make_subscriber(self, dtype: typing.Type[MessageClass], port_name: str) -> Subscriber[MessageClass]:
         """:raises: :class:`KeyError` if such port is not configured."""
-        return self.presentation.make_subscriber(dtype, _get_port_id("sub", port_name, dtype))
+        return self.presentation.make_subscriber(dtype, self._get_port_id("sub", port_name, dtype))
 
     def make_client(
         self, dtype: typing.Type[ServiceClass], port_name: str, server_node_id: int
     ) -> Client[ServiceClass]:
         """:raises: :class:`KeyError` if such port is not configured."""
-        return self.presentation.make_client(dtype, _get_port_id("cln", port_name, dtype), server_node_id)
+        return self.presentation.make_client(dtype, self._get_port_id("cln", port_name, dtype), server_node_id)
 
     def get_server(self, dtype: typing.Type[ServiceClass], port_name: str) -> Server[ServiceClass]:
         """:raises: :class:`KeyError` if such port is not configured."""
-        return self.presentation.get_server(dtype, _get_port_id("srv", port_name, dtype))
+        return self.presentation.get_server(dtype, self._get_port_id("srv", port_name, dtype))
 
     def _on_heartbeat(self, _msg: Heartbeat_1_0, transfer: pyuavcan.transport.TransferFrom) -> None:
         if transfer.source_node_id == UI_NODE_ID:
@@ -117,34 +115,58 @@ class Node(pyuavcan.application.Node):
             _logger.error("UI node is dead, exiting automatically")
             self.presentation.transport.loop.call_soon(self.close)
 
+    async def _on_register_access(
+        self, request: uavcan.register.Access_1_0.Request, meta: pyuavcan.presentation.ServiceRequestMetadata
+    ) -> uavcan.register.Access_1_0.Response:
+        _logger.debug("Register access %r %r", request, meta)
+        entry = self._registry.access(request.name.name.tobytes().decode(), request.value)
+        response = uavcan.register.Access_1_0.Response(
+            timestamp=uavcan.time.SynchronizedTimestamp_1_0(microsecond=int(time.time() * 1e6)),
+            mutable=entry.mutable,
+            persistent=self._registry.persistent,
+            value=entry.value,
+        )
+        return response
 
-def _construct_transport() -> pyuavcan.transport.Transport:
-    from ipaddress import ip_address
+    async def _on_register_list(
+        self, request: uavcan.register.List_1_0.Request, meta: pyuavcan.presentation.ServiceRequestMetadata
+    ) -> uavcan.register.List_1_0.Response:
+        _logger.debug("Register list %r %r", request, meta)
+        response = uavcan.register.List_1_0.Response()
+        name = self._registry.get_name_at_index(request.index)
+        if name is not None:
+            response.name.name = name
+        return response
 
-    try:
-        node_id: typing.Optional[int] = int(_get_parameter("node.id.natural16"))
-    except LookupError:
-        node_id = None
+    def _get_port_id(self, kind: str, port_name: str, dtype: typing.Type[MessageClass]) -> int:
+        name = f"uavcan.{kind}.{port_name}.id"
+        reg = self._registry.get_concrete(name, register.Natural16)
+        if reg is not None:
+            return int(reg.value[0])
+        fixed = pyuavcan.dsdl.get_fixed_port_id(dtype)
+        if fixed is not None:
+            return fixed
+        raise register.MissingRegisterError(f"Register {name} is invalid and {dtype} does not define a fixed port-ID")
 
-    try:
-        udp_addr = ip_address(_get_parameter("udp.ip.string"))
-    except LookupError:
-        pass
-    else:
-        from pyuavcan.transport.udp import UDPTransport
+    def _construct_transport(self) -> pyuavcan.transport.Transport:
+        u16 = self._registry.get_concrete("uavcan.node.id", register.Natural16)
+        node_id = None if u16 is None else int(u16.value[0])
 
-        return UDPTransport(udp_addr, local_node_id=node_id)
+        s = self._registry.get_concrete("uavcan.udp.ip", register.String)
+        if s:
+            from pyuavcan.transport.udp import UDPTransport
+            from ipaddress import ip_address
 
-    try:
-        serial_port = _get_parameter("serial.port.string")
-    except LookupError:
-        pass
-    else:
-        from pyuavcan.transport.serial import SerialTransport
+            udp_addr = ip_address(s.value.tobytes().decode())
+            return UDPTransport(udp_addr, local_node_id=node_id)
 
-        return SerialTransport(serial_port, local_node_id=node_id)
+        s = self._registry.get_concrete("uavcan.serial.port", register.String)
+        if s:
+            from pyuavcan.transport.serial import SerialTransport
 
-    raise ValueError(
-        "DCS transport configuration not found in environment variables: "
-        + str(list(k for k in os.environ if k.startswith("UAVCAN_")))
-    )
+            return SerialTransport(s.value.tobytes().decode(), local_node_id=node_id)
+
+        raise ValueError(
+            "DCS transport configuration not found in environment variables: "
+            + str(list(k for k in os.environ if k.startswith("UAVCAN_")))
+        )

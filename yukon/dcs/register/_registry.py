@@ -12,6 +12,9 @@ from ._storage import Storage, Entry, Value
 from ._primitives import RelaxedValue, convert
 
 
+PrimitiveType = typing.TypeVar("PrimitiveType", bound=pyuavcan.dsdl.CompositeObject)
+
+
 _logger = logging.getLogger(__name__)
 
 
@@ -86,6 +89,31 @@ class Registry:
         (True, False)
         """
         return self._storage.get(name)
+
+    def get_concrete(self, name: str, dtype: typing.Type[PrimitiveType]) -> typing.Optional[PrimitiveType]:
+        """
+        Like :meth:`get`, but it fetches the specified primitive for convenience.
+        If the register does not exist or it is of a wrong type, None is returned.
+
+        TODO: allow primitives like ``int`` or ``str`` for ``dtype``.
+
+        >>> from uavcan.primitive import Empty_1_0
+        >>> from uavcan.primitive.array import Bit_1_0
+        >>> rs = Registry()
+        >>> rs.get_concrete("foo", Bit_1_0) is None     # No such register --> None.
+        True
+        >>> rs.create("foo", Value(bit=Bit_1_0([True, False])))
+        >>> rs.get_concrete("foo", Bit_1_0).value[0]    # Yup, correct type.
+        True
+        >>> rs.get_concrete("foo", Empty_1_0) is None   # Wrong type.
+        True
+        """
+        e = self.get(name)
+        if not e:
+            return None
+        pr = pyuavcan.dsdl.get_attribute(e.value, dtype.__name__.split("_")[0].lower())
+        assert (pr is None) or isinstance(pr, dtype)
+        return pr
 
     def set(self, name: str, value: RelaxedValue) -> None:
         """
