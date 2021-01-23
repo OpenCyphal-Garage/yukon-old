@@ -26,6 +26,12 @@ MessageClass = typing.TypeVar("MessageClass", bound=pyuavcan.dsdl.CompositeObjec
 ServiceClass = typing.TypeVar("ServiceClass", bound=pyuavcan.dsdl.ServiceObject)
 
 
+class MissingPortConfigurationError(register.MissingRegisterError):
+    """
+    Raised if the application requested a port that is not configured, and no fixed port-ID is defined.
+    """
+
+
 _logger = logging.getLogger(__name__)
 
 
@@ -83,21 +89,21 @@ class Node(pyuavcan.application.Node):
         self._registry.close()
 
     def make_publisher(self, dtype: typing.Type[MessageClass], port_name: str) -> Publisher[MessageClass]:
-        """:raises: :class:`KeyError` if such port is not configured."""
+        """:raises: :class:`MissingPortConfigurationError` if such port is not configured."""
         return self.presentation.make_publisher(dtype, self._get_port_id("pub", port_name, dtype))
 
     def make_subscriber(self, dtype: typing.Type[MessageClass], port_name: str) -> Subscriber[MessageClass]:
-        """:raises: :class:`KeyError` if such port is not configured."""
+        """:raises: :class:`MissingPortConfigurationError` if such port is not configured."""
         return self.presentation.make_subscriber(dtype, self._get_port_id("sub", port_name, dtype))
 
     def make_client(
         self, dtype: typing.Type[ServiceClass], port_name: str, server_node_id: int
     ) -> Client[ServiceClass]:
-        """:raises: :class:`KeyError` if such port is not configured."""
+        """:raises: :class:`MissingPortConfigurationError` if such port is not configured."""
         return self.presentation.make_client(dtype, self._get_port_id("cln", port_name, dtype), server_node_id)
 
     def get_server(self, dtype: typing.Type[ServiceClass], port_name: str) -> Server[ServiceClass]:
-        """:raises: :class:`KeyError` if such port is not configured."""
+        """:raises: :class:`MissingPortConfigurationError` if such port is not configured."""
         return self.presentation.get_server(dtype, self._get_port_id("srv", port_name, dtype))
 
     def _on_heartbeat(self, _msg: Heartbeat_1_0, transfer: pyuavcan.transport.TransferFrom) -> None:
@@ -120,7 +126,7 @@ class Node(pyuavcan.application.Node):
     def _check_deadman_switch(self) -> None:
         if (time.monotonic() - self._last_ui_heartbeat_at) > Heartbeat_1_0.OFFLINE_TIMEOUT:
             _logger.error("UI node is dead, exiting automatically")
-            self.presentation.transport.loop.call_soon(self.close)
+            self.presentation.transport.loop.call_later(0.1, self.close)  # The delay is to flush log messages.
 
     async def _on_register_access(
         self, request: uavcan.register.Access_1_0.Request, meta: pyuavcan.presentation.ServiceRequestMetadata
@@ -153,7 +159,7 @@ class Node(pyuavcan.application.Node):
         fixed = pyuavcan.dsdl.get_fixed_port_id(dtype)
         if fixed is not None:
             return fixed
-        raise register.MissingRegisterError(f"Register {name} is invalid and {dtype} does not define a fixed port-ID")
+        raise MissingPortConfigurationError(f"Register {name} is invalid and {dtype} does not define a fixed port-ID")
 
     def _construct_transport(self) -> pyuavcan.transport.Transport:
         u16 = self._registry.get_concrete("uavcan.node.id", register.Natural16)

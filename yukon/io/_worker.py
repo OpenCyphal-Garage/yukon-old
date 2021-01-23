@@ -39,6 +39,7 @@ class IOWorker:
 
     async def run(self) -> None:
         try:
+            _logger.info("IO worker started")
             while True:
                 assert set(self._ifaces.keys()) >= set(self._spoofer.status.keys()), "State divergence"
                 cfg_transfer = await self._sub_config.receive_for(MAX_UPDATE_PERIOD)
