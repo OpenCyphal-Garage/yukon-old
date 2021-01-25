@@ -32,12 +32,12 @@ def parse_environment_variables(env: Optional[Dict[str, str]] = None) -> List[Tu
     - ``unstructured`` values are hex-decoded (e.g., ``68656c6c6f`` --> "hello").
     - ``bit``, ``integer*``, ``natural*``, ``real*`` are assumed to be in decimal notation.
 
-    Array items are separated using the standard path separator (e.g., colon or semicolon, depending on the OS).
+    Array items are space-separated.
 
     >>> parsed = parse_environment_variables({
-    ...     "M__MOTOR__FLUX_LINKAGE__REAL32":    os.pathsep.join(map(str, [1.23, 4.56])),   # Separated like PATH.
-    ...     "M__MOTOR__VENDOR_ID__STRING":       "Name: Sirius Cyber Corp.",                # Regular string as-is.
-    ...     "M__MOTOR__UNIQUE_ID__UNSTRUCTURED": "587ebed4a860984ab78b2095ee07484c",        # Hex-encoded binary blob.
+    ...     "M__MOTOR__FLUX_LINKAGE__REAL32":    "1.23 4.56",                         # Space-separated.
+    ...     "M__MOTOR__VENDOR_ID__STRING":       "Name: Sirius Cyber Corp.",          # Regular string as-is.
+    ...     "M__MOTOR__UNIQUE_ID__UNSTRUCTURED": "587ebed4a860984ab78b2095ee07484c",  # Hex-encoded binary blob.
     ...     "LD_PRELOAD":                        "/opt/unrelated.so",       # Unrelated variables are simply ignored.
     ... })
     >>> len(parsed)
@@ -82,10 +82,10 @@ def _parse_value(ty: str, text: str) -> Optional[Value]:
     if ty == "unstructured":
         return Value(unstructured=Unstructured(bytes.fromhex(text)))
     if ty == "bit":
-        return Value(bit=Bit(list(map(bool, text.split(os.pathsep)))))
+        return Value(bit=Bit(list(map(bool, text.split()))))
 
     def as_int() -> List[int]:
-        return list(map(int, text.split(os.pathsep)))
+        return list(map(int, text.split()))
 
     # fmt: off
     if ty == "integer8":  return Value(integer8=Integer8(as_int()))
@@ -99,7 +99,7 @@ def _parse_value(ty: str, text: str) -> Optional[Value]:
     # fmt: on
 
     def as_float() -> List[float]:
-        return list(map(float, text.split(os.pathsep)))
+        return list(map(float, text.split()))
 
     # fmt: off
     if ty == "real16": return Value(real16=Real16(as_float()))
