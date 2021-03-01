@@ -18,9 +18,9 @@ __license__ = "MIT"
 
 logging.basicConfig(
     stream=sys.stderr,
-    level=os.getenv("YUKON_LOGLEVEL", "INFO"),
+    level=os.getenv("YUKON_LOGLEVEL", "WARNING"),
     format="%(asctime)s %(process)07d %(levelname)-3.3s: %(name)s: %(message)s",
 )
 
 # DSDL packages are pre-compiled when the package is built, so we do not need to compile our dependencies at runtime.
-sys.path.insert(0, str(Path(__file__).resolve().parent / ".compiled_dsdl"))
+sys.path.insert(0, str(Path(__file__).resolve().parent / ".compiled"))

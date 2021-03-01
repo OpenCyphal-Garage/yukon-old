@@ -3,4 +3,4 @@
 # Author: Pavel Kirienko <pavel@uavcan.org>
 
 from __future__ import annotations
-from ._node import Node, UI_NODE_ID
+from ._node import Node as Node

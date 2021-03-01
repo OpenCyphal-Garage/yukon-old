@@ -7,7 +7,6 @@ import typing
 import logging
 import asyncio
 import concurrent.futures
-import pyuavcan.transport
 from pyuavcan.presentation import Publisher
 from org_uavcan_yukon.io import Config_0_1 as IOConfig
 from org_uavcan_yukon.io import Status_0_1 as IOStatus
@@ -24,8 +23,6 @@ An update is always published immediately after each configuration message.
 If there are no configuration messages in this amount of time, an update will be published regardless.
 """
 
-_logger = logging.getLogger(__name__)
-
 
 class IOWorker:
     def __init__(self) -> None:
@@ -35,30 +32,22 @@ class IOWorker:
         self._pub_capture = self._node.make_publisher(DCSCapture, "capture")
         self._spoofer = Spoofer(self._node.make_subscriber(DCSSpoof, "spoof"))
         self._ifaces: typing.Dict[int, typing.Union[Iface, typing.Awaitable[Iface], str]] = {}
-        self._executor = concurrent.futures.ThreadPoolExecutor(thread_name_prefix="io_worker_pool")
+        self._executor = concurrent.futures.ThreadPoolExecutor(9999, thread_name_prefix="io_worker_pool")
 
-    async def run(self) -> None:
-        try:
-            _logger.info("IO worker started")
-            while True:
-                assert set(self._ifaces.keys()) >= set(self._spoofer.status.keys()), "State divergence"
-                cfg_transfer = await self._sub_config.receive_for(MAX_UPDATE_PERIOD)
-                if cfg_transfer:
-                    self._reconfigure(cfg_transfer[0])
-                await self._update()
-        except (pyuavcan.transport.ResourceClosedError, asyncio.CancelledError):
-            pass
-        except Exception as ex:
-            _logger.fatal("IO worker failed: %s", ex)
-        finally:
-            self._node.close()
-            await asyncio.wait(asyncio.all_tasks(), timeout=1)
+    async def run(self) -> int:
+        while not self._node.shutdown:
+            assert set(self._ifaces.keys()) >= set(self._spoofer.status.keys()), "State divergence"
+            cfg_transfer = await self._sub_config.receive_for(MAX_UPDATE_PERIOD)
+            if cfg_transfer:
+                self._reconfigure(cfg_transfer[0])
+            await self._update()
+        return int(self._node.health)
 
     def close(self) -> None:
         self._node.close()
 
     def _reconfigure(self, cfg: IOConfig) -> None:
-        _logger.debug("Processing %s", cfg)
+        _logger.info("Processing %s", cfg)
         to_remove = set(self._ifaces.keys())
         for ifc in cfg.iface_config:
             assert isinstance(ifc, IOIfaceConfig)
@@ -123,7 +112,7 @@ class IOWorker:
                     spoof_bytes=spoof_stats.n_bytes,
                     spoof_transfers=spoof_stats.n_transfers,
                     spoof_timeouts=spoof_stats.n_timeouts,
-                    spoof_failures=spoof_stats.n_failures,
+                    spoof_failures=spoof_stats.n_errors,
                     spoof_backlog_current=spoof_stats.backlog,
                     spoof_backlog_peak=spoof_stats.backlog_peak,
                 )
@@ -145,3 +134,6 @@ def _initialize_iface(pub_capture: Publisher[DCSCapture], ifc: IOIfaceConfig) ->
     iface = Iface.resolve(ifc.config).new(ifc.config)
     setup_capture_forwarding(pub_capture, ifc.iface_id, iface)
     return iface
+
+
+_logger = logging.getLogger(__name__)

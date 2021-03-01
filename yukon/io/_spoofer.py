@@ -117,7 +117,7 @@ class _Inferior:
         except ResourceClosedError:
             _logger.warning("Spoofer worker for %s is stopping because the iface is closed", self._iface)
         except Exception as ex:
-            _logger.fatal("Spoofer worker for %s has failed: %s", self._iface, ex, exc_info=True)
+            _logger.critical("Spoofer worker for %s has failed: %s", self._iface, ex, exc_info=True)
 
     async def _do_spoof(self, transfer: AlienTransfer, monotonic_deadline: float) -> None:
         try:

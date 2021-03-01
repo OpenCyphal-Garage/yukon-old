@@ -5,178 +5,96 @@
 from __future__ import annotations
 import os
 import time
-import typing
+from typing import TypeVar, Type
+import asyncio
 import logging
 import pyuavcan
-import pyuavcan.application
 from pyuavcan.presentation import Publisher, Subscriber, Client, Server
-from uavcan.node import GetInfo_1_0, Heartbeat_1_0, ExecuteCommand_1_1, Version_1_0
-import uavcan.register
-import uavcan.time
-from ._logger import setup_log_publisher
-from . import register
+from pyuavcan.application import make_node, register, NodeInfo
+from pyuavcan.application.heartbeat_publisher import Heartbeat, Health
+from uavcan.node import ExecuteCommand_1_1, Version_1_0
+
+MessageClass = TypeVar("MessageClass", bound=pyuavcan.dsdl.CompositeObject)
+ServiceClass = TypeVar("ServiceClass", bound=pyuavcan.dsdl.ServiceObject)
 
 
-UI_NODE_ID = 1
-"""
-The node-ID of the UI process that coordinates the DCS.
-"""
-
-MessageClass = typing.TypeVar("MessageClass", bound=pyuavcan.dsdl.CompositeObject)
-ServiceClass = typing.TypeVar("ServiceClass", bound=pyuavcan.dsdl.ServiceObject)
-
-
-class MissingPortConfigurationError(register.MissingRegisterError):
-    """
-    Raised if the application requested a port that is not configured, and no fixed port-ID is defined.
-    """
-
-
-_logger = logging.getLogger(__name__)
-
-
-class Node(pyuavcan.application.Node):
-    def __init__(self, node_name_suffix: str) -> None:
+class Node:
+    def __init__(self, name_suffix: str) -> None:
         from yukon import __version_info__
 
-        _logger.debug(
-            "Constructing DCS node: name suffix: %r, env vars: %s",
-            node_name_suffix,
-            list(k for k in os.environ if k.startswith("UAVCAN_")),
+        self._shutdown = False
+        self._node = pyuavcan.application.make_node(
+            NodeInfo(
+                software_version=Version_1_0(*__version_info__[:2]),
+                name=f"org.uavcan.yukon.{name_suffix}",
+            )
         )
-        self._registry = register.Registry()
-        # TODO: configure the schema first.
-        for n, v in register.parse_environment_variables():
-            self._registry.create(n, v)
-
-        transport = self._construct_transport()
-        if transport.local_node_id is None:
+        if self._node.id is None:
             raise ValueError("DCS transport configuration error: node cannot be anonymous")
-        presentation = pyuavcan.presentation.Presentation(transport)
 
-        node_info = GetInfo_1_0.Response(
-            protocol_version=Version_1_0(*pyuavcan.UAVCAN_SPECIFICATION_VERSION),
-            software_version=Version_1_0(*__version_info__[:2]),
-            name=f"org.uavcan.yukon.{node_name_suffix}",
+        self._coordinator_node_id = int(
+            self._node.registry.setdefault("yukon.dcs.coordinator_node_id", register.Natural16([0xFFFF]))
         )
-        super().__init__(presentation, info=node_info, with_diagnostic_subscriber=False)
+        self._last_coordinator_heartbeat_at = time.monotonic()
 
-        self.heartbeat_publisher.add_pre_heartbeat_handler(self._check_deadman_switch)
+        self._node.heartbeat_publisher.add_pre_heartbeat_handler(self._check_deadman_switch)
+        self._node.make_subscriber(Heartbeat).receive_in_background(self._on_heartbeat)
+        self._node.get_server(ExecuteCommand_1_1).serve_in_background(self._on_execute_command)
+        self._node.start()
 
-        self._sub_heartbeat = presentation.make_subscriber_with_fixed_subject_id(Heartbeat_1_0)
-        self._sub_heartbeat.receive_in_background(self._on_heartbeat)
-        self._last_ui_heartbeat_at = time.monotonic()
+    @property
+    def loop(self) -> asyncio.AbstractEventLoop:
+        out = self._node.loop
+        assert isinstance(out, asyncio.AbstractEventLoop)
+        return out
 
-        self._srv_register_access = self.presentation.get_server_with_fixed_service_id(uavcan.register.Access_1_0)
-        self._srv_register_list = self.presentation.get_server_with_fixed_service_id(uavcan.register.List_1_0)
+    @property
+    def shutdown(self) -> bool:
+        """
+        When this value is True, the node MUST be :meth:`close`-d.
+        """
+        return self._shutdown
 
-        setup_log_publisher(self.presentation)
-        verbosity = self._registry.get_concrete("uavcan.diagnostic.verbosity", register.Natural8)
-        if verbosity and verbosity.value[0] > 0:
-            logging.root.setLevel(logging.INFO)
-        if verbosity and verbosity.value[0] > 1:
-            logging.root.setLevel(logging.DEBUG)
+    @property
+    def health(self) -> Health:
+        return self._node.heartbeat_publisher.health
 
-        self.start()
+    def make_publisher(self, dtype: Type[MessageClass], port_name: str) -> Publisher[MessageClass]:
+        return self._node.make_publisher(dtype, port_name)
 
-    def start(self) -> None:
-        super().start()
-        self._srv_register_access.serve_in_background(self._on_register_access)
-        self._srv_register_list.serve_in_background(self._on_register_list)
+    def make_subscriber(self, dtype: Type[MessageClass], port_name: str) -> Subscriber[MessageClass]:
+        return self._node.make_subscriber(dtype, port_name)
+
+    def make_client(self, dtype: Type[ServiceClass], server_node_id: int, port_name: str) -> Client[ServiceClass]:
+        return self._node.make_client(dtype, server_node_id, port_name)
+
+    def get_server(self, dtype: Type[ServiceClass], port_name: str) -> Server[ServiceClass]:
+        return self._node.get_server(dtype, port_name)
 
     def close(self) -> None:
-        super().close()  # There is no need to close each port separately, it's automated.
-        self._registry.close()
+        self._shutdown = True
+        self._node.close()
 
-    def make_publisher(self, dtype: typing.Type[MessageClass], port_name: str) -> Publisher[MessageClass]:
-        """:raises: :class:`MissingPortConfigurationError` if such port is not configured."""
-        return self.presentation.make_publisher(dtype, self._get_port_id("pub", port_name, dtype))
+    def _check_deadman_switch(self) -> None:
+        if (time.monotonic() - self._last_coordinator_heartbeat_at) > Heartbeat.OFFLINE_TIMEOUT:
+            _logger.error("Coordinator is dead, exiting automatically")
+            self._node.heartbeat_publisher.health = Health.ADVISORY
+            self._shutdown = True
 
-    def make_subscriber(self, dtype: typing.Type[MessageClass], port_name: str) -> Subscriber[MessageClass]:
-        """:raises: :class:`MissingPortConfigurationError` if such port is not configured."""
-        return self.presentation.make_subscriber(dtype, self._get_port_id("sub", port_name, dtype))
+    async def _on_heartbeat(self, _msg: Heartbeat, meta: pyuavcan.transport.TransferFrom) -> None:
+        if meta.source_node_id == self._coordinator_node_id:
+            self._last_coordinator_heartbeat_at = time.monotonic()
 
-    def make_client(
-        self, dtype: typing.Type[ServiceClass], port_name: str, server_node_id: int
-    ) -> Client[ServiceClass]:
-        """:raises: :class:`MissingPortConfigurationError` if such port is not configured."""
-        return self.presentation.make_client(dtype, self._get_port_id("cln", port_name, dtype), server_node_id)
-
-    def get_server(self, dtype: typing.Type[ServiceClass], port_name: str) -> Server[ServiceClass]:
-        """:raises: :class:`MissingPortConfigurationError` if such port is not configured."""
-        return self.presentation.get_server(dtype, self._get_port_id("srv", port_name, dtype))
-
-    def _on_heartbeat(self, _msg: Heartbeat_1_0, transfer: pyuavcan.transport.TransferFrom) -> None:
-        if transfer.source_node_id == UI_NODE_ID:
-            self._last_ui_heartbeat_at = time.monotonic()
-
-    def _on_execute_command(
+    async def _on_execute_command(
         self, request: ExecuteCommand_1_1.Request, meta: pyuavcan.presentation.ServiceRequestMetadata
     ) -> ExecuteCommand_1_1.Response:
         _logger.info("Received command %s from %s", request, meta)
         if request.command == ExecuteCommand_1_1.Request.COMMAND_POWER_OFF:
-            self.presentation.transport.loop.call_later(0.5, self.close)
+            self._shutdown = True
             return ExecuteCommand_1_1.Response(status=ExecuteCommand_1_1.Response.STATUS_SUCCESS)
-
         if request.command == ExecuteCommand_1_1.Request.COMMAND_EMERGENCY_STOP:
             os.abort()
-
         return ExecuteCommand_1_1.Response(status=ExecuteCommand_1_1.Response.STATUS_BAD_COMMAND)
 
-    def _check_deadman_switch(self) -> None:
-        if (time.monotonic() - self._last_ui_heartbeat_at) > Heartbeat_1_0.OFFLINE_TIMEOUT:
-            _logger.error("UI node is dead, exiting automatically")
-            self.presentation.transport.loop.call_later(0.1, self.close)  # The delay is to flush log messages.
 
-    async def _on_register_access(
-        self, request: uavcan.register.Access_1_0.Request, meta: pyuavcan.presentation.ServiceRequestMetadata
-    ) -> uavcan.register.Access_1_0.Response:
-        _logger.debug("Register access %r %r", request, meta)
-        entry = self._registry.access(request.name.name.tobytes().decode(), request.value)
-        response = uavcan.register.Access_1_0.Response(
-            timestamp=uavcan.time.SynchronizedTimestamp_1_0(microsecond=int(time.time() * 1e6)),
-            mutable=entry.mutable,
-            persistent=self._registry.persistent,
-            value=entry.value,
-        )
-        return response
-
-    async def _on_register_list(
-        self, request: uavcan.register.List_1_0.Request, meta: pyuavcan.presentation.ServiceRequestMetadata
-    ) -> uavcan.register.List_1_0.Response:
-        _logger.debug("Register list %r %r", request, meta)
-        response = uavcan.register.List_1_0.Response()
-        name = self._registry.get_name_at_index(request.index)
-        if name is not None:
-            response.name.name = name
-        return response
-
-    def _get_port_id(self, kind: str, port_name: str, dtype: typing.Type[MessageClass]) -> int:
-        name = f"uavcan.{kind}.{port_name}.id"
-        reg = self._registry.get_concrete(name, register.Natural16)
-        if reg is not None:
-            return int(reg.value[0])
-        fixed = pyuavcan.dsdl.get_fixed_port_id(dtype)
-        if fixed is not None:
-            return fixed
-        raise MissingPortConfigurationError(f"Register {name} is invalid and {dtype} does not define a fixed port-ID")
-
-    def _construct_transport(self) -> pyuavcan.transport.Transport:
-        u16 = self._registry.get_concrete("uavcan.node.id", register.Natural16)
-        node_id = None if u16 is None else int(u16.value[0])
-
-        s = self._registry.get_concrete("uavcan.udp.ip", register.String)
-        if s:
-            from pyuavcan.transport.udp import UDPTransport
-            from ipaddress import ip_address
-
-            udp_addr = ip_address(s.value.tobytes().decode())
-            return UDPTransport(udp_addr, local_node_id=node_id)
-
-        s = self._registry.get_concrete("uavcan.serial.port", register.String)
-        if s:
-            from pyuavcan.transport.serial import SerialTransport
-
-            return SerialTransport(s.value.tobytes().decode(), local_node_id=node_id)
-
-        raise ValueError(f"DCS transport configuration not found in environment variables: {list(os.environ)}")
+_logger = logging.getLogger(__name__)
