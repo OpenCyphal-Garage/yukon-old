@@ -32,10 +32,8 @@ class Node:
         if self._node.id is None:
             raise ValueError("DCS transport configuration error: node cannot be anonymous")
 
-        self._coordinator_node_id = int(
-            self._node.registry.setdefault("yukon.dcs.coordinator_node_id", register.Natural16([0xFFFF]))
-        )
-        self._last_coordinator_heartbeat_at = time.monotonic()
+        self._head_node_id = int(self._node.registry.setdefault("yukon.dcs.head_node_id", register.Natural16([0xFFFF])))
+        self._last_head_heartbeat_at = time.monotonic()
 
         self._node.heartbeat_publisher.add_pre_heartbeat_handler(self._check_deadman_switch)
         self._node.make_subscriber(Heartbeat).receive_in_background(self._on_heartbeat)
@@ -76,14 +74,14 @@ class Node:
         self._node.close()
 
     def _check_deadman_switch(self) -> None:
-        if (time.monotonic() - self._last_coordinator_heartbeat_at) > Heartbeat.OFFLINE_TIMEOUT:
-            _logger.error("Coordinator is dead, exiting automatically")
+        if (time.monotonic() - self._last_head_heartbeat_at) > Heartbeat.OFFLINE_TIMEOUT:
+            _logger.error("Head node is dead, exiting automatically")
             self._node.heartbeat_publisher.health = Health.ADVISORY
             self._shutdown = True
 
     async def _on_heartbeat(self, _msg: Heartbeat, meta: pyuavcan.transport.TransferFrom) -> None:
-        if meta.source_node_id == self._coordinator_node_id:
-            self._last_coordinator_heartbeat_at = time.monotonic()
+        if meta.source_node_id == self._head_node_id:
+            self._last_head_heartbeat_at = time.monotonic()
 
     async def _on_execute_command(
         self, request: ExecuteCommand_1_1.Request, meta: pyuavcan.presentation.ServiceRequestMetadata

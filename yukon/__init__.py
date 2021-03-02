@@ -16,6 +16,10 @@ __copyright__ = f"Copyright (c) 2021 {__author__} <{__email__}>"
 __license__ = "MIT"
 
 
+if sys.version_info < (3, 9):  # pragma: no cover
+    raise RuntimeError("A newer version of Python is required")
+
+
 logging.basicConfig(
     stream=sys.stderr,
     level=os.getenv("YUKON_LOGLEVEL", "WARNING"),

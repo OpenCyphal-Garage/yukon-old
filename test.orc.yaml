@@ -1,4 +1,5 @@
 #!/usr/bin/env -S yakut -v orc
+# This file is added here tentatively for manual testing purposes.
 
 uavcan:
   udp.iface: 127.42.0.0
@@ -14,7 +15,7 @@ uavcan:
 
 yukon:
   dcs:
-    coordinator_node_id: 1
+    head_node_id: 1
 
 $=:
 - $=: python -m yukon.io
@@ -23,6 +24,5 @@ $=:
 
 - yakut sub uavcan.diagnostic.Record.1.1
 
-# This is needed for the diagnostic tools if they are launched by this orc-file.
-YAKUT_PATH: .compiled:build/lib/yukon/.compiled
+PYTHONPATH: build/lib/yukon/.compiled
 YAKUT_FORMAT: json
