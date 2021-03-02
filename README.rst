@@ -2,6 +2,8 @@
       :align: left
       :height: 80px
 
+**This is currently an INCOMPLETE WORK.**
+
 An open suite of tools for observing, debugging, and interacting with a `UAVCAN`_ v1 bus.
 
 +--------------------------------+-----------------------------------+
