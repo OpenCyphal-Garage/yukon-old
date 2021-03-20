@@ -10,7 +10,7 @@ Hypercorn==0.9.5
 hyperframe==5.2.0
 isort==4.3.21
 itsdangerous==1.1.0
-Jinja2==2.11.2
+Jinja2==2.11.3
 MarkupSafe==1.1.1
 priority==1.3.0
 pycodestyle==2.6.0
