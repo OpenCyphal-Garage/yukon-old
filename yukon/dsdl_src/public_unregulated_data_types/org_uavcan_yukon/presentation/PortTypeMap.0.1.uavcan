@@ -1,0 +1,11 @@
+# This message encodes the entire mapping from subject-/service-ID to data type name.
+# It is intended to be used as a look-up table where indexes correspond to port-IDs, and values are full type names.
+# Despite its large size, the message is fast to decode using zero-copy deserializers (like in PyUAVCAN).
+
+#uavcan.primitive.String.1.0[uavcan.node.port.SubjectID.1.0.MAX + 1] subjects
+#uavcan.primitive.String.1.0[uavcan.node.port.ServiceID.1.0.MAX + 1] services
+# TODO: FIX https://github.com/UAVCAN/pydsdl/issues/23 AND REPLACE THE BELOW WITH THE ABOVE
+uavcan.primitive.String.1.0[4] subjects
+uavcan.primitive.String.1.0[4] services
+
+@sealed

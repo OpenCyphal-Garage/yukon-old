@@ -1,0 +1,7 @@
+@union
+
+OperationalInfo.0.1         operational
+uavcan.primitive.Empty.1.0  initialization
+uavcan.primitive.String.1.0 failure
+
+@sealed

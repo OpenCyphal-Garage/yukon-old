@@ -1,0 +1,6 @@
+@union
+
+SubjectSession.0.1 subject
+ServiceSession.0.1 service
+
+@sealed

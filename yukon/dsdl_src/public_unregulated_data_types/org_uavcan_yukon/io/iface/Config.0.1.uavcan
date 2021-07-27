@@ -1,0 +1,4 @@
+uint8 iface_id
+org_uavcan_yukon.io.iface.transport.Config.0.1 config
+
+@extent 400 * 8

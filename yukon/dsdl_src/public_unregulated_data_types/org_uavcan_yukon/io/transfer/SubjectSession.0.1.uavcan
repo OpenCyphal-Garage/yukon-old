@@ -1,0 +1,6 @@
+uavcan.node.port.SubjectID.1.0 subject_id
+
+uavcan.node.ID.1.0[<=1] source
+# If not set, the transfer is anonymous.
+
+@sealed

@@ -1,0 +1,10 @@
+# Configuration of the network IO subsystem.
+# Whenever the IO worker (IOW) receives this message, it checks if the configuration matches the currently active one.
+# If there is a mismatch, then the mismatching interfaces are destroyed and replacements are initialized.
+# If the requested configuration cannot be established, the error is reported via Status.
+
+uint8 MAX_REDUNDANCY_FACTOR = 4
+
+org_uavcan_yukon.io.iface.Config.0.1[<=MAX_REDUNDANCY_FACTOR] iface_config
+
+@extent 2048 * 8

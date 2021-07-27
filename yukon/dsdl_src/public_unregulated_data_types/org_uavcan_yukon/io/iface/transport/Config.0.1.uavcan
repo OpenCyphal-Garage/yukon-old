@@ -1,0 +1,7 @@
+@union
+
+UDP.0.1     udp
+Serial.0.1  serial
+CAN.0.1     can
+
+@sealed

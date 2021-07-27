@@ -1,0 +1,10 @@
+uavcan.node.port.ServiceID.1.0 service_id
+
+uavcan.node.ID.1.0 source
+uavcan.node.ID.1.0 destination
+
+bool is_request
+# If true:  source is client, destination is server.
+# If false: source is server, destination is client.
+
+@sealed

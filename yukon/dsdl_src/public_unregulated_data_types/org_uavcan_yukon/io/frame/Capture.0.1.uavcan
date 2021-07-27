@@ -1,0 +1,18 @@
+# A transport frame captured from the network.
+
+uavcan.time.SynchronizedTimestamp.1.0 timestamp
+# The most accurate timestamp representing the moment of time when the frame was picked up from the network.
+
+uint8 iface_id
+# Which of the several active interfaces was this frame received from.
+# The set of available ifaces and their IDs is obtainable by subscribing to io.Config.
+
+uint64 sequence_number
+# Each transport interface maintains its own frame counter that starts from zero when the interface is initialized.
+# Each received frame increments the counter (by virtue of having a very large range it never overflows).
+
+void64
+
+Frame.0.1 frame
+
+@sealed
