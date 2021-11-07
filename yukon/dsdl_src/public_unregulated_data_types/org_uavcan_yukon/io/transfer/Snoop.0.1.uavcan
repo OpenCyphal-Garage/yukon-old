@@ -1,5 +1,4 @@
 uavcan.time.SynchronizedTimestamp.1.0 timestamp
-uint8        iface_id                       # Which interface this transfer was snooped from.
 uint64[2]    frame_sequence_number_min_max  # Seq nos that bound the transfer; the range may include irrelevant frames.
 Priority.1.0 priority
 uint64       transfer_id

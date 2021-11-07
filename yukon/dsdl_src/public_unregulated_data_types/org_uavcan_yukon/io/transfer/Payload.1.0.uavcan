@@ -1,5 +1,4 @@
-# uint32 CAPACITY_BYTES = 100 * (1024 ** 2)  # FIXME: ENLARGE WHEN RESOLVED: https://github.com/UAVCAN/pydsdl/issues/23
-uint32 CAPACITY_BYTES = 1024 * 16
+uint32 CAPACITY_BYTES = 128 * (1024 ** 2)
 
 uint8[<=CAPACITY_BYTES] payload
 

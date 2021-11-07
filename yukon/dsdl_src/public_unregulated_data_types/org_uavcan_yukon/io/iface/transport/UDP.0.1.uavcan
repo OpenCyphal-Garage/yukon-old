@@ -1,5 +1,0 @@
-uavcan.primitive.String.1.0 local_nic_address  # Which local net iface to use.
-uint16 mtu
-bool duplicate_service_transfers  # Use deterministic data loss mitigation for service transfers.
-
-@extent 384 * 8

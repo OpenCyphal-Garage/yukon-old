@@ -1,4 +1,3 @@
-# Operational statistics of a single interface in the redundant group.
 # The values start from zero when the interface is (re-)initialized.
 
 uint64 media_frames             # Number of frames captured from the network, including spoofed frames.
