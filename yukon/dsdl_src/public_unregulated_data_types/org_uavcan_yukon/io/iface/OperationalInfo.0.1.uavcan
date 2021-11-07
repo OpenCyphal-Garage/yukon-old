@@ -1,4 +1,4 @@
-# The values start from zero when the interface is (re-)initialized.
+# The values start from zero when the interface is initialized.
 
 uint64 media_frames             # Number of frames captured from the network, including spoofed frames.
 uint64 media_bytes              # Total number of media-layer payload bytes in the above frames.

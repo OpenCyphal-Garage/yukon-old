@@ -2,8 +2,9 @@
 
 uavcan.si.unit.duration.Scalar.1.0 timeout  # Give up if the transfer could not be emitted in this time.
 Priority.1.0 priority
+uint64       transfer_id
 Session.0.1  session
-uint64[<=1]  transfer_id  # If not set, the correct transfer-ID will be filled in automatically.
 Payload.1.0  payload
 
 @sealed
+
