@@ -1,6 +1,5 @@
 # Yukon – the UAVCAN IDE
 
-[![PyPI - Version](https://img.shields.io/pypi/v/yukon.svg)](https://pypi.org/project/yakut/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Forum](https://img.shields.io/discourse/users.svg?server=https%3A%2F%2Fforum.uavcan.org&color=1700b3)](https://forum.uavcan.org)
 
