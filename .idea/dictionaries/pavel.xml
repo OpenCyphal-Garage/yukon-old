@@ -201,6 +201,7 @@
       <w>socketcan</w>
       <w>socketcanfd</w>
       <w>sphinxarg</w>
+      <w>spoofer</w>
       <w>stdint</w>
       <w>strictification</w>
       <w>strictify</w>

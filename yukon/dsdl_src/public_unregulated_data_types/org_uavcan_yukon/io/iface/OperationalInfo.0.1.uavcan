@@ -10,8 +10,6 @@ uint64 spoof_bytes              # Cumulative size of the presentation-layer payl
 uint64 spoof_transfers          # Spoofed transfers that are actually sent to the network on time.
 uint64 spoof_timeouts           # Spoofs that would be successful if not for the timeout.
 uint64 spoof_failures           # The number of spoofing requests that could not be executed due to an error.
-uint32 spoof_backlog_current    # Number of transfers that are waiting for transmission at the moment.
-uint32 spoof_backlog_peak       # The largest seen value of the above.
 
 uint64 errors
 # Registered problems of the local network interface card (NIC), adapter, driver, or the media layer logic.

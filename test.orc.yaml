@@ -7,22 +7,26 @@ uavcan:
     severity: 1
     timestamp: true
   sub: &subjects
-    io_status.id:   1
-    capture.id:     2
-    io_config.id:   3
-    spoof.id:       4
+    operational_info.id:  1
+    capture.id:           2
+    spoof.id:             4
   pub: *subjects
 
 yukon:
   dcs:
-    head_node_id: 1
+    head_node_id: 0
 
 $=:
-- $=: python -m yukon.io
+- $=: python -m yukon.io.udp
   uavcan:
     node.id: 2
+  yukon:
+    io:
+      udp.local_ip_address: 127.33.0.0
+      service_transfer_multiplier: 2
 
 - yakut sub uavcan.diagnostic.Record.1.1
 
-PYTHONPATH: build/lib/yukon/.compiled
+PYTHONPATH: build/lib:build/lib/yukon/.compiled
 YAKUT_FORMAT: json
+YUKON_LOGLEVEL: DEBUG

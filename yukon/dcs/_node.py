@@ -54,6 +54,10 @@ class Node:
         return self._shutdown
 
     @property
+    def registry(self) -> pyuavcan.application.register.Registry:
+        return self._node.registry
+
+    @property
     def health(self) -> Health:
         return self._node.heartbeat_publisher.health
 

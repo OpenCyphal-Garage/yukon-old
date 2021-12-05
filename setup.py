@@ -30,7 +30,8 @@ class BuildPy(distutils.command.build_py.build_py):
         super().run()
 
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)-3.3s %(name)s: %(message)s")
+logging.basicConfig(level=logging.WARNING, format="%(levelname)-3.3s %(name)s: %(message)s")
+# noinspection PyTypeChecker
 setuptools.setup(
     cmdclass={"build_py": BuildPy},
 )

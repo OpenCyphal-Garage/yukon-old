@@ -21,7 +21,6 @@ var/
 *.egg
 pip-log.txt
 pip-delete-this-directory.txt
-
 htmlcov/
 .tox/
 .coverage
@@ -32,6 +31,10 @@ htmlcov/
 nosetests.xml
 coverage.xml
 *,cover
+*.tmp
+*.log
+*.cache
+.python-version
 
 .project
 .pydevproject
@@ -40,16 +43,10 @@ coverage.xml
 **/.idea/*
 !**/.idea/dictionaries
 !**/.idea/dictionaries/*
-
-*.tmp
-*.log
-*.cache
-
-.scannerwork
-
-# MS stuff
 *.code-workspace
 .vscode
+
+.scannerwork
 
 # Compiled namespaces
 .*compiled

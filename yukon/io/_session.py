@@ -6,7 +6,7 @@ from pyuavcan.transport import AlienSessionSpecifier
 from org_uavcan_yukon.io.transfer import Session_0_1 as Session
 
 
-def session_to_dcs(ses: AlienSessionSpecifier) -> Session:
+def session_to_dsdl(ses: AlienSessionSpecifier) -> Session:
     import uavcan.node.port
     from org_uavcan_yukon.io.transfer import SubjectSession_0_1 as SubjectSession
     from org_uavcan_yukon.io.transfer import ServiceSession_0_1 as ServiceSession
@@ -37,7 +37,7 @@ def session_to_dcs(ses: AlienSessionSpecifier) -> Session:
     assert False
 
 
-def session_from_dcs(ses: Session) -> AlienSessionSpecifier:
+def session_from_dsdl(ses: Session) -> AlienSessionSpecifier:
     from pyuavcan.transport import MessageDataSpecifier, ServiceDataSpecifier
 
     if ses.subject:
@@ -75,31 +75,31 @@ def _unittest_session_spec() -> None:
         destination_node_id=None,
         data_specifier=MessageDataSpecifier(6666),
     )
-    assert session_from_dcs(session_to_dcs(ss)) == ss
+    assert session_from_dsdl(session_to_dsdl(ss)) == ss
 
     ss = AlienSessionSpecifier(
         source_node_id=123,
         destination_node_id=None,
         data_specifier=MessageDataSpecifier(6666),
     )
-    assert session_from_dcs(session_to_dcs(ss)) == ss
+    assert session_from_dsdl(session_to_dsdl(ss)) == ss
 
     ss = AlienSessionSpecifier(
         source_node_id=123,
         destination_node_id=321,
         data_specifier=ServiceDataSpecifier(222, ServiceDataSpecifier.Role.REQUEST),
     )
-    assert session_from_dcs(session_to_dcs(ss)) == ss
+    assert session_from_dsdl(session_to_dsdl(ss)) == ss
 
     ss = AlienSessionSpecifier(
         source_node_id=123,
         destination_node_id=321,
         data_specifier=ServiceDataSpecifier(222, ServiceDataSpecifier.Role.RESPONSE),
     )
-    assert session_from_dcs(session_to_dcs(ss)) == ss
+    assert session_from_dsdl(session_to_dsdl(ss)) == ss
 
     with pytest.raises(ValueError):
-        session_to_dcs(
+        session_to_dsdl(
             AlienSessionSpecifier(
                 source_node_id=None,
                 destination_node_id=None,
