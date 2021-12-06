@@ -1,0 +1,15 @@
+# An arbitrary data structure encoded in the schemaless self-describing MessagePack format.
+# See the specification at https://msgpack.org.
+
+uint32 CAPACITY = 128 * (1024 ** 2)
+# This is expected to be cheap to allocate because large contiguous buffers are usually
+# allocated using mmap() which is not mapped to the physical memory unless used.
+# Capacity can be reduced down to 65536 bytes without affecting wire compatibility
+# (because the buffer array length prefix would still be 32 bit wide).
+
+void64  # reserved for metadata
+
+uint8[<=CAPACITY] buffer
+
+@sealed
+
