@@ -2,16 +2,21 @@
 
 uint64 media_frames             # Number of frames captured from the network, including spoofed frames.
 uint64 media_bytes              # Total number of media-layer payload bytes in the above frames.
-uint7  media_utilization_pct    # Estimated load relative to the theoretical worst-case maximum.
-uint7  MEDIA_UTILIZATION_PCT_UNKNOWN = 127
-void1
+uint64 media_capture_failures   # Number of frames that could not be captured and/or forwarded.
+void64
+void64
 
 uint64 spoof_bytes              # Cumulative size of the presentation-layer payload transferred so far.
 uint64 spoof_transfers          # Spoofed transfers that are actually sent to the network on time.
 uint64 spoof_timeouts           # Spoofs that would be successful if not for the timeout.
 uint64 spoof_failures           # The number of spoofing requests that could not be executed due to an error.
+void64
+void64
 
 uint64 errors
 # Registered problems of the local network interface card (NIC), adapter, driver, or the media layer logic.
+
+void64
+void64
 
 @extent 256 * 8

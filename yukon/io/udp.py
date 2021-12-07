@@ -55,17 +55,13 @@ async def run(local_node: yukon.dcs.Node, tran: UDPTransport) -> int:
 
     pub_op_info = local_node.make_publisher(OperationalInfo, "operational_info")
 
-    async def publish_operational_info() -> None:
-        op_info.media_utilization_pct = op_info.MEDIA_UTILIZATION_PCT_UNKNOWN
-        await pub_op_info.publish(op_info)
-
     sleep_until = local_node.loop.time()
     while not local_node.shutdown:
         sleep_until += 1.0
         delay = sleep_until - local_node.loop.time()
         if delay > 0:
             await asyncio.sleep(delay)
-        await publish_operational_info()
+        await pub_op_info.publish(op_info)
     return 0
 
 
@@ -74,43 +70,54 @@ def begin_capture(
     pub: pyuavcan.presentation.Publisher[DSDLCapture],
     tran: pyuavcan.transport.Transport,
 ) -> None:
-    sequence_number = 0
+    llp_lookup = {
+        socket.AF_INET: EtherType(EtherType.IP_V4),
+        socket.AF_INET6: EtherType(EtherType.IP_V6),
+    }
+    que = asyncio.Queue()
 
-    def handle_capture(cap: pyuavcan.transport.Capture) -> None:
-        nonlocal sequence_number
+    def mk_adr(x: memoryview) -> bytes:
+        return x.tobytes().ljust(6, b"\x00")[:6]
+
+    async def handle_capture(cap: pyuavcan.transport.Capture) -> None:
         assert isinstance(cap, pyuavcan.transport.udp.UDPCapture)
-
-        op_info.media_frames += 1  # Race condition here?
-        op_info.media_bytes += len(cap.link_layer_packet.payload)
-
         llp = cap.link_layer_packet
-        if llp.protocol == socket.AF_INET:
-            et = EtherType.IP_V4
-        elif llp.protocol == socket.AF_INET6:
-            et = EtherType.IP_V6
-        else:
-            _logger.warning("Unsupported transport layer protocol: %r", llp.protocol)
-            return
-
-        def mk_adr(x: memoryview) -> bytes:
-            return x.tobytes().ljust(6, b"\x00")[:6]
-
         msg = DSDLCapture(
             timestamp=timestamp_to_dsdl(cap.timestamp),
-            sequence_number=sequence_number,
+            sequence_number=op_info.media_frames,
             frame=DSDLFrame(
                 udp=EtherFrame(
                     destination=mk_adr(llp.destination),
                     source=mk_adr(llp.source),
-                    ethertype=et,
+                    ethertype=llp_lookup[llp.protocol],
                     payload=numpy.asarray(llp.payload, dtype=numpy.uint8),
                 )
             ),
         )
-        sequence_number += 1
-        asyncio.get_event_loop().call_soon_threadsafe(pub.publish_soon, msg)
+        op_info.media_frames += 1
+        op_info.media_bytes += len(cap.link_layer_packet.payload)
+        if not await pub.publish(msg):
+            op_info.media_capture_failures += 1
+            _logger.info("Capture publication timed out: %r", msg)
 
-    tran.begin_capture(handle_capture)
+    async def task() -> None:
+        _logger.debug("Capture forwarding task started")
+        while True:
+            try:
+                cap = await que.get()
+                await handle_capture(cap)
+            except Exception as ex:  # pragma: no cover
+                op_info.media_capture_failures += 1
+                _logger.exception("Capture handler exception: %s", ex)
+
+    def enqueue_threadsafe(cap: pyuavcan.transport.Capture) -> None:  # This is invoked from the worker thread.
+        tran.loop.call_soon_threadsafe(que.put_nowait, cap)
+
+    assert 0 == op_info.media_frames
+    assert 0 == op_info.media_bytes
+    assert 0 == op_info.media_capture_failures
+    tran.loop.create_task(task(), name="capture_forwarder")
+    tran.begin_capture(enqueue_threadsafe)
 
 
 def main() -> int:

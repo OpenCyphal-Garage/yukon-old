@@ -2,6 +2,7 @@
   <dictionary name="pavel">
     <words>
       <w>abstractmethods</w>
+      <w>addopts</w>
       <w>afdx</w>
       <w>allocatee</w>
       <w>ancdata</w>
@@ -150,6 +151,7 @@
       <w>pylint</w>
       <w>pyserial</w>
       <w>pytest</w>
+      <w>pytestmark</w>
       <w>pythonasynciodebug</w>
       <w>pythoncan</w>
       <w>pythonpath</w>

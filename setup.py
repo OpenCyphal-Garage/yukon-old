@@ -4,7 +4,6 @@
 # Author: Pavel Kirienko <pavel@uavcan.org>
 # type: ignore
 
-import logging
 import setuptools
 import distutils.command.build_py
 from pathlib import Path
@@ -30,7 +29,6 @@ class BuildPy(distutils.command.build_py.build_py):
         super().run()
 
 
-logging.basicConfig(level=logging.WARNING, format="%(levelname)-3.3s %(name)s: %(message)s")
 # noinspection PyTypeChecker
 setuptools.setup(
     cmdclass={"build_py": BuildPy},
