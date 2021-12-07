@@ -54,6 +54,10 @@ repository  = "https://github.com/UAVCAN/yukon"
 [project.gui-scripts]
 yukon = "yukon:main"
 
+[build-system]  # https://setuptools.pypa.io/en/latest/build_meta.html
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
 # -------------------------------------------------- MYPY --------------------------------------------------
 [tool.mypy]
 warn_return_any         = true
@@ -151,8 +155,5 @@ min-similarity-lines = 20
 line-length = 120
 target-version = ['py310']
 include = '''
-(yukon|tests)/.*\.pyi?$
-'''
-exclude = '''
-(/\..*/)|(/dsdl_src/)
+((yukon|tests)/.*\.pyi?$)|setup.py|noxfile.py
 '''
