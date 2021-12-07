@@ -5,7 +5,7 @@
 import sys
 import pathlib
 
-TEST_ROOT_DIR = pathlib.Path(__file__).parent
+TEST_ROOT_DIR = pathlib.Path(__file__).resolve().parent
 PROJECT_ROOT_DIR = TEST_ROOT_DIR.parent
 BUILD_LIB_DIR = PROJECT_ROOT_DIR / "build" / "lib"
 COMPILED_DIR = BUILD_LIB_DIR / "yukon" / ".compiled"

@@ -55,7 +55,11 @@ repository  = "https://github.com/UAVCAN/yukon"
 yukon = "yukon:main"
 
 [build-system]  # https://setuptools.pypa.io/en/latest/build_meta.html
-requires = ["setuptools", "wheel"]
+requires = [
+    "setuptools",
+    "wheel",
+    "pyuavcan",  # PyUAVCAN is needed for its Python DSDL compiler.
+]
 build-backend = "setuptools.build_meta"
 
 # -------------------------------------------------- MYPY --------------------------------------------------
