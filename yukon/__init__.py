@@ -5,19 +5,21 @@
 import os
 import sys
 import typing
+import importlib.metadata
 import coloredlogs
 from pathlib import Path
 
-__version__: str = (Path(__file__).parent / "VERSION").read_text().strip()
+
+# pyproject.toml is the central place where all project metadata is kept. Only there.
+# The package cannot be used from sources -- it has to be built beforehand.
+META = importlib.metadata.metadata("yukon")
+__version__ = META["version"]
 __version_info__: typing.Tuple[int, ...] = tuple(map(int, __version__.split(".")[:3]))
-__author__ = "UAVCAN Consortium"
-__email__ = "consortium@uavcan.org"
+__author__ = META["author"]
+__email__ = META["author-email"]
 __copyright__ = f"Copyright (c) 2021 {__author__} <{__email__}>"
 __license__ = "MIT"
 
-
-if sys.version_info < (3, 10):  # pragma: no cover
-    raise RuntimeError("A newer version of Python is required")
 
 coloredlogs.install(level=os.getenv("YUKON_LOGLEVEL", "WARNING"))
 

@@ -7,7 +7,9 @@ import pathlib
 
 TEST_ROOT_DIR = pathlib.Path(__file__).parent
 PROJECT_ROOT_DIR = TEST_ROOT_DIR.parent
-COMPILED_DIR = PROJECT_ROOT_DIR / "build" / "lib" / "yukon" / ".compiled"
+BUILD_LIB_DIR = PROJECT_ROOT_DIR / "build" / "lib"
+COMPILED_DIR = BUILD_LIB_DIR / "yukon" / ".compiled"
 
-sys.path.insert(0, str(PROJECT_ROOT_DIR))
+# The package has to be built before the test suite can be executed.
+sys.path.insert(0, str(BUILD_LIB_DIR))
 sys.path.insert(0, str(COMPILED_DIR))

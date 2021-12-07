@@ -10,7 +10,8 @@ from pathlib import Path
 
 
 PACKAGE_NAME = "yukon"
-DSDL_SOURCE_ROOT = Path(__file__).resolve().parent / PACKAGE_NAME / "dsdl_src"
+PROJECT_ROOT = Path(__file__).resolve().parent
+DSDL_SOURCE_ROOT = PROJECT_ROOT / PACKAGE_NAME / "dsdl_src"
 
 
 # noinspection PyUnresolvedReferences
@@ -29,7 +30,12 @@ class BuildPy(distutils.command.build_py.build_py):
         super().run()
 
 
-# noinspection PyTypeChecker
-setuptools.setup(
-    cmdclass={"build_py": BuildPy},
-)
+if __name__ == "__main__":
+    # noinspection PyTypeChecker
+    setuptools.setup(
+        cmdclass={"build_py": BuildPy},
+        packages=setuptools.find_packages(str(PROJECT_ROOT), include=("yukon", "yukon.*")),
+        package_data={"yukon": ["*"]},
+        include_package_data=True,
+        zip_safe=False,
+    )

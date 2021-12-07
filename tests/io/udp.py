@@ -32,7 +32,7 @@ from tests import COMPILED_DIR
 pytestmark = pytest.mark.asyncio
 
 
-async def test_basic() -> None:
+async def __test_basic() -> None:
     proc = await asyncio.subprocess.create_subprocess_exec(
         sys.executable,
         "-m",
