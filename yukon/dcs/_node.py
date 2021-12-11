@@ -12,7 +12,7 @@ import pyuavcan
 from pyuavcan.presentation import Publisher, Subscriber, Client, Server
 from pyuavcan.application import make_node, register, NodeInfo
 from pyuavcan.application.heartbeat_publisher import Heartbeat, Health
-from uavcan.node import ExecuteCommand_1_1, Version_1_0
+from uavcan.node import ExecuteCommand_1, Version_1
 
 MessageClass = TypeVar("MessageClass", bound=pyuavcan.dsdl.CompositeObject)
 ServiceClass = TypeVar("ServiceClass", bound=pyuavcan.dsdl.ServiceObject)
@@ -25,7 +25,7 @@ class Node:
         self._shutdown = False
         self._node = pyuavcan.application.make_node(
             NodeInfo(
-                software_version=Version_1_0(*__version_info__[:2]),
+                software_version=Version_1(*__version_info__[:2]),
                 name=f"org.uavcan.yukon.{name_suffix}",
             )
         )
@@ -37,7 +37,7 @@ class Node:
 
         self._node.heartbeat_publisher.add_pre_heartbeat_handler(self._check_deadman_switch)
         self._node.make_subscriber(Heartbeat).receive_in_background(self._on_heartbeat)
-        self._node.get_server(ExecuteCommand_1_1).serve_in_background(self._on_execute_command)
+        self._node.get_server(ExecuteCommand_1).serve_in_background(self._on_execute_command)
         self._node.start()
 
     @property
@@ -88,15 +88,15 @@ class Node:
             self._last_head_heartbeat_at = time.monotonic()
 
     async def _on_execute_command(
-        self, request: ExecuteCommand_1_1.Request, meta: pyuavcan.presentation.ServiceRequestMetadata
-    ) -> ExecuteCommand_1_1.Response:
+        self, request: ExecuteCommand_1.Request, meta: pyuavcan.presentation.ServiceRequestMetadata
+    ) -> ExecuteCommand_1.Response:
         _logger.info("Received command %s from %s", request, meta)
-        if request.command == ExecuteCommand_1_1.Request.COMMAND_POWER_OFF:
+        if request.command == ExecuteCommand_1.Request.COMMAND_POWER_OFF:
             self._shutdown = True
-            return ExecuteCommand_1_1.Response(status=ExecuteCommand_1_1.Response.STATUS_SUCCESS)
-        if request.command == ExecuteCommand_1_1.Request.COMMAND_EMERGENCY_STOP:
+            return ExecuteCommand_1.Response(status=ExecuteCommand_1.Response.STATUS_SUCCESS)
+        if request.command == ExecuteCommand_1.Request.COMMAND_EMERGENCY_STOP:
             os.abort()
-        return ExecuteCommand_1_1.Response(status=ExecuteCommand_1_1.Response.STATUS_BAD_COMMAND)
+        return ExecuteCommand_1.Response(status=ExecuteCommand_1.Response.STATUS_BAD_COMMAND)
 
 
 _logger = logging.getLogger(__name__)

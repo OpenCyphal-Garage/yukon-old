@@ -49,7 +49,8 @@ coverage.xml
 .scannerwork
 
 # Compiled namespaces
-.*compiled
+.compiled/
+_compiled/
 /uavcan/
 /reg/
 /sirius_cyber_corp/

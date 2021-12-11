@@ -12,6 +12,7 @@ from pathlib import Path
 
 PACKAGE_NAME = "yukon"
 PROJECT_ROOT = Path(__file__).resolve().parent
+COMPILED_DIR = PROJECT_ROOT / PACKAGE_NAME / "_compiled"
 
 # We can't use the normal toml parser because can't rely on non-trivial external dependencies in setup.py.
 with open(PROJECT_ROOT / "pyproject.toml", "r") as f:
@@ -31,7 +32,7 @@ class BuildPy(distutils.command.build_py.build_py):
                     PROJECT_ROOT / "deps" / "public_regulated_data_types" / "uavcan",
                     PROJECT_ROOT / "dsdl" / "org_uavcan_yukon",
                 ],
-                Path(self.build_lib, PACKAGE_NAME, ".compiled").resolve(),
+                COMPILED_DIR,
             )
         super().run()
 
@@ -43,8 +44,8 @@ if __name__ == "__main__":
         version=version,
         description=description,
         cmdclass={"build_py": BuildPy},
-        packages=setuptools.find_packages(str(PROJECT_ROOT), include=("yukon", "yukon.*")),
-        package_data={"yukon": ["*"]},
+        packages=setuptools.find_namespace_packages(str(PROJECT_ROOT), include=("yukon", "yukon.*")),
+        package_data={"yukon": ["*", ".compiled/*"]},
         include_package_data=True,
         zip_safe=False,
     )

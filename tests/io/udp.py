@@ -4,6 +4,7 @@
 
 import sys
 import time
+from pathlib import Path
 import asyncio.subprocess
 import contextlib
 import pytest
@@ -20,13 +21,13 @@ from pyuavcan.application import make_node, make_registry, NodeInfo
 from pyuavcan.application.register import ValueProxy, Natural16
 from pyuavcan.application.node_tracker import NodeTracker
 from pyuavcan.transport.udp import UDPTransport
-from uavcan.metatransport.ethernet import EtherType_0_1 as EtherType
-from org_uavcan_yukon.io.frame import Capture_0_1 as DSDLCapture
-from org_uavcan_yukon.io.iface import OperationalInfo_0_1 as OperationalInfo
-from org_uavcan_yukon.io.transfer import Spoof_0_1 as DSDLSpoof, SubjectSession_0_1 as DSDLSubjectSession
+from uavcan.metatransport.ethernet import EtherType_0 as EtherType
+import org_uavcan_yukon
+from org_uavcan_yukon.io.frame import Capture_0 as DSDLCapture
+from org_uavcan_yukon.io.iface import OperationalInfo_0 as OperationalInfo
+from org_uavcan_yukon.io.transfer import Spoof_0 as DSDLSpoof, SubjectSession_0 as DSDLSubjectSession
 import uavcan.node
 import uavcan.node.port
-from tests import COMPILED_DIR
 
 
 pytestmark = pytest.mark.asyncio
@@ -47,7 +48,7 @@ async def __test_basic() -> None:
             "YUKON__DCS__HEAD_NODE_ID": "0",
             "YUKON__IO__UDP__LOCAL_IP_ADDRESS": "127.66.0.0",
             "YUKON__IO__SERVICE_TRANSFER_MULTIPLIER": "2",
-            "PYTHONPATH": COMPILED_DIR,
+            "PYTHONPATH": str(Path(org_uavcan_yukon.__file__).resolve().parent.parent),
         },
     )
     try:
@@ -64,7 +65,7 @@ async def __test_basic() -> None:
             await asyncio.sleep(3.0)
             assert len(trk.registry) == 1
             entry = trk.registry[2]
-            assert entry.heartbeat.health.value == uavcan.node.Health_1_0.NOMINAL
+            assert entry.heartbeat.health.value == uavcan.node.Health_1.NOMINAL
             assert entry.info.name.tobytes().decode() == "org.uavcan.yukon.io.udp"
 
             sub_operational_info = head.make_subscriber(OperationalInfo, "operational_info")
@@ -105,7 +106,7 @@ async def __test_basic() -> None:
                         transfer_id=9876543210,
                         fragmented_payload=[memoryview(b"qwerty")],
                     ),
-                    monotonic_deadline=tr.loop.time() + 1.0,
+                    monotonic_deadline=asyncio.get_running_loop().time() + 1.0,
                 )
 
                 # The worker should catch the frame we just sent.
@@ -139,7 +140,7 @@ async def __test_basic() -> None:
                         transfer_id=1234567890,
                         fragmented_payload=[memoryview(b"asdf0123456789")],
                     ),
-                    monotonic_deadline=tr.loop.time() + 1.0,
+                    monotonic_deadline=asyncio.get_running_loop().time() + 1.0,
                 )
 
                 # The worker should catch the frame we just sent.
@@ -176,8 +177,8 @@ async def __test_basic() -> None:
                 spoof.priority.value = spoof.priority.FAST
                 spoof.payload.payload = "payload"
                 spoof.session.subject = DSDLSubjectSession(
-                    subject_id=uavcan.node.port.SubjectID_1_0(7777),
-                    source=[uavcan.node.ID_1_0(3210)],
+                    subject_id=uavcan.node.port.SubjectID_1(7777),
+                    source=[uavcan.node.ID_1(3210)],
                 )
                 assert await pub_spoof.publish(spoof)
 

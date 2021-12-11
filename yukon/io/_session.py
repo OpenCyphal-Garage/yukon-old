@@ -3,13 +3,13 @@
 # Author: Pavel Kirienko <pavel@uavcan.org>
 
 from pyuavcan.transport import AlienSessionSpecifier
-from org_uavcan_yukon.io.transfer import Session_0_1 as Session
+from org_uavcan_yukon.io.transfer import Session_0 as Session
 
 
 def session_to_dsdl(ses: AlienSessionSpecifier) -> Session:
     import uavcan.node.port
-    from org_uavcan_yukon.io.transfer import SubjectSession_0_1 as SubjectSession
-    from org_uavcan_yukon.io.transfer import ServiceSession_0_1 as ServiceSession
+    from org_uavcan_yukon.io.transfer import SubjectSession_0 as SubjectSession
+    from org_uavcan_yukon.io.transfer import ServiceSession_0 as ServiceSession
     from pyuavcan.transport import MessageDataSpecifier, ServiceDataSpecifier
 
     if isinstance(ses.data_specifier, MessageDataSpecifier):
@@ -17,8 +17,8 @@ def session_to_dsdl(ses: AlienSessionSpecifier) -> Session:
             raise ValueError(f"Session not representable: {ses}")  # pragma: no cover
         return Session(
             subject=SubjectSession(
-                subject_id=uavcan.node.port.SubjectID_1_0(ses.data_specifier.subject_id),
-                source=[uavcan.node.ID_1_0(ses.source_node_id)] if ses.source_node_id is not None else [],
+                subject_id=uavcan.node.port.SubjectID_1(ses.data_specifier.subject_id),
+                source=[uavcan.node.ID_1(ses.source_node_id)] if ses.source_node_id is not None else [],
             )
         )
 
@@ -27,9 +27,9 @@ def session_to_dsdl(ses: AlienSessionSpecifier) -> Session:
             raise ValueError(f"Session not representable: {ses}")
         return Session(
             service=ServiceSession(
-                service_id=uavcan.node.port.ServiceID_1_0(ses.data_specifier.service_id),
-                source=uavcan.node.ID_1_0(ses.source_node_id),
-                destination=uavcan.node.ID_1_0(ses.destination_node_id),
+                service_id=uavcan.node.port.ServiceID_1(ses.data_specifier.service_id),
+                source=uavcan.node.ID_1(ses.source_node_id),
+                destination=uavcan.node.ID_1(ses.destination_node_id),
                 is_request=ses.data_specifier.role == ServiceDataSpecifier.Role.REQUEST,
             )
         )

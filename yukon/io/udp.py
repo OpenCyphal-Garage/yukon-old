@@ -14,10 +14,10 @@ from yukon.io import timestamp_to_dsdl, session_from_dsdl
 import pyuavcan
 from pyuavcan.application.register import Natural8, Natural16
 from pyuavcan.transport.udp import UDPTransport
-from uavcan.metatransport.ethernet import EtherType_0_1 as EtherType, Frame_0_1 as EtherFrame
-from org_uavcan_yukon.io.frame import Capture_0_1 as DSDLCapture, Frame_0_1 as DSDLFrame
-from org_uavcan_yukon.io.iface import OperationalInfo_0_1 as OperationalInfo
-from org_uavcan_yukon.io.transfer import Spoof_0_1 as DSDLSpoof
+from uavcan.metatransport.ethernet import EtherType_0 as EtherType, Frame_0 as EtherFrame
+from org_uavcan_yukon.io.frame import Capture_0 as DSDLCapture, Frame_0 as DSDLFrame
+from org_uavcan_yukon.io.iface import OperationalInfo_0 as OperationalInfo
+from org_uavcan_yukon.io.transfer import Spoof_0 as DSDLSpoof
 
 
 async def run(local_node: yukon.dcs.Node, tran: UDPTransport) -> int:
@@ -110,13 +110,15 @@ def begin_capture(
                 op_info.media_capture_failures += 1
                 _logger.exception("Capture handler exception: %s", ex)
 
+    loop = asyncio.get_running_loop()
+
     def enqueue_threadsafe(cap: pyuavcan.transport.Capture) -> None:  # This is invoked from the worker thread.
-        tran.loop.call_soon_threadsafe(que.put_nowait, cap)
+        loop.call_soon_threadsafe(que.put_nowait, cap)
 
     assert 0 == op_info.media_frames
     assert 0 == op_info.media_bytes
     assert 0 == op_info.media_capture_failures
-    tran.loop.create_task(task(), name="capture_forwarder")
+    asyncio.create_task(task(), name="capture_forwarder")
     tran.begin_capture(enqueue_threadsafe)
 
 
