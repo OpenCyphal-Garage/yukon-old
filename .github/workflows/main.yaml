@@ -1,0 +1,30 @@
+name: Main
+on: push
+
+jobs:
+  nox:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.10'
+
+    - name: Configure
+      run: |
+        export extras_pkg="linux-*-extra-$(uname -r)"
+        sudo apt-get -qq install -qqy $extras_pkg
+        python3.10 -m pip -q install nox
+
+    - run: python3.10 -m nox --forcecolor --non-interactive --error-on-missing-interpreters
+
+    - name: Upload diagnostics
+      uses: actions/upload-artifact@v2
+      if: always()
+      with:
+        name: diagnostics
+        path: '**/*.log'
+        retention-days: 30

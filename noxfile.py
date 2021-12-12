@@ -49,6 +49,7 @@ def test(session):
         # Enable packet capture for the Python executable. This is necessary for testing the UDP capture capability.
         # It can't be done from within the test suite because it has to be done before the interpreter is started.
         session.run("sudo", "setcap", "cap_net_raw+eip", str(Path(session.bin, "python").resolve()), external=True)
+    # Change UAVCAN__UDP__IFACE to use a different transport for the DCS (e.g., UAVCAN/serial over TCP with a broker).
     env = {
         "YUKON__DCS__HEAD_NODE_ID": "0",
         "UAVCAN__UDP__IFACE": "127.42.0.0",
