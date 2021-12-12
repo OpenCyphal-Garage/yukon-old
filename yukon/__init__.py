@@ -4,7 +4,7 @@
 
 import os
 import sys
-import importlib.metadata
+from importlib.resources import read_text as _read_text
 import coloredlogs
 from pathlib import Path
 
@@ -13,13 +13,10 @@ if sys.version_info < (3, 10):
     raise RuntimeError("A newer version of Python is required")
 
 
-# pyproject.toml is the central place where all project metadata is kept. Only there.
-# The package cannot be used from sources -- it has to be built beforehand.
-META = importlib.metadata.metadata("yukon")
-__version__ = META["version"]
+__version__ = _read_text(__name__, "VERSION", encoding="utf8").strip()
 __version_info__ = tuple(map(int, __version__.split(".")[:3]))
-__author__ = META["author"]
-__email__ = META["author-email"]
+__author__ = "UAVCAN Consortium"
+__email__ = "consortium@uavcan.org"
 __copyright__ = f"Copyright (c) 2021 {__author__} <{__email__}>"
 __license__ = "MIT"
 

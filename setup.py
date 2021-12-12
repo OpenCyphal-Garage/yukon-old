@@ -4,7 +4,6 @@
 # Author: Pavel Kirienko <pavel@uavcan.org>
 # type: ignore
 
-import re
 import setuptools
 import distutils.command.build_py
 from pathlib import Path
@@ -13,12 +12,6 @@ from pathlib import Path
 PACKAGE_NAME = "yukon"
 PROJECT_ROOT = Path(__file__).resolve().parent
 COMPILED_DIR = PROJECT_ROOT / PACKAGE_NAME / "_compiled"
-
-# We can't use the normal toml parser because can't rely on non-trivial external dependencies in setup.py.
-with open(PROJECT_ROOT / "pyproject.toml", "r") as f:
-    pyp = f.read()
-    version = re.findall(r"""version\s*=\s*['"]([\w\d._]+)['"]""", pyp)[0].strip()
-    description = re.findall(r'description\s*=\s*"([^\r\n]+)"', pyp)[0].strip()
 
 
 # noinspection PyUnresolvedReferences
@@ -40,12 +33,5 @@ class BuildPy(distutils.command.build_py.build_py):
 if __name__ == "__main__":
     # noinspection PyTypeChecker
     setuptools.setup(
-        name=PACKAGE_NAME,
-        version=version,
-        description=description,
         cmdclass={"build_py": BuildPy},
-        packages=setuptools.find_namespace_packages(str(PROJECT_ROOT), include=("yukon", "yukon.*")),
-        package_data={"yukon": ["*", ".compiled/*"]},
-        include_package_data=True,
-        zip_safe=False,
     )

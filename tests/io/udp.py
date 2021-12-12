@@ -2,6 +2,7 @@
 # This software is distributed under the terms of the MIT License.
 # Author: Pavel Kirienko <pavel@uavcan.org>
 
+import os
 import sys
 import time
 from pathlib import Path
@@ -34,18 +35,20 @@ pytestmark = pytest.mark.asyncio
 
 
 async def __test_basic() -> None:
+    asyncio.get_running_loop().slow_callback_duration = 1.0
+    head_node_id = int(os.environ["YUKON__DCS__HEAD_NODE_ID"])
+    env = os.environ
     proc = await asyncio.subprocess.create_subprocess_exec(
         sys.executable,
         "-m",
         "yukon.io.udp",
         stdin=asyncio.subprocess.DEVNULL,
-        env={
+        env=env
+        | {
             "UAVCAN__NODE__ID": "2",
-            "UAVCAN__UDP__IFACE": "127.42.0.0",
             "UAVCAN__PUB__OPERATIONAL_INFO__ID": "1",
             "UAVCAN__PUB__CAPTURE__ID": "2",
             "UAVCAN__SUB__SPOOF__ID": "3",
-            "YUKON__DCS__HEAD_NODE_ID": "0",
             "YUKON__IO__UDP__LOCAL_IP_ADDRESS": "127.66.0.0",
             "YUKON__IO__SERVICE_TRANSFER_MULTIPLIER": "2",
             "PYTHONPATH": str(Path(org_uavcan_yukon.__file__).resolve().parent.parent),
@@ -53,7 +56,7 @@ async def __test_basic() -> None:
     )
     try:
         reg = make_registry()
-        reg.setdefault("uavcan.node.id", ValueProxy(Natural16([0])))
+        reg.setdefault("uavcan.node.id", ValueProxy(Natural16([head_node_id])))
         reg.setdefault("uavcan.udp.iface", "127.42.0.0")
         reg.setdefault("uavcan.sub.operational_info.id", ValueProxy(Natural16([1])))
         reg.setdefault("uavcan.sub.capture.id", ValueProxy(Natural16([2])))

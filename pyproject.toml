@@ -1,66 +1,4 @@
-[project]
-name = "yukon"
-authors = [
-    { name = "UAVCAN Consortium" },
-    { email = "consortium@uavcan.org" },
-]
-version     = "0.0.1"
-description = "Rich IDE for developing and maintaining UAVCAN-powered vehicular computing systems."
-readme      = "README.md"
-license     = "MIT"
-keywords = [
-    "uavcan",
-    "data-bus",
-    "ethernet",
-    "can-bus",
-    "vehicular",
-    "onboard-networking",
-    "avionics",
-    "communication-protocol",
-    "utility",
-    "gui",
-    "ide",
-]
-classifiers = [
-    "Intended Audience :: Developers",
-    "Intended Audience :: Customer Service",
-    "Intended Audience :: Science/Research",
-    "Topic :: Scientific/Engineering",
-    "Topic :: Scientific/Engineering :: Interface Engine/Protocol Translator",
-    "Topic :: Scientific/Engineering :: Visualization",
-    "Topic :: Software Development :: Object Brokering",
-    "Topic :: System :: Distributed Computing",
-    "Topic :: System :: Networking",
-    "Topic :: System :: Monitoring",
-    "Topic :: Utilities",
-    "Topic :: Education",
-    "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python",
-    "Operating System :: POSIX :: Linux",
-    "Operating System :: Microsoft :: Windows",
-    "Operating System :: MacOS",
-]
-dependencies = [
-    "pyuavcan[transport_udp,transport_serial,transport_can_pythoncan] ~= 1.3",
-    "msgpack     ~= 1.0",
-    "coloredlogs ~= 15.0",
-]
-requires-python = ">=3.10"
-
-[project.urls]
-homepage    = "https://uavcan.org"
-repository  = "https://github.com/UAVCAN/yukon"
-
-[project.gui-scripts]
-yukon = "yukon:main"
-
-[build-system]  # https://setuptools.pypa.io/en/latest/build_meta.html
-requires = [
-    "setuptools",
-    "wheel",
-    "pyuavcan",  # PyUAVCAN is needed for its Python DSDL compiler.
-]
-build-backend = "setuptools.build_meta"
+# See setup.cfg for package metadata.
 
 # -------------------------------------------------- MYPY --------------------------------------------------
 [tool.mypy]
@@ -76,7 +14,7 @@ strict_equality         = true
 implicit_reexport       = false
 follow_imports          = "silent"  # We don't want MyPy to check compiled DSDLs and their dependencies.
 mypy_path = [
-    "build/lib/yukon/.compiled"
+    "yukon/_compiled"
 ]
 
 [[tool.mypy.overrides]]
@@ -92,10 +30,7 @@ ignore_missing_imports = true
 
 # -------------------------------------------------- PYTEST --------------------------------------------------
 [tool.pytest.ini_options]
-norecursedirs = [
-    "yukon/dsdl_src",
-    "tests/deps",
-]
+norecursedirs = []
 addopts = "--doctest-modules --color=yes --verbose"
 testpaths = [
     "yukon",
