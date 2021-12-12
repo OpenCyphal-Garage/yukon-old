@@ -73,5 +73,5 @@ def static_analysis(session):
 
 def setup(session):
     session.install("pyuavcan")  # Needed for DSDL transcompilation: https://github.com/UAVCAN/pyuavcan/issues/110
-    session.run("python", str(ROOT_DIR / "setup.py"), "build")
+    session.run("python", str(ROOT_DIR / "setup.py"), "-q", "build")
     session.install(f"-e{ROOT_DIR}")

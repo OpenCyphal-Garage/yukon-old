@@ -17,9 +17,9 @@ jobs:
       run: |
         export extras_pkg="linux-*-extra-$(uname -r)"
         sudo apt-get -qq install -qqy $extras_pkg
-        python3.10 -m pip -q install nox
+        python -m pip -q install nox
 
-    - run: python3.10 -m nox --forcecolor --non-interactive --error-on-missing-interpreters
+    - run: python -m nox --forcecolor --non-interactive --error-on-missing-interpreters
 
     - name: Upload diagnostics
       uses: actions/upload-artifact@v2
