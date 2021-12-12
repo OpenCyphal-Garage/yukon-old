@@ -4,11 +4,7 @@
 
 import os
 import sys
-import typing
 from pathlib import Path
-
-
-AnyPath = typing.Union[str, Path]
 
 
 class AppDirs:
@@ -43,7 +39,7 @@ class AppDirs:
 APP_DIRS = AppDirs()
 
 
-def _prepare(directory: AnyPath) -> Path:
+def _prepare(directory: str | Path) -> Path:
     directory = Path(directory).resolve()
     directory.mkdir(parents=True, exist_ok=True)
     return directory

@@ -14,8 +14,9 @@ strict_equality         = true
 implicit_reexport       = false
 follow_imports          = "silent"  # We don't want MyPy to check compiled DSDLs and their dependencies.
 mypy_path = [
-    "yukon/_compiled"
+    "yukon/_compiled",
 ]
+exclude = "(yukon/_compiled/.*)"
 
 [[tool.mypy.overrides]]
 module = [
@@ -25,6 +26,7 @@ module = [
     "nunavut",
     "nunavut.*",
     "pytest",
+    "coloredlogs",
 ]
 ignore_missing_imports = true
 
@@ -52,7 +54,7 @@ filterwarnings = [
 ]
 
 # -------------------------------------------------- PYLINT --------------------------------------------------
-[pylint.MASTER]
+[tool.pylint.MASTER]
 fail-under = 9.0
 
 [tool.pylint."MESSAGES CONTROL"]

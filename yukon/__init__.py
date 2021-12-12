@@ -1,12 +1,13 @@
 # Copyright (C) 2021  UAVCAN Consortium  <uavcan.org>
 # This software is distributed under the terms of the MIT License.
 # Author: Pavel Kirienko <pavel@uavcan.org>
+# pylint: disable=wrong-import-position
 
 import os
 import sys
+from pathlib import Path
 from importlib.resources import read_text as _read_text
 import coloredlogs
-from pathlib import Path
 
 
 if sys.version_info < (3, 10):

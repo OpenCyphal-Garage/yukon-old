@@ -118,6 +118,7 @@ async def __test_basic() -> None:
                 print(cap)
                 assert abs(cap.timestamp.microsecond * 1e-6 - time.time()) < 1.0
                 assert 0 == cap.sequence_number
+                assert cap.frame.udp
                 assert cap.frame.udp.ethertype.value == EtherType.IP_V4
                 assert b"qwerty" in cap.frame.udp.payload.tobytes()
                 assert 9876543210 .to_bytes(7, "little") in cap.frame.udp.payload.tobytes()
@@ -152,6 +153,7 @@ async def __test_basic() -> None:
                 print(cap)
                 assert abs(cap.timestamp.microsecond * 1e-6 - time.time()) < 1.0
                 assert 1 == cap.sequence_number
+                assert cap.frame.udp
                 assert cap.frame.udp.ethertype.value == EtherType.IP_V4
                 assert b"asdf0123456789" in cap.frame.udp.payload.tobytes()
                 assert 1234567890 .to_bytes(7, "little") in cap.frame.udp.payload.tobytes()
@@ -163,6 +165,7 @@ async def __test_basic() -> None:
                 opi, _ = await sub_operational_info.receive_for(2.0)
                 assert isinstance(opi, OperationalInfo)
                 assert 2 == opi.media_frames
+                assert cap.frame.udp
                 assert len(cap.frame.udp.payload) + old_media_bytes == opi.media_bytes
                 assert 0 == opi.media_capture_failures
                 assert 0 == opi.spoof_bytes
@@ -178,7 +181,7 @@ async def __test_basic() -> None:
                 spoof.timeout.second = 1.0
                 spoof.transfer_id = 1234567890
                 spoof.priority.value = spoof.priority.FAST
-                spoof.payload.payload = "payload"
+                spoof.payload.payload = "payload"  # type: ignore
                 spoof.session.subject = DSDLSubjectSession(
                     subject_id=uavcan.node.port.SubjectID_1(7777),
                     source=[uavcan.node.ID_1(3210)],

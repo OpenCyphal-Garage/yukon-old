@@ -6,11 +6,10 @@ from __future__ import annotations
 import os
 import time
 from typing import TypeVar, Type
-import asyncio
 import logging
 import pyuavcan
 from pyuavcan.presentation import Publisher, Subscriber, Client, Server
-from pyuavcan.application import make_node, register, NodeInfo
+from pyuavcan.application import register, NodeInfo
 from pyuavcan.application.heartbeat_publisher import Heartbeat, Health
 from uavcan.node import ExecuteCommand_1, Version_1
 
@@ -39,12 +38,6 @@ class Node:
         self._node.make_subscriber(Heartbeat).receive_in_background(self._on_heartbeat)
         self._node.get_server(ExecuteCommand_1).serve_in_background(self._on_execute_command)
         self._node.start()
-
-    @property
-    def loop(self) -> asyncio.AbstractEventLoop:
-        out = self._node.loop
-        assert isinstance(out, asyncio.AbstractEventLoop)
-        return out
 
     @property
     def shutdown(self) -> bool:
