@@ -1,0 +1,7 @@
+@union
+
+Button.0.1  button
+Label.0.1   label
+Text.0.1    text
+
+@extent 1024 * 128 * 8

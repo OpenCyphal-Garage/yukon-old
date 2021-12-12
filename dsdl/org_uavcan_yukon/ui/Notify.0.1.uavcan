@@ -1,0 +1,14 @@
+Tag.0.1 window
+Tag.0.1 widget
+
+uavcan.primitive.String.1.0 payload
+
+@extent 1024 * 128 * 8
+
+---
+
+bool accepted
+# The caller shall rollback the change, if applicable, if this value is not set or the call has timed out.
+# This is necessary to ensure that the view state does not diverge from the actual state of the model.
+
+@sealed

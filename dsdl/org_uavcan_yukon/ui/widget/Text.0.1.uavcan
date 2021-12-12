@@ -1,0 +1,3 @@
+uavcan.primitive.String.1.0 default
+
+@extent 1024 * 8

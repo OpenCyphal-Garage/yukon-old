@@ -1,0 +1,7 @@
+uint8 value
+
+uint8 DEFAULT = 0
+uint8 CAUTION = 1
+uint8 WARNING = 2
+
+@extent 128 * 8

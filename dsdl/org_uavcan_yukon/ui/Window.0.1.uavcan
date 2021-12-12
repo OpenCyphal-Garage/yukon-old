@@ -1,0 +1,4 @@
+uint8 MAX_WIDGETS = 255
+org_uavcan_yukon.ui.TaggedWidget.0.1[<=MAX_WIDGETS] widgets
+
+@sealed

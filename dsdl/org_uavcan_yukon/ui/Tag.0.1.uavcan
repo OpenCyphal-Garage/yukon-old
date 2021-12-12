@@ -1,0 +1,5 @@
+# This ID is used to route UI events to the appropriate handlers.
+
+uint32 value
+
+@sealed
