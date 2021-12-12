@@ -27,6 +27,7 @@ module = [
     "nunavut.*",
     "pytest",
     "coloredlogs",
+    "dearpygui.*",
 ]
 ignore_missing_imports = true
 
@@ -72,6 +73,7 @@ disable = [
     "too-many-statements",
     "too-many-instance-attributes",
     "eval-used",
+    "cyclic-import",
 ]
 
 [tool.pylint.REPORTS]

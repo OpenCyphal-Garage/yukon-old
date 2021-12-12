@@ -72,7 +72,7 @@ class Node:
 
     def _check_deadman_switch(self) -> None:
         if (time.monotonic() - self._last_head_heartbeat_at) > Heartbeat.OFFLINE_TIMEOUT:
-            _logger.error("Head node is dead, exiting automatically")
+            _logger.error("Head node is dead, shutting down automatically")
             self._node.heartbeat_publisher.health = Health.ADVISORY
             self._shutdown = True
 

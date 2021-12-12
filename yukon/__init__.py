@@ -22,7 +22,7 @@ __copyright__ = f"Copyright (c) 2021 {__author__} <{__email__}>"
 __license__ = "MIT"
 
 
-coloredlogs.install(level=os.getenv("YUKON_LOGLEVEL", "WARNING"))
+coloredlogs.install(level=os.getenv("YUKON_LOGLEVEL", "INFO"))
 
 
 PACKAGE_ROOT_DIR = Path(__file__).resolve().parent
@@ -34,3 +34,5 @@ import uavcan
 import org_uavcan_yukon
 
 sys.path.remove(str(COMPILED_DSDL_DIR))
+
+from yukon.head import main as main
